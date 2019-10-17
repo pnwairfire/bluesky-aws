@@ -1,0 +1,76 @@
+{
+    "fires": [
+        {
+            "type": "rx",
+            "activity": [
+                {
+                    "active_areas": [
+                        {
+                            "start": "2019-06-10T17:00:00",
+                            "end": "2019-056-11T17:00:00",
+                            "utc_offset": "-07:00",
+                            "ecoregion": "western",
+                            "country": "USA",
+                            "state": "CA",
+                            "specified_points": [
+                                {
+                                    "lng": -119.7615805,
+                                    "lat": 37.909644,
+                                    "area": 10000
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "rx",
+            "activity": [
+                {
+                    "active_areas": [
+                        {
+                            "start": "2019-06-10T17:00:00",
+                            "end": "2019-056-11T17:00:00",
+                            "utc_offset": "-07:00",
+                            "ecoregion": "western",
+                            "country": "USA",
+                            "state": "CA",
+                            "specified_points": [
+                                {
+                                    "lng": -119.7590056,
+                                    "lat": 37.9337479,
+                                    "area": 10000
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "rx",
+            "activity": [
+                {
+                    "active_areas": [
+                        {
+                            "start": "2019-06-10T17:00:00",
+                            "end": "2019-056-11T17:00:00",
+                            "utc_offset": "-07:00",
+                            "ecoregion": "western",
+                            "country": "USA",
+                            "state": "CA",
+                            "specified_points": [
+                                {
+                                    "lng": -119.6784106,
+                                    "lat": 37.9645434,
+                                    "area": 10000
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

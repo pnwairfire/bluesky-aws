@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+
+import argparse
+import asyncio
+import json
+import logging
+import os
+import sys
+
+from afscripting import args as scripting_args
+from afscripting.utils import exit_with_msg
+
+try:
+    import blueskyaws
+except:
+    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '../')))
+    import blueskyaws
+
+EXAMPLES_STRING = """
+Examples:
+
+    {script} --log-level INFO -i ./dev/data/3-fires.json \\
+        -c ./dev/config/simple-config.json
+
+ """.format(script=sys.argv[0])
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', help="input file", required=True)
+    parser.add_argument('--log-level', default="INFO", help="Log level")
+    parser.add_argument('-c', '--config-file', dest='config_file_options',
+        help='config file containing JSON formatted overrides for default config values',
+        action=scripting_args.ConfigFileAction)
+    parser.add_argument("-C", '--config-option', dest='config_options',
+        help="Config option override, formatted like 'section.*.key=stringvalue'",
+        action=scripting_args.ConfigOptionAction)
+    parser.add_argument("-B", '--boolean-config-option', dest='config_options',
+        help="Config option override, formatted like 'section.*.key=boolvalue'",
+        action=scripting_args.BooleanConfigOptionAction)
+    parser.add_argument("-I", '--integer-config-option', dest='config_options',
+        help="Config option override, formatted like 'section.*.key=intvalue'",
+        action=scripting_args.IntegerConfigOptionAction)
+    parser.add_argument("-F", '--float-config-option', dest='config_options',
+        help="Config option override, formatted like 'section.*.key=floatvalue'",
+        action=scripting_args.FloatConfigOptionAction)
+    parser.add_argument("-J", '--json-config-option', dest='config_options',
+        help="Config option override supporting any json formatted value, formatted like 'section.*.key=jsonvalue'",
+        action=scripting_args.JSONConfigOptionAction)
+
+    parser.epilog = EXAMPLES_STRING
+    parser.formatter_class = argparse.RawTextHelpFormatter
+
+    args = parser.parse_args()
+
+    logging.basicConfig(level=getattr(logging, args.log_level),
+        format='%(asctime)s %(levelname)s: %(message)s')
+
+    logging.info(" Args:")
+    for k,v in args.__dict__.items():
+        logging.info("   %s: %s", k, v)
+
+    return args
+
+def load(args):
+    with open(args.input, 'r') as f:
+        return json.loads(f.read())
+
+def get_config(args):
+    config = {}
+    if args.config_file_options:
+        config.update(args.config_file_options)
+    if args.config_options:
+        config.update(args.config_options)
+
+    return config
+
+async def run(input_data, config):
+    runner = blueskyaws.DispersionRunner(**config)
+    for fire in input_data['fires']:
+        await runner.run(fire)
+
+async def main():
+    args = parse_args()
+    input_data = load(args)
+    config = get_config(args)
+    await run(input_data, config)
+
+if __name__ == "__main__":
+    asyncio.run(main())
