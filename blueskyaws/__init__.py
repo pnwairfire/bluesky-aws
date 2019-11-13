@@ -4,7 +4,7 @@ import boto3
 
 from .config import Config
 
-class DispersionRunner(object):
+class BlueskyRunner(object):
 
     def __init__(self, **config):
         self._config = Config(config)

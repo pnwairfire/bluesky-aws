@@ -67,7 +67,7 @@ class Config(object):
     REQUIRED_CONFIG_KEYS = (
         'ec2_image_name', 'ec2_instance_type', 's3_bucket_name', "modules"
     )
-    MISSING_CONFIG_FIELD_MSG = "DispersionRunner config must define {}"
+    MISSING_CONFIG_FIELD_MSG = "BlueskyRunner config must define {}"
 
     def _check(self):
         for k in (self.REQUIRED_CONFIG_KEYS):

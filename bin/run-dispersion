@@ -74,7 +74,7 @@ def get_config(args):
     return config
 
 async def run(input_data, config):
-    runner = blueskyaws.DispersionRunner(**config)
+    runner = blueskyaws.BlueskyRunner(**config)
     for fire in input_data['fires']:
         await runner.run(fire)
 
