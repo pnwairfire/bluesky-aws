@@ -1,10 +1,12 @@
 # Development
 
-## Building Docker Image and Running
+## Building Docker Image
 
 Build the docker image:
 
     docker build -t bluesky-aws .
+
+## Run
 
 Copy aws credentials into .aws/ in the repo root dir
 and run
@@ -15,6 +17,10 @@ and run
         -i ./dev/data/3-fires.json \
         -c ./dev/config/simple-config.json
 
+## iPython
+
+    docker run --rm -ti -v $PWD/:/bluesky-aws/ -v $PWD/.aws/:/root/.aws/ \
+        -v $HOME/.ssh:/root/.ssh bluesky-aws ipython
 
 ## Unit Tests
 
