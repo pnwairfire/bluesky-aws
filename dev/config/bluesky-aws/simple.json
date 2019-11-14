@@ -1,0 +1,29 @@
+{
+    "config": {
+        "aws": {
+            "iam_instance_profile": {
+                "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
+                "Name": "bluesky-iam-role"
+            },
+            "ec2": {
+                "image_id": "ami-123abc",
+                "instance_type":"t2.nano",
+                "security_groups": ["ssh"],
+                "efs_volumes": [
+                    ["fs-abc123.efs.us-west-2.amazonaws.com:/", "/Met/"],
+                ],
+            },
+            "s3": {
+                "bucket_name": "bluesky-aws",
+            }
+        },
+        "bluesky": {
+            "modules": [
+                "fuelbeds",
+                "consumption",
+                "emissions"
+            ],
+            "config_file": null
+        }
+    }
+}

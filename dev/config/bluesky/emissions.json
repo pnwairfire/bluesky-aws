@@ -1,0 +1,7 @@
+{
+    "config": {
+        "emissions": {
+            "species": ["PM2.5"]
+        }
+    }
+}
