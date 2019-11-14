@@ -1,6 +1,6 @@
 {
     "config": {
-        "ec2_image_name": "bluesky-v4.1.27",
+        "ec2_image_id": "ami-123abc",
         "ec2_instance_type":"t2.nano",
         "s3_bucket_name": "bluesky-aws",
         "modules": [

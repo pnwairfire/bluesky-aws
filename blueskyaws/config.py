@@ -13,7 +13,7 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
-        "ec2_image_name": None,
+        "ec2_image_id": None,
         "ec2_instance_type": None,
         "s3_bucket_name": None,
         "modules": None,
@@ -65,7 +65,7 @@ class Config(object):
         _(self._config, user_config)
 
     REQUIRED_CONFIG_KEYS = (
-        'ec2_image_name', 'ec2_instance_type', 's3_bucket_name', "modules"
+        'ec2_image_id', 'ec2_instance_type', 's3_bucket_name', "modules"
     )
     MISSING_CONFIG_FIELD_MSG = "BlueskyRunner config must define {}"
 

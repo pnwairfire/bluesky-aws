@@ -79,11 +79,11 @@ class TestConfig(object):
     def test_invalid_nesting(self):
         with raises(InvalidConfigurationError) as e_info:
             Config({
-                # ec2_image_name should *not* be a dict
-                "ec2_image_name": {'s': 13}
+                # ec2_image_id should *not* be a dict
+                "ec2_image_id": {'s': 13}
             })
         assert e_info.value.args[0] == Config.INVALID_CONFIG_FIELD_MSG.format(
-            'ec2_image_name')
+            'ec2_image_id')
 
         with raises(InvalidConfigurationError) as e_info:
             Config({
@@ -99,18 +99,18 @@ class TestConfig(object):
         with raises(MissingConfigurationError) as e_info:
             Config({})
         assert e_info.value.args[0] == Config.MISSING_CONFIG_FIELD_MSG.format(
-            'ec2_image_name')
+            'ec2_image_id')
 
     def test_user_config_missing_some_required(self):
         with raises(MissingConfigurationError) as e_info:
-            Config({'ec2_image_name': 'sdf'})
+            Config({'ec2_image_id': 'sdf'})
         assert e_info.value.args[0] == Config.MISSING_CONFIG_FIELD_MSG.format(
             'ec2_instance_type')
 
     def test_user_config_has_undefined_required(self):
         with raises(MissingConfigurationError) as e_info:
             Config({
-                'ec2_image_name': 'sdf',
+                'ec2_image_id': 'sdf',
                 "ec2_instance_type": None,
                 "s3_bucket_name": 'sdf',
                 'modules': ['fuelbeds']
@@ -122,13 +122,13 @@ class TestConfig(object):
 
     def test_only_required(self):
         c = Config({
-            'ec2_image_name': 'sdf',
+            'ec2_image_id': 'sdf',
             "ec2_instance_type": 's',
             "s3_bucket_name": 'd',
             'modules': ['fuelbeds']
         })
         expected = {
-            'ec2_image_name': 'sdf',
+            'ec2_image_id': 'sdf',
             "ec2_instance_type": 's',
             "s3_bucket_name": 'd',
             'modules': ['fuelbeds'],
@@ -149,8 +149,8 @@ class TestConfig(object):
         }
         assert c._config == expected
 
-        assert c('ec2_image_name') == 'sdf'
-        assert c.get('ec2_image_name') == 'sdf'
+        assert c('ec2_image_id') == 'sdf'
+        assert c.get('ec2_image_id') == 'sdf'
 
         assert c('notifications', 'email') == expected['notifications']['email']
         assert c.get('notifications', 'email') == expected['notifications']['email']
@@ -160,7 +160,7 @@ class TestConfig(object):
 
     def test_required_and_optional(self):
         c = Config({
-            'ec2_image_name': 'sdf',
+            'ec2_image_id': 'sdf',
             "ec2_instance_type": 's',
             "s3_bucket_name": 'd',
             'modules': ['fuelbeds'],
@@ -173,7 +173,7 @@ class TestConfig(object):
             }
         })
         expected = {
-            'ec2_image_name': 'sdf',
+            'ec2_image_id': 'sdf',
             "ec2_instance_type": 's',
             "s3_bucket_name": 'd',
             'modules': ['fuelbeds'],
@@ -194,8 +194,8 @@ class TestConfig(object):
         }
         assert c._config == expected
 
-        assert c('ec2_image_name') == 'sdf'
-        assert c.get('ec2_image_name') == 'sdf'
+        assert c('ec2_image_id') == 'sdf'
+        assert c.get('ec2_image_id') == 'sdf'
 
         assert c('notifications', 'email') == expected['notifications']['email']
         assert c.get('notifications', 'email') == expected['notifications']['email']

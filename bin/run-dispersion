@@ -73,16 +73,11 @@ def get_config(args):
 
     return config
 
-async def run(input_data, config):
-    runner = blueskyaws.BlueskyRunner(**config)
-    for fire in input_data['fires']:
-        await runner.run(fire)
-
 async def main():
     args = parse_args()
     input_data = load(args)
     config = get_config(args)
-    await run(input_data, config)
+    await blueskyaws.run(input_data, config)
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -21,7 +21,11 @@ class BlueskyRunner(object):
         #   and/or something else.
 
     async def _launch(self):
-        pass
+        ec2.create_instances(
+            ImageId=self._config('ec2_image_id'),
+            InstanceType=self._config('ec2_instance_type'),
+            MinCount=1, MaxCount=1
+        )
 
     async def _run(self):
         pass
@@ -31,3 +35,9 @@ class BlueskyRunner(object):
 
     async def _terminate(self):
         pass
+
+
+async def run(input_data, config):
+    runner = BlueskyRunner(**config)
+    for fire in input_data['fires']:
+        await runner.run(fire)
