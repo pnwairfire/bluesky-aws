@@ -30,4 +30,11 @@ ENV PYTHONPATH="/bluesky-aws/:${PYTHONPATH}"
 COPY bin/ /bluesky-aws/bin/
 COPY blueskyaws/ /bluesky-aws/blueskyaws/
 
+ARG UNAME=blueskyaws
+ARG UID=0
+ARG GID=0
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+USER $UNAME
+
 CMD ec2-launch -h
