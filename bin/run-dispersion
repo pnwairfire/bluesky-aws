@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 
-import argparse
 import asyncio
 import json
 import logging
 import os
 import sys
 
-from afscripting import args as scripting_args
-from afscripting.utils import exit_with_msg
+import afscripting
 
 try:
     import blueskyaws
 except:
     sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '../')))
     import blueskyaws
+
+##
+## Args
+##
+
+REQUIRED_ARGS = [
+    {'short': '-i', 'long': '--input', 'help': "input file"}
+]
+
+OPTIONAL_ARGS = []
 
 EXAMPLES_STRING = """
 Examples:
@@ -23,33 +31,10 @@ Examples:
         -c ./dev/config/simple-config.json
 
  """.format(script=sys.argv[0])
+
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', help="input file", required=True)
-    parser.add_argument('--log-level', default="INFO", help="Log level")
-    parser.add_argument('-c', '--config-file', dest='config_file_options',
-        help='config file containing JSON formatted overrides for default config values',
-        action=scripting_args.ConfigFileAction)
-    parser.add_argument("-C", '--config-option', dest='config_options',
-        help="Config option override, formatted like 'section.*.key=stringvalue'",
-        action=scripting_args.ConfigOptionAction)
-    parser.add_argument("-B", '--boolean-config-option', dest='config_options',
-        help="Config option override, formatted like 'section.*.key=boolvalue'",
-        action=scripting_args.BooleanConfigOptionAction)
-    parser.add_argument("-I", '--integer-config-option', dest='config_options',
-        help="Config option override, formatted like 'section.*.key=intvalue'",
-        action=scripting_args.IntegerConfigOptionAction)
-    parser.add_argument("-F", '--float-config-option', dest='config_options',
-        help="Config option override, formatted like 'section.*.key=floatvalue'",
-        action=scripting_args.FloatConfigOptionAction)
-    parser.add_argument("-J", '--json-config-option', dest='config_options',
-        help="Config option override supporting any json formatted value, formatted like 'section.*.key=jsonvalue'",
-        action=scripting_args.JSONConfigOptionAction)
-
-    parser.epilog = EXAMPLES_STRING
-    parser.formatter_class = argparse.RawTextHelpFormatter
-
-    args = parser.parse_args()
+    _, args = afscripting.args.parse_args(REQUIRED_ARGS,
+        OPTIONAL_ARGS, epilog=EXAMPLES_STRING)
 
     logging.basicConfig(level=getattr(logging, args.log_level),
         format='%(asctime)s %(levelname)s: %(message)s')
