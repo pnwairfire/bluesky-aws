@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from afaws.ec2.launch import Ec2Launcher
 from afaws.ec2.initialization import InstanceInitializerSsh
@@ -20,19 +21,14 @@ class BlueskyRunner(object):
         for fire, instance in zip(fires, instances):
             await BlueskySingleFireRunner(fire, instnace).run()
 
-        logging.debug("Processing fire")
-        await self._run()
-        await self._publish()
         await self._terminate(instances)
         await self._notify()
-        # TODO: send notification; send email and/or post status to an API
-        #   and/or something else.
 
-    async def _launch(num_fires):
+    async def _launch(self, num_fires):
         # create config object specifically for afaws package
         afaws_config = AwsConfig({
             "iam_instance_profile": self._config('aws', 'iam_instance_profile'),
-            "default_efs_volumes": self._config('aws', 'ec2', 'default_efs_volumes')
+            "default_efs_volumes": self._config('aws', 'ec2', 'efs_volumes')
         })
         options = {
             'instance_type': self._config("aws", "ec2", "instance_type"),
@@ -44,7 +40,12 @@ class BlueskyRunner(object):
             self._config("aws", "ec2", "image_id"),
             afaws_config, **options)
 
-        return await launcher.launch(args.new_instance_names)
+        u = str(uuid.uuid4())[:8]
+        new_instance_names = [
+            'blueskyaws-{}-{}'.format(u, n) for n in range(num_fires)
+        ]
+
+        return await launcher.launch(new_instance_names)
 
     async def _initialize(self, instances):
         initializer = InstanceInitializerSsh(ssh_key, afaws_config)
@@ -56,10 +57,16 @@ class BlueskyRunner(object):
     async def _terminate(self, instances):
         pass
 
+    async def _notify(self):
+        # TODO: send notification; send email and/or post status to an API
+        #   and/or something else.
+        pass
+
 
 class BlueskySingleFireRunner(object):
 
     def __init__(self, fire, instance):
+        logging.debug("Processing fire")
         self._fires = fire
         self._instance = instance
 

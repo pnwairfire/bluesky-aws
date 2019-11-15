@@ -53,7 +53,7 @@ async def main():
     args = parse_args()
     input_data = load(args)
     config = get_config(args)
-    await blueskyaws.BlueskyRunner(config).run(input_data)
+    await blueskyaws.BlueskyRunner(**config).run(input_data)
 
 if __name__ == "__main__":
     asyncio.run(main())
