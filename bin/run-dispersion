@@ -39,13 +39,6 @@ def parse_args():
         OPTIONAL_ARGS, epilog=EXAMPLES_STRING,
         support_configuration_options_short_names=True)
 
-    logging.basicConfig(level=getattr(logging, args.log_level),
-        format='%(asctime)s %(levelname)s: %(message)s')
-
-    logging.info(" Args:")
-    for k,v in args.__dict__.items():
-        logging.info("   %s: %s", k, v)
-
     return args
 
 ##
