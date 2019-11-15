@@ -36,7 +36,8 @@ Examples:
 
 def parse_args():
     _, args = afscripting.args.parse_args(REQUIRED_ARGS,
-        OPTIONAL_ARGS, epilog=EXAMPLES_STRING)
+        OPTIONAL_ARGS, epilog=EXAMPLES_STRING,
+        support_configuration_options_short_names=True)
 
     logging.basicConfig(level=getattr(logging, args.log_level),
         format='%(asctime)s %(levelname)s: %(message)s')
