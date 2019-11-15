@@ -13,11 +13,30 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
-        "ec2_image_id": None,
-        "ec2_instance_type": None,
-        "s3_bucket_name": None,
-        "modules": None,
-        "bluesky_config_file": None,
+        "aws": {
+            "iam_instance_profile": {
+                "Arn": None,
+                "Name": None
+            },
+            "ec2": {
+                "image_id": None,
+                "instance_type": None,
+                "key_pair_name": None,
+                "security_groups": None,
+                "efs_volumes": None,
+            },
+            "s3": {
+                "bucket_name": None,
+            }
+        },
+        "bluesky": {
+            "modules": [
+                "fuelbeds",
+                "consumption",
+                "emissions"
+            ],
+            "config_file": None
+        },
         "notifications": {
             "email": {
                 'enabled': False,
@@ -64,16 +83,23 @@ class Config(object):
 
         _(self._config, user_config)
 
-    REQUIRED_CONFIG_KEYS = (
-        'ec2_image_id', 'ec2_instance_type', 's3_bucket_name', "modules"
+    REQUIRED_CONFIG_SETTINGS = (
+        ("aws", "iam_instance_profile", "Arn"),
+        ("aws", "iam_instance_profile", "Name"),
+        ("aws", "ec2", "image_id"),
+        ("aws", "ec2", "instance_type"),
+        ("aws", "ec2", "key_pair_name"),
+        ("aws", "ec2", "security_groups"),
+        ("aws", "s3", "bucket_name"),
+        ("bluesky", "modules")
     )
     MISSING_CONFIG_FIELD_MSG = "BlueskyRunner config must define {}"
 
     def _check(self):
-        for k in (self.REQUIRED_CONFIG_KEYS):
-            if self._config.get(k) is None:
+        for keys in (self.REQUIRED_CONFIG_SETTINGS):
+            if self._get_config_value(keys) is None:
                 raise MissingConfigurationError(
-                    self.MISSING_CONFIG_FIELD_MSG.format(k))
+                    self.MISSING_CONFIG_FIELD_MSG.format(' > '.join(keys)))
 
     def _log(self):
         def _(config, *keys):
@@ -85,7 +111,7 @@ class Config(object):
                     logging.debug("Config setting: %s: %s",
                         ' < '.join(keys, v))
 
-    def __call__(self, *args):
+    def _get_config_value(self, args):
         keys = list(args)
         val = self._config
         while keys:
@@ -93,4 +119,8 @@ class Config(object):
                 raise InvalidConfigurationUsageError()
             val = val[keys.pop(0)]
         return val
+
+
+    def __call__(self, *args):
+        return self._get_config_value(args)
     get = __call__

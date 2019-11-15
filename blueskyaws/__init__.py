@@ -22,8 +22,8 @@ class BlueskyRunner(object):
 
     async def _launch(self):
         ec2.create_instances(
-            ImageId=self._config('ec2_image_id'),
-            InstanceType=self._config('ec2_instance_type'),
+            ImageId=self._config('aws', 'ec2', 'image_id'),
+            InstanceType=self._config('aws', 'ec2', 'instance_type'),
             MinCount=1, MaxCount=1
         )
 

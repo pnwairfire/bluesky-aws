@@ -8,13 +8,14 @@
             "ec2": {
                 "image_id": "ami-123abc",
                 "instance_type":"t2.nano",
+                "key_pair_name": "sdf",
                 "security_groups": ["ssh"],
                 "efs_volumes": [
-                    ["fs-abc123.efs.us-west-2.amazonaws.com:/", "/Met/"],
-                ],
+                    ["fs-abc123.efs.us-west-2.amazonaws.com:/", "/Met/"]
+                ]
             },
             "s3": {
-                "bucket_name": "bluesky-aws",
+                "bucket_name": "bluesky-aws"
             }
         },
         "bluesky": {
