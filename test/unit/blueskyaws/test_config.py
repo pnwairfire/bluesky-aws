@@ -103,11 +103,12 @@ class TestConfig(object):
         with raises(MissingConfigurationError) as e_info:
             Config({})
         assert e_info.value.args[0] == Config.MISSING_CONFIG_FIELD_MSG.format(
-            'aws > iam_instance_profile > Arn')
+            'ssh_key')
 
     def test_user_config_missing_some_required(self):
         with raises(MissingConfigurationError) as e_info:
             Config({
+                "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
                         "Arn": "sdfsdf"
@@ -120,6 +121,7 @@ class TestConfig(object):
     def test_user_config_has_undefined_required(self):
         with raises(MissingConfigurationError) as e_info:
             Config({
+                "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
                         "Arn": "sdf",
@@ -150,6 +152,7 @@ class TestConfig(object):
 
     def test_only_required(self):
         c = Config({
+            "ssh_key": "id_rsa",
             "aws": {
                 "iam_instance_profile": {
                     "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
@@ -174,6 +177,7 @@ class TestConfig(object):
             }
         })
         expected = {
+            "ssh_key": "id_rsa",
             "aws": {
                 "iam_instance_profile": {
                     "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
@@ -185,6 +189,10 @@ class TestConfig(object):
                     "key_pair_name": "sdfsdf",
                     "security_groups": ["ssh"],
                     "efs_volumes": None,
+                    "ebs": {
+                        "volume_size": 8,
+                        "device_name": None
+                    }
                 },
                 "s3": {
                     "bucket_name": "bluesky-aws"
@@ -231,6 +239,7 @@ class TestConfig(object):
 
     def test_required_and_optional(self):
         c = Config({
+                "ssh_key": "id_rsa",
             "aws": {
                 "iam_instance_profile": {
                     "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
@@ -256,6 +265,7 @@ class TestConfig(object):
             }
         })
         expected = {
+            "ssh_key": "id_rsa",
             "aws": {
                 "iam_instance_profile": {
                     "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
@@ -267,6 +277,10 @@ class TestConfig(object):
                     "key_pair_name": "sdfsdf",
                     "security_groups": ["ssh"],
                     "efs_volumes": None,
+                    "ebs": {
+                        "volume_size": 8,
+                        "device_name": None
+                    }
                 },
                 "s3": {
                     "bucket_name": "bluesky-aws",

@@ -13,6 +13,7 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
+        "ssh_key": None,
         "aws": {
             "iam_instance_profile": {
                 "Arn": None,
@@ -24,6 +25,10 @@ class Config(object):
                 "key_pair_name": None,
                 "security_groups": None,
                 "efs_volumes": None,
+                "ebs": {
+                    "volume_size": 8,
+                    "device_name": None
+                }
             },
             "s3": {
                 "bucket_name": None,
@@ -84,6 +89,7 @@ class Config(object):
         _(self._config, user_config)
 
     REQUIRED_CONFIG_SETTINGS = (
+        ("ssh_key", ), # <-- top level key needs extra comma to make a tuple
         ("aws", "iam_instance_profile", "Arn"),
         ("aws", "iam_instance_profile", "Name"),
         ("aws", "ec2", "image_id"),
