@@ -6,6 +6,8 @@ import logging
 import os
 import sys
 
+from afaws.scripting import get_config
+
 import afscripting
 
 try:
@@ -45,18 +47,13 @@ def parse_args():
 
     return args
 
+##
+## Load and run
+##
+
 def load(args):
     with open(args.input, 'r') as f:
         return json.loads(f.read())
-
-def get_config(args):
-    config = {}
-    if args.config_file_options:
-        config.update(args.config_file_options)
-    if args.config_options:
-        config.update(args.config_options)
-
-    return config
 
 async def main():
     args = parse_args()
