@@ -30,11 +30,30 @@ ENV PYTHONPATH="/bluesky-aws/:${PYTHONPATH}"
 COPY bin/ /bluesky-aws/bin/
 COPY blueskyaws/ /bluesky-aws/blueskyaws/
 
-ARG UNAME=blueskyaws
 ARG UID=0
 ARG GID=0
-RUN groupadd -g $GID -o $UNAME
-RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
-USER $UNAME
+
+# TODO: if GID exists, leave that group as is, and use it
+#   in the 'adduser' command
+# TODO: if UID exists, leave that user as is and set that
+#   user as the default
+
+RUN if grep -q ":$GID:" /etc/group; \
+    then \
+        echo "Group $GID exists; renaming as blueskyaws"; \
+        sed -i.bak -e "s/^.*:x:$GID/blueskyaws:x:$GID/g" /etc/group; \
+    else \
+        echo "Creating group $GID"; \
+        addgroup -g $GID -S blueskyaws; fi
+
+RUN if grep -q "x:$UID:" /etc/passwd; \
+    then \
+        echo "User $UID exists. Renaming as blueskyaws"; \
+        sed -i.bak -e "s/^.*:x:$UID:.*$/blueskyaws:x:$UID:$GID:bluesky-aws user:\/home\/blueskyaws:\/bin\/bash/g" /etc/passwd; \
+    else \
+        echo "Creating User $UID"; \
+        adduser -u $UID -G blueskyaws -S -s /bin/bash blueskyaws; fi
+
+USER blueskyaws
 
 CMD ec2-launch -h
