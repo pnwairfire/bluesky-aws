@@ -1,3 +1,4 @@
 .aws
 __pycache__/
 dev-private/
+tmp/
