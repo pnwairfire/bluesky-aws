@@ -1,4 +1,5 @@
 import abc
+import datetime
 import json
 import logging
 import os
@@ -107,7 +108,10 @@ class BlueskySingleRunner(BaseBlueskyRunner):
     ##
 
     async def run(self, input_data):
-        logging.info("Processing fire")
+        self._run_id = self._config('run_id_format').format(
+            uuid=str(uuid.uuid4()))
+        self._run_id = datetime.datetime.utcnow().strftime(self._run_id)
+        logging.info("Running")
         ip = self._instance.classic_address.public_ip
         with SshClient(self._config('ssh_key'), ip) as ssh_client:
             self._ssh_client = ssh_client
@@ -162,12 +166,14 @@ class BlueskySingleRunner(BaseBlueskyRunner):
 
     async def _run(self):
         cmd = self._form_bsp_command()
+        logging.info("About to run bsp:  %s", cmd)
         await self._ssh_client.execute(cmd)
 
     def _form_bsp_command(self):
         return ("docker run --rm -v {host_data_dir}:/data/bluesky/"
             " pnwairfire/bluesky:{version}"
             " bsp --log-level=DEBUG"
+            " --run-id={run_id}"
             " -c /data/bluesky/config.json"
             " -i /data/bluesky/input.json"
             " -o /data/bluesky/output.json"
@@ -176,10 +182,13 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             ).format(
                 host_data_dir=self._host_data_dir,
                 version=self._config('bluesky_version'),
-                modules=' '.join(self._config('bluesky', 'modules'))
+                run_id=self._run_id,
+                modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
 
     async def _publish(self):
+        # TODO: create tarbal
+        # TODO: upload to s3
         # content = open('', 'rb')
         # s3 = boto3.client('s3')
         # s3.put_object(
