@@ -129,13 +129,13 @@ class BlueskySingleRunner(BaseBlueskyRunner):
         # This does mean that the config will be loaded N+1 redundant times
         # in paralle runs for N fires, but performance and run time hit
         # should be insignificant for most if not all uses of this package.
-        self._bluesky_config = {}
+        self._bluesky_config = {'config': {}}
         if self._config('bluesky', 'config_file'):
             with open(self._config('bluesky', 'config_file')) as f:
                 self._bluesky_config = json.loads(f.read()).get('config')
 
         # Override any export config specified in the provided config file
-        self._bluesky_config.update(BLUESKY_EXPORT_CONFIG)
+        self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
 
     async def _create_remote_dirs(self):
         stdin, stdout, stderr = await self._ssh_client.execute('echo $HOME')
@@ -153,6 +153,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
     async def _write_remote_json_file(self, data, remote_file_path):
         with tempfile.NamedTemporaryFile(mode='w') as f:
             f.write(json.dumps(data))
+            f.flush()
             await self._ssh_client.put(f.name, remote_file_path)
 
     async def _install_bluesky(self):
@@ -170,7 +171,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             " -c /data/bluesky/config.json"
             " -i /data/bluesky/input.json"
             " -o /data/bluesky/output.json"
-            " -l /data/bluesky/output.log"
+            " --log-file /data/bluesky/output.log"
             " {modules}"
             ).format(
                 host_data_dir=self._host_data_dir,
