@@ -61,8 +61,8 @@ async def main():
     input_data = load(args)
     config = get_config(args)
     if args.instance:
-        instance = Instance(args.instance)
-        await blueskyaws.BlueskySingleRunner(**config, instance).run(input_data)
+        instance = await Instance(args.instance)
+        await blueskyaws.BlueskySingleRunner(instance, **config).run(input_data)
     else:
         await blueskyaws.BlueskyParallelRunner(**config).run(input_data)
 

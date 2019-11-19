@@ -21,6 +21,7 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
+        "bluesky_version": "v4.1.27",
         "ssh_key": None,
         "aws": {
             "iam_instance_profile": {
@@ -66,7 +67,13 @@ class Config(object):
     }
 
     def __init__(self, config):
-        self._set(config)
+        if hasattr(config, '_config'):
+            self._config = copy.deepcopy(config._config)
+        else:
+            self._set(config)
+
+        # We need to check, in case we're instantiating from an object
+        # with fewer required fields.  e.g. ParallelConfig(Config({}))
         self._check()
         self._log()
 
@@ -133,7 +140,9 @@ class Config(object):
 class ParallelConfig(Config):
 
     REQUIRED_CONFIG_SETTINGS = [
-        ("ssh_key", ), # <-- top level key needs extra comma to make a tuple
+        # top level keys need extra comma to make a tuple
+        ("bluesky_version", ),
+        ("ssh_key", ),
         ("aws", "iam_instance_profile", "Arn"),
         ("aws", "iam_instance_profile", "Name"),
         ("aws", "ec2", "image_id"),
@@ -147,7 +156,9 @@ class ParallelConfig(Config):
 class SingleConfig(Config):
 
     REQUIRED_CONFIG_SETTINGS = [
-        ("ssh_key", ), # <-- top level key needs extra comma to make a tuple
+        # top level keys need extra comma to make a tuple
+        ("bluesky_version", ),
+        ("ssh_key", ),
         ("aws", "iam_instance_profile", "Arn"),
         ("aws", "iam_instance_profile", "Name"),
         ("aws", "s3", "bucket_name"),
@@ -160,7 +171,7 @@ BLUESKY_EXPORT_CONFIG = {
         "modes": ["localsave"],
         "extra_exports": ["dispersion", "visualization"],
         "localsave": {
-            "dest_dir": "/bluesky/exports/"
+            "dest_dir": "/data/bluesky/exports/"
         }
     }
 }

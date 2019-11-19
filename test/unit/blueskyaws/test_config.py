@@ -219,6 +219,7 @@ class TestConfig(object):
                 }
             })
             expected = {
+                "bluesky_version": "v4.1.27",
                 "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
@@ -282,7 +283,7 @@ class TestConfig(object):
     def test_required_and_optional(self):
         for klass in (Config, ParallelConfig, SingleConfig):
             c = klass({
-                    "ssh_key": "id_rsa",
+                "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
                         "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
@@ -308,6 +309,7 @@ class TestConfig(object):
                 }
             })
             expected = {
+                "bluesky_version": "v4.1.27",
                 "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
@@ -367,3 +369,5 @@ class TestConfig(object):
 
             assert c('notifications', 'email', 'sender') == 'blueskyaws@blueskyaws'
             assert c.get('notifications', 'email', 'sender') == 'blueskyaws@blueskyaws'
+
+    # TODO: add tests for instantiating one *Config object from another
