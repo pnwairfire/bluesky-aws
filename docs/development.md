@@ -21,7 +21,7 @@ and run
         ./bin/run-dispersion \
         --log-level DEBUG \
         -i ./dev/data/3-fires.json \
-        -c ./dev/config/simple-config.json
+        -c ./dev/config/bluesky-aws/simple.json
 
 ## iPython
 
