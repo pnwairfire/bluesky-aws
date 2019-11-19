@@ -1,17 +1,23 @@
+import json
 import logging
 import uuid
 
+from afaws.config import Config as AwsConfig
 from afaws.ec2.launch import Ec2Launcher
 from afaws.ec2.initialization import InstanceInitializerSsh
 from afaws.ec2.execute import FailedToSshError
-from afaws.config import Config as AwsConfig
+from afaws.ec2.shutdown import Ec2Shutdown
 
-from .config import Config
+from .config import ParallelConfig, SingleConfig
 
-class BlueskyRunner(object):
+class BlueskyParallelRunner(object):
 
     def __init__(self, **config):
-        self._config = Config(config)
+        self._config = ParallelConfig(config)
+
+    ##
+    ## Public Interface
+    ##
 
     async def run(self, input_data):
         fires = input_data['fires']
@@ -19,10 +25,27 @@ class BlueskyRunner(object):
         await self._initialize(instances)
 
         for fire, instance in zip(fires, instances):
-            await BlueskySingleFireRunner(fire, instnace).run()
+            await BlueskySingleRunner(config, instance).run({'fires': [fire]})
 
         await self._terminate(instances)
         await self._notify()
+
+    ##
+    ## Class Initialization
+    ##
+
+    def _load_bluesky_config(self):
+        config = {}
+        if self._config('bluesky', 'config_file'):
+            with open(self._config('bluesky', 'config_file')) as f:
+                config = json.loads(f.read()).get('config')
+
+        # Override any export config specified in the provided config file
+        return config
+
+    ##
+    ## Run
+    ##
 
     async def _launch(self, num_fires):
         # create config object specifically for afaws package
@@ -50,12 +73,11 @@ class BlueskyRunner(object):
     async def _initialize(self, instances):
         initializer = InstanceInitializerSsh(ssh_key, afaws_config)
         await initializer.initialize(new_instances)
-        if self._config('bluesky', 'config_file'):
-            # TODO: copy bluesky config file into place
-            pass
+
 
     async def _terminate(self, instances):
-        pass
+        shutdowner.shutdown(args.instance_identifiers,
+            terminate=true)
 
     async def _notify(self):
         # TODO: send notification; send email and/or post status to an API
@@ -63,19 +85,30 @@ class BlueskyRunner(object):
         pass
 
 
-class BlueskySingleFireRunner(object):
+class BlueskySingleRunner(object):
 
-    def __init__(self, fire, instance):
+    def __init__(self, config, instance):
         logging.debug("Processing fire")
-        self._fires = fire
+
+        self._config = dict(config, **BLUESKY_EXPORT_CONFIG)
         self._instance = instance
 
-    async def run(self):
+    async def run(self, input_data):
         await self._run()
         await self._publish()
+
+    async def _write_config(self):
+        cmd_executer = Ec2SshExecuter(args.ssh_key, ...)
+        # TODO: write bluesky config file into place
 
     async def _run(self):
         pass
 
     async def _publish(self):
-        pass
+        content = open('', 'rb')
+        s3 = boto3.client('s3')
+        s3.put_object(
+           Bucket=bucket_name,
+           Key='directory-in-bucket/remote-file.txt',
+           Body=content
+        )

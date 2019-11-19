@@ -154,3 +154,13 @@ class SingleConfig(Config):
         ("bluesky", "modules")
     ]
 
+
+BLUESKY_EXPORT_CONFIG = {
+    "export": {
+        "modes": ["localsave"],
+        "extra_exports": ["dispersion", "visualization"],
+        "localsave": {
+            "dest_dir": "/bluesky/exports/"
+        }
+    }
+}

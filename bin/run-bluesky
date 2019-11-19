@@ -7,6 +7,8 @@ import os
 import sys
 
 from afaws.scripting import get_config
+from afaws.ec2.resources import Instance
+
 
 import afscripting
 
@@ -24,12 +26,17 @@ REQUIRED_ARGS = [
     {'short': '-i', 'long': '--input', 'help': "input file"}
 ]
 
-OPTIONAL_ARGS = []
+OPTIONAL_ARGS = [
+    {'long': '--instance', 'help': 'name or id of existing instance use for single bluesky run'}]
 
 EXAMPLES_STRING = """
 Examples:
 
     {script} --log-level INFO -i ./dev/data/3-fires.json \\
+        -c ./dev/config/simple-config.json
+
+    {script} --log-level INFO -i ./dev/data/3-fires.json \\
+        --instance bluesky-v4.1.27-test \\
         -c ./dev/config/simple-config.json
 
  """.format(script=sys.argv[0])
@@ -53,7 +60,11 @@ async def main():
     args = parse_args()
     input_data = load(args)
     config = get_config(args)
-    await blueskyaws.BlueskyRunner(**config).run(input_data)
+    if args.instance:
+        instance = Instance(args.instance)
+        await blueskyaws.BlueskySingleRunner(**config, instance).run(input_data)
+    else:
+        await blueskyaws.BlueskyParallelRunner(**config).run(input_data)
 
 if __name__ == "__main__":
     asyncio.run(main())
