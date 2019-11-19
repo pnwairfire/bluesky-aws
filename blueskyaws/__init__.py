@@ -31,19 +31,6 @@ class BlueskyParallelRunner(object):
         await self._notify()
 
     ##
-    ## Class Initialization
-    ##
-
-    def _load_bluesky_config(self):
-        config = {}
-        if self._config('bluesky', 'config_file'):
-            with open(self._config('bluesky', 'config_file')) as f:
-                config = json.loads(f.read()).get('config')
-
-        # Override any export config specified in the provided config file
-        return config
-
-    ##
     ## Run
     ##
 
@@ -89,15 +76,33 @@ class BlueskySingleRunner(object):
 
     def __init__(self, config, instance):
         logging.debug("Processing fire")
-
-        self._config = dict(config, **BLUESKY_EXPORT_CONFIG)
+        self._config = config
+        self._bluesky_config = self._load_bluesky_config()
         self._instance = instance
 
     async def run(self, input_data):
+        self._write_bluesky_config()
         await self._run()
         await self._publish()
 
-    async def _write_config(self):
+    def _load_bluesky_config(self):
+        # Note that the bluesky config is loaded in BlueskySingleRunner
+        # instead of in BlueskyParallelRunner to facilitate single-run mode,
+        # in which BlueskySingleRunner is used directly by bin/run-bluesky.
+        # This does mean that the config will be loaded N+1 redundant times
+        # in paralle runs for N fires, but performance and run time hit
+        # should be insignificant for most if not all uses of this package.
+        config = {}
+        if self._config('bluesky', 'config_file'):
+            with open(self._config('bluesky', 'config_file')) as f:
+                config = json.loads(f.read()).get('config')
+
+        dict(config, **BLUESKY_EXPORT_CONFIG)
+
+        # Override any export config specified in the provided config file
+        return config
+
+    async def _write_bluesky_config(self):
         cmd_executer = Ec2SshExecuter(args.ssh_key, ...)
         # TODO: write bluesky config file into place
 
