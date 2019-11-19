@@ -1,13 +1,14 @@
 import abc
 import json
 import logging
+import os
 import tempfile
 import uuid
 
 from afaws.config import Config as AwsConfig
 from afaws.ec2.launch import Ec2Launcher
 from afaws.ec2.initialization import InstanceInitializerSsh
-from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
+#from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
 from afaws.ec2.shutdown import Ec2Shutdown
 from afaws.ec2.ssh import SshClient
 
@@ -96,7 +97,6 @@ class BlueskySingleRunner(BaseBlueskyRunner):
     def __init__(self, instance, **config):
         super().__init__(**config)
         self._instance = instance
-        self._executer = Ec2SshExecuter(self._config('ssh_key'), self._instance)
 
     @property
     def config_class(self):
@@ -108,11 +108,15 @@ class BlueskySingleRunner(BaseBlueskyRunner):
 
     async def run(self, input_data):
         logging.info("Processing fire")
-        await self._load_bluesky_config()
-        await self._write_remote_files(input_data)
-        await self._install_bluesky()
-        await self._run()
-        await self._publish()
+        ip = self._instance.classic_address.public_ip
+        with SshClient(self._config('ssh_key'), ip) as ssh_client:
+            self._ssh_client = ssh_client
+            await self._load_bluesky_config()
+            await self._create_remote_dirs()
+            await self._write_remote_files(input_data)
+            await self._install_bluesky()
+            await self._run()
+            await self._publish()
 
     ##
     ## Run Helpers
@@ -133,30 +137,34 @@ class BlueskySingleRunner(BaseBlueskyRunner):
         # Override any export config specified in the provided config file
         self._bluesky_config.update(BLUESKY_EXPORT_CONFIG)
 
-    async def _write_remote_files(self, input_data):
-        ip = self._instance.classic_address.public_ip
-        with SshClient(self._config('ssh_key'), ip) as ssh_client:
-            await self._write_remote_json_file(ssh_client, self._bluesky_config,
-                '/data/bluesky/config.json')
-            await self._write_remote_json_file(ssh_client, input_data,
-                '/data/bluesky/input.json')
+    async def _create_remote_dirs(self):
+        stdin, stdout, stderr = await self._ssh_client.execute('echo $HOME')
+        home_dir = stdout.read().decode().strip()
+        self._host_data_dir = os.path.join(home_dir, "data/bluesky/")
+        await self._ssh_client.execute("mkdir -p {}".format(
+            self._host_data_dir))
 
-    async def _write_remote_json_file(self, ssh_client, data, remote_file_path):
+    async def _write_remote_files(self, input_data):
+        await self._write_remote_json_file(self._bluesky_config,
+            os.path.join(self._host_data_dir, 'config.json'))
+        await self._write_remote_json_file(input_data,
+            os.path.join(self._host_data_dir, 'input.json'))
+
+    async def _write_remote_json_file(self, data, remote_file_path):
         with tempfile.NamedTemporaryFile(mode='w') as f:
             f.write(json.dumps(data))
-            await ssh_client.put(f.name, remote_file_path)
+            await self._ssh_client.put(f.name, remote_file_path)
 
-    async def install_bluesky():
-        await self._executer.execute("docker pull pnwairfire/bluesky:{}".format(
+    async def _install_bluesky(self):
+        await self._ssh_client.execute("docker pull pnwairfire/bluesky:{}".format(
             self._config('bluesky_version')))
 
     async def _run(self):
-        await self._executer.execute("mkdir -p /data/bluesky/")
         cmd = self._form_bsp_command()
-        await self._executer.execute(cmd)
+        await self._ssh_client.execute(cmd)
 
     def _form_bsp_command(self):
-        return ("docker run --rm -v /data/bluesky/:/data/bluesky/"
+        return ("docker run --rm -v {host_data_dir}:/data/bluesky/"
             " pnwairfire/bluesky:{version}"
             " bsp --log-level=DEBUG"
             " -c /data/bluesky/config.json"
@@ -165,6 +173,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             " -l /data/bluesky/output.log"
             " {modules}"
             ).format(
+                host_data_dir=self._host_data_dir,
                 version=self._config('bluesky_version'),
                 modules=' '.join(self._config('bluesky', 'modules'))
             )
