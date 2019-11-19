@@ -1,6 +1,14 @@
 import copy
 import logging
 
+__all__ = [
+    "Config",
+    "BLUESKY_EXPORT_CONFIG",
+    "MissingConfigurationError",
+    "InvalidConfigurationError",
+    "InvalidConfigurationUsageError"
+]
+
 class MissingConfigurationError(Exception):
     pass
 
@@ -88,18 +96,9 @@ class Config(object):
 
         _(self._config, user_config)
 
-    REQUIRED_CONFIG_SETTINGS = (
-        ("ssh_key", ), # <-- top level key needs extra comma to make a tuple
-        ("aws", "iam_instance_profile", "Arn"),
-        ("aws", "iam_instance_profile", "Name"),
-        ("aws", "ec2", "image_id"),
-        ("aws", "ec2", "instance_type"),
-        ("aws", "ec2", "key_pair_name"),
-        ("aws", "ec2", "security_groups"),
-        ("aws", "s3", "bucket_name"),
-        ("bluesky", "modules")
-    )
-    MISSING_CONFIG_FIELD_MSG = "BlueskyRunner config must define {}"
+    # Derived classse define REQUIRED_CONFIG_SETTINGS
+    REQUIRED_CONFIG_SETTINGS = []
+    MISSING_CONFIG_FIELD_MSG = "BlueskyParallelRunner config must define {}"
 
     def _check(self):
         for keys in (self.REQUIRED_CONFIG_SETTINGS):
@@ -130,3 +129,28 @@ class Config(object):
     def __call__(self, *args):
         return self._get_config_value(args)
     get = __call__
+
+class ParallelConfig(Config):
+
+    REQUIRED_CONFIG_SETTINGS = [
+        ("ssh_key", ), # <-- top level key needs extra comma to make a tuple
+        ("aws", "iam_instance_profile", "Arn"),
+        ("aws", "iam_instance_profile", "Name"),
+        ("aws", "ec2", "image_id"),
+        ("aws", "ec2", "instance_type"),
+        ("aws", "ec2", "key_pair_name"),
+        ("aws", "ec2", "security_groups"),
+        ("aws", "s3", "bucket_name"),
+        ("bluesky", "modules")
+    ]
+
+class SingleConfig(Config):
+
+    REQUIRED_CONFIG_SETTINGS = [
+        ("ssh_key", ), # <-- top level key needs extra comma to make a tuple
+        ("aws", "iam_instance_profile", "Arn"),
+        ("aws", "iam_instance_profile", "Name"),
+        ("aws", "s3", "bucket_name"),
+        ("bluesky", "modules")
+    ]
+
