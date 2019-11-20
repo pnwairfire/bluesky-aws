@@ -1,13 +1,14 @@
 {
     "fires": [
         {
+            "id": "DS3DSK23DFJ",
             "type": "rx",
             "activity": [
                 {
                     "active_areas": [
                         {
                             "start": "2019-06-10T17:00:00",
-                            "end": "2019-056-11T17:00:00",
+                            "end": "2019-06-11T17:00:00",
                             "utc_offset": "-07:00",
                             "ecoregion": "western",
                             "country": "USA",
