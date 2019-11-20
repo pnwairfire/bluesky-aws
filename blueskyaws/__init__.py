@@ -118,9 +118,10 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             await self._load_bluesky_config()
             await self._create_remote_dirs()
             await self._write_remote_files(input_data)
-            await self._install_bluesky()
+            await self._install_bluesky_and_dependencies()
             await self._run()
             await self._tarball()
+            await self._upload_aws_credentials()
             await self._publish()
 
     ##
@@ -152,9 +153,9 @@ class BlueskySingleRunner(BaseBlueskyRunner):
         return stdout
 
     async def _create_remote_dirs(self):
-        home_dir = await self._execute('echo $HOME')
-        # TODO: handle home_dir == None
-        self._host_data_dir = os.path.join(home_dir, "data/bluesky/")
+        self._remote_home_dir = await self._execute('echo $HOME')
+        # TODO: handle self._remote_home_dir == None
+        self._host_data_dir = os.path.join(self._remote_home_dir, "data/bluesky/")
         await self._execute("mkdir -p {}".format(self._host_data_dir))
 
     async def _write_remote_files(self, input_data):
@@ -169,9 +170,24 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             f.flush()
             await self._ssh_client.put(f.name, remote_file_path)
 
-    async def _install_bluesky(self):
+    async def _install_bluesky_and_dependencies(self):
+        # Note: it's advised to have these pre-installed on the
+        #    ec2 instance, but this is just in case they're not
         await self._execute("docker pull pnwairfire/bluesky:{}".format(
             self._config('bluesky_version')))
+
+        # Note: these installation commands are ubuntu/debian specific
+        if not (await self._execute("which aws")):
+            await self._execute("sudo apt -y install awscli")
+
+        if not (await self._execute("which docker")):
+            await self._execute('sudo apt update')
+            await self._execute('sudo apt install -y apt-transport-https ca-certificates curl software-properties-common')
+            await self._execute('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -')
+            await self._execute('sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"')
+            await self._execute('sudo apt update')
+            await self._execute('apt-cache policy docker-ce')
+            await self._execute('sudo apt install -y docker-ce')
 
     async def _run(self):
         cmd = self._form_bsp_command()
@@ -201,13 +217,18 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             " {run_id}.tar.gz {run_id}").format(
             host_data_dir=self._host_data_dir, run_id=self._run_id))
 
+    async def _upload_aws_credentials(self):
+        # Credentials are uploaded in order to push to s3
+        remote_aws_dir = os.path.join(self._remote_home_dir, ".aws")
+        if not await self._execute('ls {}'.format(remote_aws_dir)):
+            local_aws_dir = os.path.join(os.environ["HOME"], ".aws/")
+            # TODO: if recursive put fails, update put/get to support it
+            await self._ssh_client.put(local_aws_dir, remote_aws_dir)
+
     async def _publish(self):
         # TODO: upload to s3
-        # content = open('', 'rb')
-        # s3 = boto3.client('s3')
-        # s3.put_object(
-        #    Bucket=bucket_name,
-        #    Key='directory-in-bucket/remote-file.txt',
-        #    Body=content
-        # )
-        pass
+        # see http://codeomitted.com/transfer-files-from-ec2-to-s3/ for examples
+        cmd = "aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz s3://{bucket}/".format(
+            host_data_dir=self._host_data_dir, run_id=self._run_id,
+            bucket=self._config('aws', 's3', 'bucket_name'))
+        await self._execute(cmd)

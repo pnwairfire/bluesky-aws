@@ -26,6 +26,10 @@ docker pull pnwairfire/bluesky:v4.1.27
 docker run --rm pnwairfire/bluesky:v4.1.27
 exit
 ```
+ - Install aws client
+ ```
+ sudo apt install -y awscli
+ ```
  - create an image from the image, and terminate it
  - create a bucket in the [S3 AWS console](https://s3.console.aws.amazon.com/s3/home)
  - create a security group that allows ssh access - [EC2 security group console](https://us-west-2.console.aws.amazon.com/ec2/home#SecurityGroups)
