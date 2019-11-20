@@ -109,7 +109,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
 
     async def run(self, input_data):
         self._run_id = self._config('run_id_format').format(
-            uuid=str(uuid.uuid4()))
+            uuid=str(uuid.uuid4()).split('-')[0])
         self._run_id = datetime.datetime.utcnow().strftime(self._run_id)
         logging.info("Running")
         ip = self._instance.classic_address.public_ip
@@ -120,6 +120,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             await self._write_remote_files(input_data)
             await self._install_bluesky()
             await self._run()
+            await self._tarball()
             await self._publish()
 
     ##
@@ -141,12 +142,20 @@ class BlueskySingleRunner(BaseBlueskyRunner):
         # Override any export config specified in the provided config file
         self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
 
+    async def _execute(self, cmd):
+        stdin, stdout, stderr = await self._ssh_client .execute(cmd)
+        stderr = stderr.read().decode().strip()
+        stdout = stdout.read().decode().strip()
+        if stderr:
+            logging.error("Error running command %s:  %s", cmd, stderr)
+
+        return stdout
+
     async def _create_remote_dirs(self):
-        stdin, stdout, stderr = await self._ssh_client.execute('echo $HOME')
-        home_dir = stdout.read().decode().strip()
+        home_dir = await self._execute('echo $HOME')
+        # TODO: handle home_dir == None
         self._host_data_dir = os.path.join(home_dir, "data/bluesky/")
-        await self._ssh_client.execute("mkdir -p {}".format(
-            self._host_data_dir))
+        await self._execute("mkdir -p {}".format(self._host_data_dir))
 
     async def _write_remote_files(self, input_data):
         await self._write_remote_json_file(self._bluesky_config,
@@ -161,13 +170,14 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             await self._ssh_client.put(f.name, remote_file_path)
 
     async def _install_bluesky(self):
-        await self._ssh_client.execute("docker pull pnwairfire/bluesky:{}".format(
+        await self._execute("docker pull pnwairfire/bluesky:{}".format(
             self._config('bluesky_version')))
 
     async def _run(self):
         cmd = self._form_bsp_command()
-        logging.info("About to run bsp:  %s", cmd)
-        await self._ssh_client.execute(cmd)
+        await self._execute(cmd)
+        await self._execute('sudo chown -R $USER:$USER {}'.format(
+            self._host_data_dir))
 
     def _form_bsp_command(self):
         return ("docker run --rm -v {host_data_dir}:/data/bluesky/"
@@ -186,8 +196,12 @@ class BlueskySingleRunner(BaseBlueskyRunner):
                 modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
 
+    async def _tarball(self):
+        await self._execute(("cd {host_data_dir}/exports/; tar czf "
+            " {run_id}.tar.gz {run_id}").format(
+            host_data_dir=self._host_data_dir, run_id=self._run_id))
+
     async def _publish(self):
-        # TODO: create tarbal
         # TODO: upload to s3
         # content = open('', 'rb')
         # s3 = boto3.client('s3')
