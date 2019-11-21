@@ -7,10 +7,6 @@ import tempfile
 import uuid
 
 import boto3
-from afaws.ec2.launch import Ec2Launcher
-from afaws.ec2.initialization import InstanceInitializerSsh
-#from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
-from afaws.ec2.shutdown import Ec2Shutdown
 from afaws.ec2.ssh import SshClient
 from afaws.asyncutils import run_in_loop_executor
 
@@ -19,7 +15,11 @@ from .config import (
         Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG
 )
 
-class BaseBlueskyRunner(object):
+__all__ = [
+    "BlueskyParallelRunner"
+]
+
+class BlueskyParallelRunner(object):
     """Given a pool of existing instances along with instances
     to be launced, runs bluesky on a set of fires in as parallel a
     fashion as is allowed (based on configuration settings dictating
@@ -31,7 +31,7 @@ class BaseBlueskyRunner(object):
         # A more restrictive config object will be created from the
         # unrestricted Conig object based on whether or not new
         # instances are needed for the number of fires passed into run
-        self._raw_config = Config()
+        self._raw_config = Config(config)
         self._s3_client = boto3.client('s3')
 
     ##
@@ -41,13 +41,26 @@ class BaseBlueskyRunner(object):
     async def run(self, input_file_name):
         self._load_input(input_file_name)
         self._set_config()
-        await self._initialize_status(fires)
+        await self._record_input(input_file_name)
+        await self._initialize_status()
 
         ec2_instance_manager = Ec2InstancesManager(self._config,
             self._total_instances_needed, existing=self._instances)
         async with ec2_instance_manager:
-            for fire, instance in zip(fires, manager.instances):
-                runner = BlueskySingleRunner(instance, config,
+            # TODO: Add more options for supporting the case where
+            #     num_fires > num_instances; Some possibilities:
+            #       1) take the first num_instances fires, given the order the
+            #          fires are specified in the input data
+            #          ***(this is the current implementation***)
+            #       2) somehow prioritize fires and run only first
+            #          num_instances fires
+            #       3) tranche fires, one tranche per instance, and within
+            #          each tranche, execute one of the following:
+            #            a) separate runs sequentially
+            #            b) separate runs in parallel
+            #            c) single run
+            for fire, instance in zip(self._fires, ec2_instance_manager.instances):
+                runner = BlueskySingleRunner(instance, self._config,
                     self._update_single_run_status)
                 await runner.run({'fires': [fire]})
 
@@ -61,34 +74,37 @@ class BaseBlueskyRunner(object):
 
     def _load_input(self, input_file_name):
         base_name = os.path.basename(input_file_name)
-        self._input_file_base_name = JSON_EXT_STRIPPER.sub('', base_name)
+        self._input_file_base_name = self.JSON_EXT_STRIPPER.sub('', base_name)
         with open(input_file_name, 'r') as f:
-            # save to s3
-            run_in_loop_executor(s3.upload_fileobj, f,
-                self._config('aws', 's3', 'bucket_name'),
-                os.path.join('requests', basename))
             # reset point to beginning of file and load json data
             f.seek(0)
-            self._fires = json.loads(f.read())
+            self._fires = json.loads(f.read())['fires']
 
-    def _set_config(self, fires):
-        max_num_instances = self._raw_config("aws", 'ec2', "max_num_instances")
-        self._total_instances_needed = min(max_num_instances, len(fires))
+    def _set_config(self):
+        num_fires = len(self._fires)
+        self._total_instances_needed = min(num_fires,
+            self._raw_config("aws", 'ec2', "max_num_instances") or num_fires)
 
         if self._total_instances_needed > len(self._instances):
             self._config = ParallelConfig(self._raw_config)
         else:
             self._config = SingleConfig(self._raw_config)
 
+    async def _record_input(self, input_file_name):
+        await run_in_loop_executor(self._s3_client.upload_file,
+            input_file_name, self._config('aws', 's3', 'bucket_name'),
+            os.path.join('requests', self._input_file_base_name + '.json'))
+
+
     ## Status
 
     async def _save_status(self):
-        run_in_loop_executor(s3.upload_fileobj, self._status,
-            self._config('aws', 's3', 'bucket_name'),
-            os.path.join('status', self._input_file_base_name + 'status.json'))
+        await run_in_loop_executor(self._s3_client.put_object,
+            Body=json.dumps(self._status),
+            Bucket=self._config('aws', 's3', 'bucket_name'),
+            Key=os.path.join('status', self._input_file_base_name + '-status.json'))
 
-
-    async def _initialize_status(self, fires):
+    async def _initialize_status(self):
         # TODO: fill in initial status structure
         self._status = {}
         await self._save_status()
@@ -141,8 +157,8 @@ class BlueskySingleRunner(object):
                 uuid=str(uuid.uuid4()).split('-')[0])
             self._run_id = datetime.datetime.utcnow().strftime(run_id)
         else:
-            if len(input_data['fires']) == 1 and input_data['fires'].get('id'):
-                self._run_id = input_data['fires']['id']
+            if len(input_data['fires']) == 1 and input_data['fires'][0].get('id'):
+                self._run_id = "fire-" + input_data['fires'][0]['id']
             else:
                 self._run_id = str(uuid.uuid4())
 
@@ -246,7 +262,7 @@ class BlueskySingleRunner(object):
     async def _publish(self):
         # Pushes output bundle from remote ec2 instance to s3
         cmd = ("aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz "
-            "s3://{bucket}/{output_path}").format(
+            "s3://{bucket}/{output_path}/{run_id}.tar.gz").format(
                 host_data_dir=self._host_data_dir, run_id=self._run_id,
                 bucket=self._config('aws', 's3', 'bucket_name'),
                 output_path=self._config('aws', 's3', 'output_path').strip('/'))

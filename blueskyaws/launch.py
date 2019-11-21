@@ -1,6 +1,10 @@
 import uuid
 
 from afaws.config import Config as AwsConfig
+from afaws.ec2.launch import Ec2Launcher
+from afaws.ec2.initialization import InstanceInitializerSsh
+#from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
+from afaws.ec2.shutdown import Ec2Shutdown
 
 class Ec2InstancesManager(object):
 
@@ -26,12 +30,12 @@ class Ec2InstancesManager(object):
 
     @property
     def instances(self):
-        # Explicitly return first self._num_total in case the number of
-        # existing
+        # Explicitly returns the first self._num_total instances in case the
+        # number of existing is more than are needed
         return (self._existing_instances + self._new_instances)[:self._num_total]
 
     async def _launch(self):
-        num_new = num_total - len(self._existing_instances)
+        num_new = self._num_total - len(self._existing_instances)
         if num_new > 0:
             # create config object specifically for afaws package
             options = {
@@ -54,10 +58,13 @@ class Ec2InstancesManager(object):
     ## Helpers
 
     async def _initialize(self):
-        initializer = InstanceInitializerSsh(self._config('ssh_key'),
-            self._afaws_config)
-        await initializer.initialize(self._new_instances)
+        if self._new_instances:
+            initializer = InstanceInitializerSsh(self._config('ssh_key'),
+                self._afaws_config)
+            await initializer.initialize(self._new_instances)
 
 
     async def _terminate(self):
-        shutdowner.shutdown(self._new_instances, terminate=true)
+        if self._new_instances:
+            shutdowner = Ec2Shutdown()
+            await shutdowner.shutdown(self._new_instances, terminate=True)
