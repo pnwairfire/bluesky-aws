@@ -1,4 +1,3 @@
-import abc
 import datetime
 import json
 import logging
@@ -6,86 +5,71 @@ import os
 import tempfile
 import uuid
 
-from afaws.config import Config as AwsConfig
 from afaws.ec2.launch import Ec2Launcher
 from afaws.ec2.initialization import InstanceInitializerSsh
 #from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
 from afaws.ec2.shutdown import Ec2Shutdown
 from afaws.ec2.ssh import SshClient
 
-from .config import ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG
+from .launch import Ec2InstancesManager
+from .config import (
+        Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG
+)
 
-class BaseBlueskyRunner(abc.ABC):
+class BaseBlueskyRunner(object):
+    """Given a pool of existing instances along with instances
+    to be launced, runs bluesky on a set of fires in as parallel a
+    fashion as is allowed (based on configuration settings dictating
+    how many instances may be used).
+    """
 
-    def __init__(self, *args, **config):
-        self._config = self.config_class(config)
-        self._afaws_config = AwsConfig({
-            "iam_instance_profile": self._config('aws', 'iam_instance_profile'),
-            "default_efs_volumes": self._config('aws', 'ec2', 'efs_volumes')
-        })
-
-    @property
-    @abc.abstractmethod
-    def config_class(self):
-        return Config
-
-
-class BlueskyParallelRunner(BaseBlueskyRunner):
-
-    def __init__(self, **config):
-        super().__init__(**config)
-
-    @property
-    def config_class(self):
-        return ParallelConfig
+    def __init__(self, instances=None, **config):
+        self._instances = instances
+        # A more restrictive config object will be created from the
+        # unrestricted Conig object based on whether or not new
+        # instances are needed for the number of fires passed into run
+        self._raw_config = Config()
 
     ##
     ## Public Interface
     ##
 
-    async def run(self, input_data):
-        fires = input_data['fires']
-        instances = await self._launch(len(fires))
-        await self._initialize(instances)
+    async def run(self, input_file):
+        self._load(input_file)
+        self._set_config()
+        await self._initialize_stats(fires)
 
-        for fire, instance in zip(fires, instances):
-            await BlueskySingleRunner(config, instance).run({'fires': [fire]})
+        ec2_instance_manager = Ec2InstancesManager(self._config,
+            self._total_instances_needed, existing=self._instances)
+        async with ec2_instance_manager:
+            for fire, instance in zip(fires, manager.instances):
+                await BlueskySingleRunner(instance, config).run({'fires': [fire]})
 
-        await self._terminate(instances)
         await self._notify()
 
+    def _load_input(self, input_file):
+        with open(input_file, 'r') as f:
+            self._fires = json.loads(f.read())
+
+
+    def _set_config(self, fires):
+        max_num_instances = self._raw_config("aws", 'ec2', "max_num_instances")
+        self._total_instances_needed = min(max_num_instances, len(fires))
+
+        if self._total_instances_needed > len(self._instances):
+            self._config = ParallelConfig(self._raw_config)
+        else:
+            self._config = SingleConfig(self._raw_config)
+
     ##
-    ## Run
+    ## Helpers
     ##
 
-    async def _launch(self, num_fires):
-        # create config object specifically for afaws package
-        options = {
-            'instance_type': self._config("aws", "ec2", "instance_type"),
-            'key_pair_name': self._config("aws", "ec2", "key_pair_name"),
-            'security_groups': self._config("aws", "ec2", "security_groups"),
-            'ebs_volume_size': self._config("aws", "ec2", "ebs", "volume_size")
-        }
-        launcher = Ec2Launcher(
-            self._config("aws", "ec2", "image_id"),
-            self._afaws_config, **options)
+    def _initialize_status(self, fires):
+        pass
 
-        u = str(uuid.uuid4())[:8]
-        new_instance_names = [
-            'blueskyaws-{}-{}'.format(u, n) for n in range(num_fires)
-        ]
-
-        return await launcher.launch(new_instance_names)
-
-    async def _initialize(self, instances):
-        initializer = InstanceInitializerSsh(self._config('ssh_key'),
-            self._afaws_config)
-        await initializer.initialize(new_instances)
-
-
-    async def _terminate(self, instances):
-        shutdowner.shutdown(args.instance_identifiers,
-            terminate=true)
+    def _update_status(self, fire, status):
+        pass
 
     async def _notify(self):
         # TODO: send notification; send email and/or post status to an API
@@ -93,21 +77,19 @@ class BlueskyParallelRunner(BaseBlueskyRunner):
         pass
 
 
-class BlueskySingleRunner(BaseBlueskyRunner):
+class BlueskySingleRunner(object):
 
-    def __init__(self, instance, **config):
-        super().__init__(**config)
+    def __init__(self, instance, config):
         self._instance = instance
-
-    @property
-    def config_class(self):
-        return SingleConfig
+        self._config = config
 
     ##
     ## Public Interface
     ##
 
     async def run(self, input_data):
+        # TODO: if run_id is not defined, set run id to fire id, if
+        #   only one fire, else set to new uuid (?)
         self._run_id = self._config('run_id_format').format(
             uuid=str(uuid.uuid4()).split('-')[0])
         self._run_id = datetime.datetime.utcnow().strftime(self._run_id)
@@ -119,7 +101,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             await self._create_remote_dirs()
             await self._write_remote_files(input_data)
             await self._install_bluesky_and_dependencies()
-            await self._run()
+            await self._run_bluesky()
             await self._tarball()
             await self._upload_aws_credentials()
             await self._publish()
@@ -189,7 +171,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             await self._execute('apt-cache policy docker-ce')
             await self._execute('sudo apt install -y docker-ce')
 
-    async def _run(self):
+    async def _run_bluesky(self):
         cmd = self._form_bsp_command()
         await self._execute(cmd)
         await self._execute('sudo chown -R $USER:$USER {}'.format(
@@ -226,8 +208,7 @@ class BlueskySingleRunner(BaseBlueskyRunner):
             await self._ssh_client.put(local_aws_dir, remote_aws_dir)
 
     async def _publish(self):
-        # TODO: upload to s3
-        # see http://codeomitted.com/transfer-files-from-ec2-to-s3/ for examples
+        # Pushes output bundle from remote ec2 instance to s3
         cmd = "aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz s3://{bucket}/".format(
             host_data_dir=self._host_data_dir, run_id=self._run_id,
             bucket=self._config('aws', 's3', 'bucket_name'))

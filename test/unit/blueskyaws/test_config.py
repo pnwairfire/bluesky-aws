@@ -174,6 +174,7 @@ class TestConfig(object):
         # Config has no required
         c = Config(input_config)
         expected = dict(copy.deepcopy(Config._DEFAULTS), **input_config)
+        expected['aws']['ec2']['max_num_instances'] = None
         expected['aws']['ec2']['efs_volumes'] = None
         expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": None}
         expected['bluesky']['config_file'] = None
@@ -219,6 +220,8 @@ class TestConfig(object):
                 }
             })
             expected = {
+                "request_id_format": None,
+                "run_id_format": None,
                 "bluesky_version": "v4.1.27",
                 "ssh_key": "id_rsa",
                 "aws": {
@@ -227,6 +230,7 @@ class TestConfig(object):
                         "Name": "bluesky-iam-role"
                     },
                     "ec2": {
+                        "max_num_instances": None,
                         "image_id": "ami-123abc",
                         "instance_type":"t2.nano",
                         "key_pair_name": "sdfsdf",
@@ -309,6 +313,8 @@ class TestConfig(object):
                 }
             })
             expected = {
+                "request_id_format": None,
+                "run_id_format": None,
                 "bluesky_version": "v4.1.27",
                 "ssh_key": "id_rsa",
                 "aws": {
@@ -317,6 +323,7 @@ class TestConfig(object):
                         "Name": "bluesky-iam-role"
                     },
                     "ec2": {
+                        "max_num_instances": None,
                         "image_id": "ami-123abc",
                         "instance_type":"t2.nano",
                         "key_pair_name": "sdfsdf",

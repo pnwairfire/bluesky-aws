@@ -21,7 +21,8 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
-        "run_id_format": "bluesky-output-%Y-%m-%dT%H%M%SZ-{uuid}",
+        "request_id_format": None, # defaults to input file name
+        "run_id_format": None, # defaults to fire id
         "bluesky_version": "v4.1.27",
         "ssh_key": None,
         "aws": {
@@ -30,6 +31,7 @@ class Config(object):
                 "Name": None
             },
             "ec2": {
+                "max_num_instances": None,
                 "image_id": None,
                 "instance_type": None,
                 "key_pair_name": None,
@@ -142,7 +144,6 @@ class ParallelConfig(Config):
 
     REQUIRED_CONFIG_SETTINGS = [
         # top level keys need extra comma to make a tuple
-        ("run_id_format", ),
         ("bluesky_version", ),
         ("ssh_key", ),
         ("aws", "iam_instance_profile", "Arn"),
@@ -159,7 +160,6 @@ class SingleConfig(Config):
 
     REQUIRED_CONFIG_SETTINGS = [
         # top level keys need extra comma to make a tuple
-        ("run_id_format", ),
         ("bluesky_version", ),
         ("ssh_key", ),
         ("aws", "iam_instance_profile", "Arn"),
