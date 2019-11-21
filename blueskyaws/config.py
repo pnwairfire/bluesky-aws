@@ -44,6 +44,7 @@ class Config(object):
             },
             "s3": {
                 "bucket_name": None,
+                "output_path": "dispersion"
             }
         },
         "bluesky": {
@@ -153,6 +154,7 @@ class ParallelConfig(Config):
         ("aws", "ec2", "key_pair_name"),
         ("aws", "ec2", "security_groups"),
         ("aws", "s3", "bucket_name"),
+        ("aws", "s3", "output_path"),
         ("bluesky", "modules")
     ]
 
@@ -165,6 +167,7 @@ class SingleConfig(Config):
         ("aws", "iam_instance_profile", "Arn"),
         ("aws", "iam_instance_profile", "Name"),
         ("aws", "s3", "bucket_name"),
+        ("aws", "s3", "output_path"),
         ("bluesky", "modules")
     ]
 

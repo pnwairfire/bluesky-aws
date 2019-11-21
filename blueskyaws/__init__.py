@@ -245,7 +245,9 @@ class BlueskySingleRunner(object):
 
     async def _publish(self):
         # Pushes output bundle from remote ec2 instance to s3
-        cmd = "aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz s3://{bucket}/".format(
-            host_data_dir=self._host_data_dir, run_id=self._run_id,
-            bucket=self._config('aws', 's3', 'bucket_name'))
+        cmd = ("aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz "
+            "s3://{bucket}/{output_path}").format(
+                host_data_dir=self._host_data_dir, run_id=self._run_id,
+                bucket=self._config('aws', 's3', 'bucket_name'),
+                output_path=self._config('aws', 's3', 'output_path').strip('/'))
         await self._execute(cmd)

@@ -177,6 +177,7 @@ class TestConfig(object):
         expected['aws']['ec2']['max_num_instances'] = None
         expected['aws']['ec2']['efs_volumes'] = None
         expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": None}
+        expected['aws']['s3']['output_path'] = "dispersion"
         expected['bluesky']['config_file'] = None
         assert c._config == expected
 
@@ -242,7 +243,8 @@ class TestConfig(object):
                         }
                     },
                     "s3": {
-                        "bucket_name": "bluesky-aws"
+                        "bucket_name": "bluesky-aws",
+                        "output_path": "dispersion"
                     }
                 },
                 "bluesky": {
@@ -272,8 +274,14 @@ class TestConfig(object):
             assert c('aws', 'ec2', 'image_id') == 'ami-123abc'
             assert c.get('aws', 'ec2', 'image_id') == 'ami-123abc'
 
-            assert c('aws', 's3') == {"bucket_name": "bluesky-aws"}
-            assert c.get('aws', 's3') == {"bucket_name": "bluesky-aws"}
+            assert c('aws', 's3') == {
+                "bucket_name": "bluesky-aws",
+                "output_path": "dispersion"
+            }
+            assert c.get('aws', 's3') == {
+                "bucket_name": "bluesky-aws",
+                "output_path": "dispersion"
+            }
 
             assert c('bluesky', 'config_file') == None
             assert c.get('bluesky', 'config_file') == None
@@ -336,6 +344,7 @@ class TestConfig(object):
                     },
                     "s3": {
                         "bucket_name": "bluesky-aws",
+                        "output_path": "dispersion"
                     }
                 },
                 "bluesky": {
@@ -365,8 +374,14 @@ class TestConfig(object):
             assert c('aws', 'ec2', 'image_id') == 'ami-123abc'
             assert c.get('aws', 'ec2', 'image_id') == 'ami-123abc'
 
-            assert c('aws', 's3') == {"bucket_name": "bluesky-aws"}
-            assert c.get('aws', 's3') == {"bucket_name": "bluesky-aws"}
+            assert c('aws', 's3') == {
+                "bucket_name": "bluesky-aws",
+                "output_path": "dispersion"
+            }
+            assert c.get('aws', 's3') == {
+                "bucket_name": "bluesky-aws",
+                "output_path": "dispersion"
+            }
 
             assert c('bluesky', 'config_file') == "sdsdf.json"
             assert c.get('bluesky', 'config_file') == "sdsdf.json"
