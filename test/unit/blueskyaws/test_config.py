@@ -177,7 +177,7 @@ class TestConfig(object):
         expected['aws']['ec2']['max_num_instances'] = None
         expected['aws']['ec2']['efs_volumes'] = None
         expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": None}
-        expected['aws']['s3']['output_path'] = "dispersion"
+        expected['aws']['s3']['output_path'] = "output"
         expected['bluesky']['config_file'] = None
         assert c._config == expected
 
@@ -244,7 +244,7 @@ class TestConfig(object):
                     },
                     "s3": {
                         "bucket_name": "bluesky-aws",
-                        "output_path": "dispersion"
+                        "output_path": "output"
                     }
                 },
                 "bluesky": {
@@ -276,11 +276,11 @@ class TestConfig(object):
 
             assert c('aws', 's3') == {
                 "bucket_name": "bluesky-aws",
-                "output_path": "dispersion"
+                "output_path": "output"
             }
             assert c.get('aws', 's3') == {
                 "bucket_name": "bluesky-aws",
-                "output_path": "dispersion"
+                "output_path": "output"
             }
 
             assert c('bluesky', 'config_file') == None
@@ -344,7 +344,7 @@ class TestConfig(object):
                     },
                     "s3": {
                         "bucket_name": "bluesky-aws",
-                        "output_path": "dispersion"
+                        "output_path": "output"
                     }
                 },
                 "bluesky": {
@@ -376,11 +376,11 @@ class TestConfig(object):
 
             assert c('aws', 's3') == {
                 "bucket_name": "bluesky-aws",
-                "output_path": "dispersion"
+                "output_path": "output"
             }
             assert c.get('aws', 's3') == {
                 "bucket_name": "bluesky-aws",
-                "output_path": "dispersion"
+                "output_path": "output"
             }
 
             assert c('bluesky', 'config_file') == "sdsdf.json"

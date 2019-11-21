@@ -44,7 +44,7 @@ class Config(object):
             },
             "s3": {
                 "bucket_name": None,
-                "output_path": "dispersion"
+                "output_path": "output"
             }
         },
         "bluesky": {
