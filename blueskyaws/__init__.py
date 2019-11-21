@@ -88,11 +88,8 @@ class BlueskySingleRunner(object):
     ##
 
     async def run(self, input_data):
-        # TODO: if run_id is not defined, set run id to fire id, if
-        #   only one fire, else set to new uuid (?)
-        self._run_id = self._config('run_id_format').format(
-            uuid=str(uuid.uuid4()).split('-')[0])
-        self._run_id = datetime.datetime.utcnow().strftime(self._run_id)
+        self._set_run_id(input_data)
+
         logging.info("Running")
         ip = self._instance.classic_address.public_ip
         with SshClient(self._config('ssh_key'), ip) as ssh_client:
@@ -109,6 +106,19 @@ class BlueskySingleRunner(object):
     ##
     ## Run Helpers
     ##
+
+    def _set_run_id(self, input_data):
+        # if run_id is not defined, set run id to fire id, if
+        # only one fire, else set to new uuid (?)
+        if self._config('run_id_format'):
+            run_id = self._config('run_id_format').format(
+                uuid=str(uuid.uuid4()).split('-')[0])
+            self._run_id = datetime.datetime.utcnow().strftime(run_id)
+        else:
+            if len(input_data['fires']) == 1 and input_data['fires'].get('id'):
+                self._run_id = input_data['fires']['id']
+            else:
+                self._run_id = str(uuid.uuid4())
 
     async def _load_bluesky_config(self):
         # Note that the bluesky config is loaded in BlueskySingleRunner
