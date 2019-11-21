@@ -5,11 +5,13 @@ import os
 import tempfile
 import uuid
 
+import boto3
 from afaws.ec2.launch import Ec2Launcher
 from afaws.ec2.initialization import InstanceInitializerSsh
 #from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
 from afaws.ec2.shutdown import Ec2Shutdown
 from afaws.ec2.ssh import SshClient
+from afaws.asyncutils import run_in_loop_executor
 
 from .launch import Ec2InstancesManager
 from .config import (
@@ -29,28 +31,44 @@ class BaseBlueskyRunner(object):
         # unrestricted Conig object based on whether or not new
         # instances are needed for the number of fires passed into run
         self._raw_config = Config()
+        self._s3_client = boto3.client('s3')
 
     ##
     ## Public Interface
     ##
 
-    async def run(self, input_file):
-        self._load(input_file)
+    async def run(self, input_file_name):
+        self._load_input(input_file_name)
         self._set_config()
-        await self._initialize_stats(fires)
+        await self._initialize_status(fires)
 
         ec2_instance_manager = Ec2InstancesManager(self._config,
             self._total_instances_needed, existing=self._instances)
         async with ec2_instance_manager:
             for fire, instance in zip(fires, manager.instances):
-                await BlueskySingleRunner(instance, config).run({'fires': [fire]})
+                runner = BlueskySingleRunner(instance, config,
+                    self._update_single_run_status)
+                await runner.run({'fires': [fire]})
+
+        # TODO: update status one final time
 
         await self._notify()
 
-    def _load_input(self, input_file):
-        with open(input_file, 'r') as f:
-            self._fires = json.loads(f.read())
+    ## Initialization
 
+    JSON_EXT_STRIPPER = re.compile('\.json$')
+
+    def _load_input(self, input_file_name):
+        base_name = os.path.basename(input_file_name)
+        self._input_file_base_name = JSON_EXT_STRIPPER.sub('', base_name)
+        with open(input_file_name, 'r') as f:
+            # save to s3
+            run_in_loop_executor(s3.upload_fileobj, f,
+                self._config('aws', 's3', 'bucket_name'),
+                os.path.join('requests', basename))
+            # reset point to beginning of file and load json data
+            f.seek(0)
+            self._fires = json.loads(f.read())
 
     def _set_config(self, fires):
         max_num_instances = self._raw_config("aws", 'ec2', "max_num_instances")
@@ -61,15 +79,25 @@ class BaseBlueskyRunner(object):
         else:
             self._config = SingleConfig(self._raw_config)
 
-    ##
-    ## Helpers
-    ##
+    ## Status
 
-    def _initialize_status(self, fires):
-        pass
+    async def _save_status(self):
+        run_in_loop_executor(s3.upload_fileobj, self._status,
+            self._config('aws', 's3', 'bucket_name'),
+            os.path.join('status', self._input_file_base_name + 'status.json'))
 
-    def _update_status(self, fire, status):
-        pass
+
+    async def _initialize_status(self, fires):
+        # TODO: fill in initial status structure
+        self._status = {}
+        await self._save_status()
+
+    async def _update_single_run_status(self, fire, status):
+        # TODO: Update fire's status as well as summary data
+        #   and put object in s3
+        await self._save_status()
+
+    ## Notifications
 
     async def _notify(self):
         # TODO: send notification; send email and/or post status to an API
@@ -79,13 +107,12 @@ class BaseBlueskyRunner(object):
 
 class BlueskySingleRunner(object):
 
-    def __init__(self, instance, config):
+    def __init__(self, instance, config, update_single_run_status_func):
         self._instance = instance
         self._config = config
+        self._update_single_run_status = update_single_run_status_func
 
-    ##
     ## Public Interface
-    ##
 
     async def run(self, input_data):
         self._set_run_id(input_data)
@@ -103,9 +130,7 @@ class BlueskySingleRunner(object):
             await self._upload_aws_credentials()
             await self._publish()
 
-    ##
     ## Run Helpers
-    ##
 
     def _set_run_id(self, input_data):
         # if run_id is not defined, set run id to fire id, if

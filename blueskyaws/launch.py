@@ -22,6 +22,8 @@ class Ec2InstancesManager(object):
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self._terminate()
 
+    ## Public Interface
+
     @property
     def instances(self):
         # Explicitly return first self._num_total in case the number of
@@ -48,6 +50,8 @@ class Ec2InstancesManager(object):
             ]
 
             self._new_instances = await launcher.launch(new_instance_names)
+
+    ## Helpers
 
     async def _initialize(self):
         initializer = InstanceInitializerSsh(self._config('ssh_key'),
