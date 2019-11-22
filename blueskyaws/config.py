@@ -180,6 +180,7 @@ BLUESKY_EXPORT_CONFIG = {
         "modes": ["localsave"],
         "extra_exports": ["dispersion", "visualization"],
         "localsave": {
+            "handle_existing": "replace",
             "dest_dir": "/data/bluesky/exports/"
         }
     }
