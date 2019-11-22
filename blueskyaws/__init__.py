@@ -230,8 +230,13 @@ class BlueskySingleRunner(object):
             self._host_data_dir))
 
     def _form_bsp_command(self):
-        return ("docker run --rm -v {host_data_dir}:/data/bluesky/"
-            " pnwairfire/bluesky:{version}"
+        cmd = "docker run --rm -v {host_data_dir}:/data/bluesky/".format(
+            host_data_dir=self._host_data_dir)
+
+        for v in self._config('aws', 'ec2', 'efs_volumes'):
+            cmd += " -v {d}:{d}".format(d=v[1])
+
+        cmd += (" pnwairfire/bluesky:{version}"
             " bsp --log-level=DEBUG"
             " --run-id={run_id}"
             " -c /data/bluesky/config.json"
@@ -240,11 +245,12 @@ class BlueskySingleRunner(object):
             " --log-file /data/bluesky/output.log"
             " {modules}"
             ).format(
-                host_data_dir=self._host_data_dir,
                 version=self._config('bluesky_version'),
                 run_id=self._run_id,
                 modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
+
+        return cmd
 
     async def _tarball(self):
         await self._execute(("cd {host_data_dir}/exports/; tar czf "
