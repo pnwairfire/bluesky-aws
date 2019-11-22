@@ -20,12 +20,12 @@
             }
         },
         "bluesky": {
+            "config_file": null,
             "modules": [
                 "fuelbeds",
                 "consumption",
                 "emissions"
-            ],
-            "config_file": null
+            ]
         }
     }
 }
