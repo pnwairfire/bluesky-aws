@@ -172,9 +172,11 @@ class BlueskySingleRunner(object):
         self._bluesky_config = {'config': {}}
         if self._config('bluesky', 'config_file'):
             with open(self._config('bluesky', 'config_file')) as f:
-                self._bluesky_config = json.loads(f.read()).get('config')
+                self._bluesky_config = json.loads(f.read())
 
         # Override any export config specified in the provided config file
+        # TODO: allow user config to include export settings and
+        #   merge BLUESKY_EXPORT_CONFIG into them?
         self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
 
     async def _execute(self, cmd):
