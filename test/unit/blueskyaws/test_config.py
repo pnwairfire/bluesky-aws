@@ -178,6 +178,7 @@ class TestConfig(object):
         expected['aws']['ec2']['efs_volumes'] = None
         expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": None}
         expected['aws']['s3']['output_path'] = "output"
+        expected['bluesky']['today'] = None
         expected['bluesky']['config_file'] = None
         assert c._config == expected
 
@@ -248,6 +249,7 @@ class TestConfig(object):
                     }
                 },
                 "bluesky": {
+                    "today": None,
                     "modules": [
                         "fuelbeds",
                         "consumption",
@@ -348,6 +350,7 @@ class TestConfig(object):
                     }
                 },
                 "bluesky": {
+                    "today": None,
                     "modules": [
                         "fuelbeds",
                         "consumption",

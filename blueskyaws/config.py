@@ -48,6 +48,9 @@ class Config(object):
             }
         },
         "bluesky": {
+            # 'today' defaults to current day (i.e not
+            #  specified in the pipeline command)
+            "today": None,
             "modules": [
                 "fuelbeds",
                 "consumption",

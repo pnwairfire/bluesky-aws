@@ -251,6 +251,8 @@ class BlueskySingleRunner(object):
                 run_id=self._run_id,
                 modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
+        if self._config('bluesky', 'today'):
+            cmd += " --today {}".format(self._config('bluesky', 'today'))
 
         return cmd
 
