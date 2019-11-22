@@ -26,6 +26,10 @@ docker pull pnwairfire/bluesky:v4.1.27
 docker run --rm pnwairfire/bluesky:v4.1.27
 exit
 ```
+ - Install NFS client
+```
+ sudo apt-get install nfs-common
+```
  - Install aws client
  ```
  sudo apt install -y awscli
