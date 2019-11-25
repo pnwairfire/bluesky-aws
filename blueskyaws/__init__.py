@@ -19,6 +19,17 @@ __all__ = [
     "BlueskyParallelRunner"
 ]
 
+
+class Status(object):
+    # Used in overal stats
+    COMPLETE = 'complete'
+
+    # Assigned to individual runs
+    RUNNING = 'running'
+    SUCCESS = 'success'
+    FAILURE = 'failure'
+
+
 class BlueskyParallelRunner(object):
     """Given a pool of existing instances along with instances
     to be launced, runs bluesky on a set of fires in as parallel a
@@ -42,7 +53,6 @@ class BlueskyParallelRunner(object):
         self._load_input(input_file_name)
         self._set_config()
         await self._record_input(input_file_name)
-        await self._initialize_status()
 
         ec2_instance_manager = Ec2InstancesManager(self._config,
             self._total_instances_needed, existing=self._instances)
@@ -59,12 +69,17 @@ class BlueskyParallelRunner(object):
             #            a) separate runs sequentially
             #            b) separate runs in parallel
             #            c) single run
-            for fire, instance in zip(self._fires, ec2_instance_manager.instances):
-                runner = BlueskySingleRunner(instance, self._config,
-                    self._update_single_run_status)
-                await runner.run({'fires': [fire]})
+            runs = zip(self._fires, ec2_instance_manager.instances)
+            runners = [BlueskySingleRunner({'fires': [fire]}, instance,
+                self._config, self._update_single_run_status)
+                for fire, instance in runs]
 
-        # TODO: update status one final time
+            await self._initialize_status(runners)
+
+            for runner in runners:
+                await runner.run()
+
+        await self._finalize_status()
 
         await self._notify()
 
@@ -104,15 +119,38 @@ class BlueskyParallelRunner(object):
             Bucket=self._config('aws', 's3', 'bucket_name'),
             Key=os.path.join('status', self._input_file_base_name + '-status.json'))
 
-    async def _initialize_status(self):
-        # TODO: fill in initial status structure
-        self._status = {}
+    async def _initialize_status(self, runners):
+        self._status = {
+            "status": Status.RUNNING,
+            "counts": {
+                Status.RUNNING: len(self._fires),
+                Status.SUCCESS: 0,
+                Status.FAILURE: 0,
+                Status.COMPLETE: 0
+            },
+            "runs": {runner._run_id: "running" for runner in runners}
+        }
         await self._save_status()
 
-    async def _update_single_run_status(self, fire, status):
-        # TODO: Update fire's status as well as summary data
-        #   and put object in s3
+    async def _update_single_run_status(self, run, status):
+        # Update run's status
+        self._status["runs"][run._run_id] = status
+
+        # Update count for this status, if it has a count
+        if status in self._status['counts']:
+            self._status['counts'][status] += 1
+
+        # update running and complete counts, if appropriate
+        if status in (Status.SUCCESS, Status.FAILURE):
+            self._status['counts'][Status.RUNNING] -= 1
+            self._status['counts'][Status.COMPLETE] += 1
+
         await self._save_status()
+
+    async def _finalize_status(self):
+        self._status['status'] = Status.COMPLETE
+        self._save_status()
+
 
     ## Notifications
 
@@ -124,32 +162,35 @@ class BlueskyParallelRunner(object):
 
 class BlueskySingleRunner(object):
 
-    def __init__(self, instance, config, update_single_run_status_func):
+    def __init__(self, input_data, instance, config, update_single_run_status_func):
         self._instance = instance
         self._config = config
         self._update_single_run_status = update_single_run_status_func
+        self._input_data = input_data
+        self._set_run_id()
 
     ## Public Interface
 
-    async def run(self, input_data):
-        self._set_run_id(input_data)
-
+    async def run(self):
         logging.info("Running")
         ip = self._instance.classic_address.public_ip
         with SshClient(self._config('ssh_key'), ip) as ssh_client:
             self._ssh_client = ssh_client
             await self._load_bluesky_config()
             await self._create_remote_dirs()
-            await self._write_remote_files(input_data)
+            await self._write_remote_files()
             await self._install_bluesky_and_dependencies()
             await self._run_bluesky()
             await self._tarball()
             await self._upload_aws_credentials()
             await self._publish()
+        # TODO: check return value of bluesky and/or look in bluesky
+        #   output for error, and determine status from that
+        await self._update_single_run_status(self, Status.SUCCESS)
 
     ## Run Helpers
 
-    def _set_run_id(self, input_data):
+    def _set_run_id(self):
         # if run_id is not defined, set run id to fire id, if
         # only one fire, else set to new uuid (?)
         if self._config('run_id_format'):
@@ -157,8 +198,8 @@ class BlueskySingleRunner(object):
                 uuid=str(uuid.uuid4()).split('-')[0])
             self._run_id = datetime.datetime.utcnow().strftime(run_id)
         else:
-            if len(input_data['fires']) == 1 and input_data['fires'][0].get('id'):
-                self._run_id = "fire-" + input_data['fires'][0]['id']
+            if len(self._input_data['fires']) == 1 and self._input_data['fires'][0].get('id'):
+                self._run_id = "fire-" + self._input_data['fires'][0]['id']
             else:
                 self._run_id = str(uuid.uuid4())
 
@@ -194,10 +235,10 @@ class BlueskySingleRunner(object):
         self._host_data_dir = os.path.join(self._remote_home_dir, "data/bluesky/")
         await self._execute("mkdir -p {}".format(self._host_data_dir))
 
-    async def _write_remote_files(self, input_data):
+    async def _write_remote_files(self):
         await self._write_remote_json_file(self._bluesky_config,
             os.path.join(self._host_data_dir, 'config.json'))
-        await self._write_remote_json_file(input_data,
+        await self._write_remote_json_file(self._input_data,
             os.path.join(self._host_data_dir, 'input.json'))
 
     async def _write_remote_json_file(self, data, remote_file_path):
