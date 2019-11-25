@@ -131,13 +131,19 @@ class BlueskyParallelRunner(object):
                 Status.FAILURE: 0,
                 Status.COMPLETE: 0
             },
-            "runs": {runner._run_id: "running" for runner in runners}
+            "runs": {
+                runner._run_id: {
+                    "status": Status.RUNNING,
+                    "message": None
+                } for runner in runners
+            }
         }
         await self._save_status()
 
-    async def _update_single_run_status(self, run, status):
+    async def _update_single_run_status(self, run, status, message=None):
         # Update run's status
-        self._status["runs"][run._run_id] = status
+        self._status["runs"][run._run_id]["status"] = status
+        self._status["runs"][run._run_id]["message"] = message
 
         # Update count for this status, if it has a count
         if status in self._status['counts']:
