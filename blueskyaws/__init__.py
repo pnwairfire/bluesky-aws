@@ -149,7 +149,7 @@ class BlueskyParallelRunner(object):
 
     async def _finalize_status(self):
         self._status['status'] = Status.COMPLETE
-        self._save_status()
+        await self._save_status()
 
 
     ## Notifications
