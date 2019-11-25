@@ -70,9 +70,12 @@ class BlueskyParallelRunner(object):
             #            b) separate runs in parallel
             #            c) single run
             runs = zip(self._fires, ec2_instance_manager.instances)
-            runners = [BlueskySingleRunner({'fires': [fire]}, instance,
-                self._config, self._update_single_run_status)
-                for fire, instance in runs]
+            runners = [
+                BlueskySingleRunner({'fires': [fire]}, instance,
+                    self._config, self._request_name,
+                    self._update_single_run_status)
+                for fire, instance in runs
+            ]
 
             await self._initialize_status(runners)
 
@@ -89,7 +92,7 @@ class BlueskyParallelRunner(object):
 
     def _load_input(self, input_file_name):
         base_name = os.path.basename(input_file_name)
-        self._input_file_base_name = self.JSON_EXT_STRIPPER.sub('', base_name)
+        self._request_name = self.JSON_EXT_STRIPPER.sub('', base_name)
         with open(input_file_name, 'r') as f:
             # reset point to beginning of file and load json data
             f.seek(0)
@@ -108,7 +111,7 @@ class BlueskyParallelRunner(object):
     async def _record_input(self, input_file_name):
         await run_in_loop_executor(self._s3_client.upload_file,
             input_file_name, self._config('aws', 's3', 'bucket_name'),
-            os.path.join('requests', self._input_file_base_name + '.json'))
+            os.path.join('requests', self._request_name + '.json'))
 
 
     ## Status
@@ -117,7 +120,7 @@ class BlueskyParallelRunner(object):
         await run_in_loop_executor(self._s3_client.put_object,
             Body=json.dumps(self._status),
             Bucket=self._config('aws', 's3', 'bucket_name'),
-            Key=os.path.join('status', self._input_file_base_name + '-status.json'))
+            Key=os.path.join('status', self._request_name + '-status.json'))
 
     async def _initialize_status(self, runners):
         self._status = {
@@ -162,11 +165,13 @@ class BlueskyParallelRunner(object):
 
 class BlueskySingleRunner(object):
 
-    def __init__(self, input_data, instance, config, update_single_run_status_func):
+    def __init__(self, input_data, instance, config,
+            request_name, update_single_run_status_func):
+        self._input_data = input_data
         self._instance = instance
         self._config = config
+        self._request_name = request_name
         self._update_single_run_status = update_single_run_status_func
-        self._input_data = input_data
         self._set_run_id()
 
     ## Public Interface
@@ -313,8 +318,9 @@ class BlueskySingleRunner(object):
     async def _publish(self):
         # Pushes output bundle from remote ec2 instance to s3
         cmd = ("aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz "
-            "s3://{bucket}/{output_path}/{run_id}.tar.gz").format(
+            "s3://{bucket}/{output_path}/{request_name}/{run_id}.tar.gz").format(
                 host_data_dir=self._host_data_dir, run_id=self._run_id,
                 bucket=self._config('aws', 's3', 'bucket_name'),
-                output_path=self._config('aws', 's3', 'output_path').strip('/'))
+                output_path=self._config('aws', 's3', 'output_path').strip('/'),
+                request_name=self._request_name)
         await self._execute(cmd)
