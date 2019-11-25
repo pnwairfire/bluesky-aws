@@ -42,7 +42,8 @@ class Ec2InstancesManager(object):
                 'instance_type': self._config("aws", "ec2", "instance_type"),
                 'key_pair_name': self._config("aws", "ec2", "key_pair_name"),
                 'security_groups': self._config("aws", "ec2", "security_groups"),
-                'ebs_volume_size': self._config("aws", "ec2", "ebs", "volume_size")
+                'ebs_volume_size': self._config("aws", "ec2", "ebs", "volume_size"),
+                'ebs_device_name': self._config("aws", "ec2", "ebs", "device_name")
             }
             launcher = Ec2Launcher(
                 self._config("aws", "ec2", "image_id"),

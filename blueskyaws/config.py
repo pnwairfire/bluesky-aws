@@ -39,7 +39,7 @@ class Config(object):
                 "efs_volumes": None,
                 "ebs": {
                     "volume_size": 8,
-                    "device_name": None
+                    "device_name": "/dev/sda1" # TODO: default ot '/dev/xvda' ?
                 }
             },
             "s3": {
