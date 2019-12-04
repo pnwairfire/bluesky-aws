@@ -23,7 +23,7 @@ class Config(object):
     _DEFAULTS = {
         "request_id_format": None, # defaults to input file name
         "run_id_format": None, # defaults to fire id
-        "bluesky_version": "v4.1.27",
+        "bluesky_version": "v4.1.29",
         "ssh_key": None,
         "aws": {
             "iam_instance_profile": {

@@ -31,7 +31,7 @@ if [ "$SHOW_HELP" = true ] ; then
     echo ""
     echo "   $0 -i ./dev/data/1-fire.json \\"
     echo "      -c ./dev-private/config/bluesky-aws/emissions.json \\"
-    echo "      --instance bluesky-v4.1.27-test"
+    echo "      --instance bluesky-v4.1.29-test"
     echo ""
     exit 0
 fi

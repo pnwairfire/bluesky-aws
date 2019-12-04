@@ -224,7 +224,7 @@ class TestConfig(object):
             expected = {
                 "request_id_format": None,
                 "run_id_format": None,
-                "bluesky_version": "v4.1.27",
+                "bluesky_version": "v4.1.29",
                 "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
@@ -325,7 +325,7 @@ class TestConfig(object):
             expected = {
                 "request_id_format": None,
                 "run_id_format": None,
-                "bluesky_version": "v4.1.27",
+                "bluesky_version": "v4.1.29",
                 "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
