@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+
+import argparse
+import datetime
+import json
+import logging
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+
+EPILOG_STR = """
+Examples:
+
+   $ {script} -c ./dev-private/config/bluesky-aws/emissions.json
+
+   $ {script} -c ./dev-private/config/bluesky-aws/emissions.json -d 2019-12-03
+
+   $ {script} -c ./dev-private/config/bluesky-aws/emissions.json \\
+      -i ./dev/data/1-fire.json --instance bluesky-v4.1.29-test
+
+   $ {script} -c ./dev-private/config/bluesky-aws/emissions.json \\
+      -d 2019-12-03  --instance bluesky-v4.1.29-test
+
+ """.format(script=sys.argv[0])
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.formatter_class = argparse.RawTextHelpFormatter
+    parser.add_argument('-c', '--config_file', required=True,
+        help="bluesky-aws config file")
+    parser.add_argument('-i', '--input-file', help="input data file")
+    parser.add_argument('-d', help=("date used to generate input data, "
+        "if file isn't specified; e.g. '2019-12-01"))
+    parser.add_argument('-n', help=("number of fires to create in input data, "
+        "if file isn't specified; default 1"), type=int, default=1)
+    parser.add_argument('--instance', help="Existing ec2 instance")
+    parser.epilog = EPILOG_STR
+    return parser.parse_args()
+
+
+class get_input_file(object):
+
+    def __init__(self, args_object):
+        if args_object.input_file:
+            self._input_file_name = args_object.input_file
+
+        else:
+            f = tempfile.NamedTemporaryFile()
+            data = self._generate_data(args_object)
+            f.write(json.dumps(data).encode())
+            f.flush()
+            self._input_file = f # save to object so that it doesn't get deleted
+            self._input_file_name = f.name
+
+    def __enter__(self):
+        return self._input_file_name
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def _generate_data(self, args_object):
+        start = (datetime.datetime.strptime(args_object.d, '%Y-%m-%d')
+            if args_object.d else datetime.datetime.utcnow())
+        end = start + datetime.timedelta(days=2)
+        data = {"fires": []}
+
+        for n in range(args_object.n):
+            data['fires'].append({
+                "id": "DS3DSK23DFJ",
+                "type": "rx",
+                "activity": [
+                    {
+                        "active_areas": [
+                            {
+                                "start": start.strftime("%Y-%m-%dT00:00:00"),
+                                "end": end.strftime("T00:00:00"),
+                                "ignition_start": start.strftime("%Y-%m-%dT08:00:00"),
+                                "ignition_end": start.strftime("%Y-%m-%dT14:00:00"),
+                                "utc_offset": "-07:00",
+                                "ecoregion": "western",
+                                "country": "USA",
+                                "state": "CA",
+                                "specified_points": [
+                                    {
+                                        "lng": -119.7615805 + n * 0.01,
+                                        "lat": 37.909644 - n * 0.01,
+                                        "area": 10000
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            })
+
+        return data
+
+def get_command(input_file, config_file, instance):
+    cwd = os.getcwd()
+    home = str(pathlib.Path.home())
+    cmd = [
+        "docker", "run", "--rm", "-ti", "--user", "blueskyaws",
+        "-v", "{}/:/bluesky-aws/".format(cwd),
+        "-v", "{}/.aws/:/home/blueskyaws/.aws/".format(cwd),
+        "-v", "{}/.ssh:/home/blueskyaws/.ssh".format(home),
+        "-v", "{d}:{d}".format(d=os.path.dirname(input_file)),
+        "bluesky-aws",
+        "./bin/run-bluesky",
+        "--log-level", "INFO",
+        "-i", input_file,
+        "-c", config_file
+    ]
+
+    #    '-v', '$HOME/code/pnwairfire-afaws/afaws/:/bluesky-aws/afaws/',
+
+    if instance:
+        cmd.extend(['--instance', instance])
+
+    return cmd
+
+def main():
+    args = parse_args()
+    logging.basicConfig(level=logging.INFO,
+        format='%(asctime)s %(levelname)s: %(message)s')
+    with get_input_file(args) as input_file:
+        cmd = get_command(input_file, args.config_file, args.instance)
+        logging.info("Running %s", cmd)
+        subprocess.run(cmd)
+
+if __name__ == "__main__":
+    main()
