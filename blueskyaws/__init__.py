@@ -346,6 +346,14 @@ class BlueskySingleRunner(object):
                 request_name=self._request_name)
         await self._execute(cmd)
 
+        # Pushes log file from remote ec2 instance to s3
+        cmd = ("aws s3 cp {host_data_dir}/output.log "
+            "s3://{bucket}/log/{request_name}.log").format(
+                host_data_dir=self._host_data_dir,
+                bucket=self._config('aws', 's3', 'bucket_name'),
+                request_name=self._request_name)
+        await self._execute(cmd)
+
     async def _cleanup(self):
         if self._config('cleanup_output'):
             # delete the entire output dir
