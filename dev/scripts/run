@@ -94,8 +94,8 @@ class get_input_file(object):
                                 "state": "CA",
                                 "specified_points": [
                                     {
-                                        "lng": args_object.lat + n * 0.01,
-                                        "lat": args_object.lng - n * 0.01,
+                                        "lat": args_object.lat + n * 0.01,
+                                        "lng": args_object.lng - n * 0.01,
                                         "area": 10000
                                     }
                                 ]
