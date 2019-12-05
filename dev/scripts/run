@@ -57,12 +57,15 @@ class get_input_file(object):
             self._input_file_name = args_object.input_file
 
         else:
-            f = tempfile.NamedTemporaryFile()
-            data = self._generate_data(args_object)
-            f.write(json.dumps(data).encode())
-            f.flush()
-            self._input_file = f # save to object so that it doesn't get deleted
-            self._input_file_name = f.name
+            self._id = 'run-script-{}-fire{}'.format(args_object.n,
+                's' if args_object.n > 1 else '')
+            # save to object so that it doesn't get deleted until after exit
+            self._tmpdir = tempfile.mkdtemp()
+            self._input_file_name = os.path.join(
+                self._tmpdir, self._id)
+            with open (self._input_file_name, 'w') as f:
+                data = self._generate_data(args_object)
+                f.write(json.dumps(data))
 
     def __enter__(self):
         return self._input_file_name
@@ -78,7 +81,7 @@ class get_input_file(object):
 
         for n in range(args_object.n):
             data['fires'].append({
-                "id": "DS3DSK23DFJ",
+                "id": '{}-{}'.format(self._id, n),
                 "type": "rx",
                 "activity": [
                     {
