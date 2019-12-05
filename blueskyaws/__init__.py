@@ -243,8 +243,13 @@ class BlueskySingleRunner(object):
     async def _create_remote_dirs(self):
         self._remote_home_dir = await self._execute('echo $HOME')
         # TODO: handle self._remote_home_dir == None
-        self._host_data_dir = os.path.join(self._remote_home_dir, "data/bluesky/")
+        # create dir, in case it doesn't already exist
+        self._host_data_dir = os.path.join(self._remote_home_dir,
+            "data/bluesky/", self._run_id)
         await self._execute("mkdir -p {}".format(self._host_data_dir))
+        # clear out any old output, if there is any
+        await self._execute("rm -r {}".format(
+            os.path.join(self._host_data_dir, '*')))
 
     async def _write_remote_files(self):
         await self._write_remote_json_file(self._bluesky_config,
