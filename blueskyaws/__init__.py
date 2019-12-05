@@ -202,18 +202,25 @@ class BlueskySingleRunner(object):
 
     ## Run Helpers
 
+    def _get_fire_id(self):
+        if len(self._input_data['fires']) == 1 and self._input_data['fires'][0].get('id'):
+            return self._input_data['fires'][0]['id']
+
+
     def _set_run_id(self):
-        # if run_id is not defined, set run id to fire id, if
+        # if run_id_format is not defined, set run id to fire id, if
         # only one fire, else set to new uuid (?)
+        fire_id = self._get_fire_id()
         if self._config('run_id_format'):
+            utcnow = datetime.datetime.utcnow()
             run_id = self._config('run_id_format').format(
-                uuid=str(uuid.uuid4()).split('-')[0])
+                uuid=str(uuid.uuid4()).split('-')[0],
+                fire_id=fire_id or '',
+                utc_today=utcnow.strftime("%Y%m%d"),
+                utc_now=utcnow.strftime("%Y%m%dT%H%M%S"))
             self._run_id = datetime.datetime.utcnow().strftime(run_id)
         else:
-            if len(self._input_data['fires']) == 1 and self._input_data['fires'][0].get('id'):
-                self._run_id = "fire-" + self._input_data['fires'][0]['id']
-            else:
-                self._run_id = str(uuid.uuid4())
+            self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
 
     async def _load_bluesky_config(self):
         # Note that the bluesky config is loaded in BlueskySingleRunner
