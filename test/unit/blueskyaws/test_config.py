@@ -176,7 +176,7 @@ class TestConfig(object):
         expected = dict(copy.deepcopy(Config._DEFAULTS), **input_config)
         expected['aws']['ec2']['max_num_instances'] = None
         expected['aws']['ec2']['efs_volumes'] = None
-        expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": None}
+        expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": "/dev/sda1"}
         expected['aws']['s3']['output_path'] = "output"
         expected['bluesky']['today'] = None
         expected['bluesky']['config_file'] = None
@@ -225,6 +225,7 @@ class TestConfig(object):
                 "request_id_format": None,
                 "run_id_format": None,
                 "bluesky_version": "v4.1.29",
+                "cleanup_output": True,
                 "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
@@ -240,7 +241,7 @@ class TestConfig(object):
                         "efs_volumes": None,
                         "ebs": {
                             "volume_size": 8,
-                            "device_name": None
+                            "device_name": "/dev/sda1"
                         }
                     },
                     "s3": {
@@ -326,6 +327,7 @@ class TestConfig(object):
                 "request_id_format": None,
                 "run_id_format": None,
                 "bluesky_version": "v4.1.29",
+                "cleanup_output": True,
                 "ssh_key": "id_rsa",
                 "aws": {
                     "iam_instance_profile": {
@@ -341,7 +343,7 @@ class TestConfig(object):
                         "efs_volumes": None,
                         "ebs": {
                             "volume_size": 8,
-                            "device_name": None
+                            "device_name": "/dev/sda1"
                         }
                     },
                     "s3": {

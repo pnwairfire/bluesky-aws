@@ -195,6 +195,7 @@ class BlueskySingleRunner(object):
             await self._tarball()
             await self._upload_aws_credentials()
             await self._publish()
+            await self._cleanup()
         # TODO: check return value of bluesky and/or look in bluesky
         #   output for error, and determine status from that
         await self._update_single_run_status(self, Status.SUCCESS)
@@ -335,3 +336,8 @@ class BlueskySingleRunner(object):
                 output_path=self._config('aws', 's3', 'output_path').strip('/'),
                 request_name=self._request_name)
         await self._execute(cmd)
+
+    async def _cleanup(self):
+        if self._config('cleanup_output'):
+            # delete the entire output dir
+            await self._execute("rm -r {}".format(self._host_data_dir))
