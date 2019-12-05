@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 import logging
@@ -79,8 +80,9 @@ class BlueskyParallelRunner(object):
 
             await self._initialize_status(runners)
 
-            for runner in runners:
-                await runner.run()
+            await asyncio.gather(*[
+                runner.run() for runner in runners
+            ])
 
         await self._finalize_status()
 
@@ -183,8 +185,8 @@ class BlueskySingleRunner(object):
     ## Public Interface
 
     async def run(self):
-        logging.info("Running")
         ip = self._instance.classic_address.public_ip
+        logging.info("Running bluesky on %s", ip)
         with SshClient(self._config('ssh_key'), ip) as ssh_client:
             self._ssh_client = ssh_client
             await self._load_bluesky_config()
