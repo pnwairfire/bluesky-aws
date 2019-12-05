@@ -54,7 +54,7 @@ class get_input_file(object):
 
     def __init__(self, args_object):
         if args_object.input_file:
-            self._input_file_name = args_object.input_file
+            self._input_file_name = os.path.abspath(args_object.input_file)
 
         else:
             self._id = 'run-script-{}-fire{}'.format(args_object.n,
