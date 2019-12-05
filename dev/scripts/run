@@ -139,7 +139,7 @@ def main():
         format='%(asctime)s %(levelname)s: %(message)s')
     with get_input_file(args) as input_file:
         cmd = get_command(input_file, args.config_file, args.instance)
-        logging.info("Running %s", cmd)
+        logging.info("Running %s", ' '.join(cmd))
         subprocess.run(cmd)
 
 if __name__ == "__main__":
