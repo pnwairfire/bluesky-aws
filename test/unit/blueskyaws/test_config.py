@@ -224,7 +224,7 @@ class TestConfig(object):
             expected = {
                 "request_id_format": None,
                 "run_id_format": None,
-                "bluesky_version": "v4.1.29",
+                "bluesky_version": "v4.1.30",
                 "cleanup_output": True,
                 "ssh_key": "id_rsa",
                 "aws": {
@@ -326,7 +326,7 @@ class TestConfig(object):
             expected = {
                 "request_id_format": None,
                 "run_id_format": None,
-                "bluesky_version": "v4.1.29",
+                "bluesky_version": "v4.1.30",
                 "cleanup_output": True,
                 "ssh_key": "id_rsa",
                 "aws": {

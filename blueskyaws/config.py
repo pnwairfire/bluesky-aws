@@ -23,7 +23,7 @@ class Config(object):
     _DEFAULTS = {
         "request_id_format": None, # defaults to input file name
         "run_id_format": None, # defaults to fire id
-        "bluesky_version": "v4.1.29",
+        "bluesky_version": "v4.1.30",
         # setting cleanup_output to False is only useful when using an
         # existing instance in dev, when you might want to inspect
         # the output on the instance after the run
