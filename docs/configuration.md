@@ -1,7 +1,9 @@
 # Configuration
 
-## Required Configuration ettings
+## Required Configuration settings
 
+ - `bluesky_version` -- defaults to `v4.1.31` (so it desn't need to be set; it just cant be explicitly set to to an invalid version)
+ - `ssh_key` -- ssh key to use for ssh'ing to and running commands on ec2 instances
  - `aws` > `iam_instance_profile` > `Arn` --
  - `aws` > `iam_instance_profile` > `Name` --
  - `aws` > `ec2` > `image_id` -- name of image to luanch ec2 image
@@ -9,10 +11,18 @@
  - `aws` > `ec2` > `key_pair_name` -- key pair to use for ssh
  - `aws` > `ec2` > `security_groups` -- security group that allows ssh access
  - `aws` > `s3` > `bucket_name` -- name of s3 bucket used for publishing output
+ - `aws` > `s3` > `output_path` -- output path to nest output under within s3 bucket; defaults to 'output'
  - `bluesky` > `modules` -- list of bluesky modules to run
 
 ## Optional Settings
+ - `request_id_format` -- used in input, log, status, and output file names; defaults to input file name with `.json` removed
+ - `run_id_format` -- defaults to fire id
+ - `cleanup_output` -- delete output after publihing to s3; only useful when using an existing instance, when you might want to inspect the output on the instance after the run; defaults to `false`
+ - `aws` > `ec2` > `max_num_instances` -- max number of new plus existing instances to use
  - `aws` > `ec2` > `efs_volumes` -- key pair to use for ssh
+ - `aws` > `ec2` > `ebs` > `volume_size` -- EBS volume size (GB); default 8GB
+ - `aws` > `ec2` > `ebs` > `device_name` -- EBS volume device name; default "/dev/sda1"
+ - `bluesky` > `today` --
  - `bluesky` > `config_file` -- bluesky config file(s) to use when running bluesky; may be string or array (for specifying multiple files)
  - `notitifications` > `email` > `enabled` -- defaults to `false`
  - `notitifications` > `email` > `recipients` --
