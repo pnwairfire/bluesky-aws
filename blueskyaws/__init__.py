@@ -223,6 +223,7 @@ class BlueskySingleRunner(object):
         if self._config('run_id_format'):
             utcnow = datetime.datetime.utcnow()
             run_id = self._config('run_id_format').format(
+                request_id=self._request_id,
                 uuid=str(uuid.uuid4()).split('-')[0],
                 fire_id=fire_id or '',
                 utc_today=utcnow.strftime("%Y%m%d"),

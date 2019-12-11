@@ -31,6 +31,14 @@ class Config(object):
         "request_id_format": None,
 
         # run_id_format defaults to fire id.
+        # Supports the following wildcards:
+        #  '{request_id}' - replaced with the request id
+        #  '{uuid}' - replaced with an 8 character guid
+        #  '{fire_id}' - replaced with the id of the run's fire
+        #  '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
+        #  '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
+        # e.g. "bluesky-aws-{uuid}-{utc_now}" => something like
+        # "bluesky-aws-dk38fj3d-20191210T052322"
         "run_id_format": None,
 
         "bluesky_version": "v4.1.31",
