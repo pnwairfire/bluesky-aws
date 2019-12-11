@@ -21,9 +21,20 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
-        "request_id_format": None, # defaults to input file name
-        "run_id_format": None, # defaults to fire id
+        # request_id_format defaults to input file name
+        # Supports the following wildcards:
+        #  '{uuid}' - replaced with an 8 character guid
+        #  '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
+        #  '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
+        # e.g. "bluesky-aws-{uuid}-{utc_now}" => something like
+        # "bluesky-aws-dk38fj3d-20191210T052322"
+        "request_id_format": None,
+
+        # run_id_format defaults to fire id.
+        "run_id_format": None,
+
         "bluesky_version": "v4.1.31",
+
         # setting cleanup_output to False is only useful when using an
         # existing instance in dev, when you might want to inspect
         # the output on the instance after the run
