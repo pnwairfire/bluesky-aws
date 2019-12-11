@@ -55,6 +55,15 @@ class Config(object):
             },
             "ec2": {
                 "max_num_instances": None,
+                # A guid assigned to the request will be appended to the
+                # image_name_prefix_format to prevent name collisions.
+                # An integer from 1 to num_new_instances will then be appended
+                # to that. If image_name_prefix_format is set to null or
+                # an empty string, each image will be named simply with the guid
+                # plus the integer
+                # Supports the following wildcards:
+                #  '{request_id}' - replaced with the request id
+                "image_name_prefix_format": "bluesky-aws-{request_id}",
                 "image_id": None,
                 "instance_type": None,
                 "key_pair_name": None,

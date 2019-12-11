@@ -8,13 +8,14 @@ from afaws.ec2.shutdown import Ec2Shutdown
 
 class Ec2InstancesManager(object):
 
-    def __init__(self, config, num_total, existing=None):
+    def __init__(self, config, num_total, request_id, existing=None):
         self._config = config
         self._afaws_config = AwsConfig({
             "iam_instance_profile": self._config('aws', 'iam_instance_profile'),
             "default_efs_volumes": self._config('aws', 'ec2', 'efs_volumes')
         })
         self._num_total = num_total
+        self._request_id = request_id
         self._existing_instances = existing
         self._new_instances = []
 
@@ -49,9 +50,10 @@ class Ec2InstancesManager(object):
                 self._config("aws", "ec2", "image_id"),
                 self._afaws_config, **options)
 
-            u = str(uuid.uuid4())[:8]
+            name_prefix = (self._config("aws", "ec2", "image_name_prefix_format")
+                or '').format(request_id=self.request_id) + '-' + str(uuid.uuid4())[:8]
             new_instance_names = [
-                'blueskyaws-{}-{}'.format(u, n) for n in range(num_new)
+                '{}-{}'.format(name_prefix, n) for n in range(num_new)
             ]
 
             self._new_instances = await launcher.launch(new_instance_names)

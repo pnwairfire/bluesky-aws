@@ -56,7 +56,8 @@ class BlueskyParallelRunner(object):
         await self._record_input(input_file_name)
 
         ec2_instance_manager = Ec2InstancesManager(self._config,
-            self._total_instances_needed, existing=self._instances)
+            self._total_instances_needed, self._request_id,
+            existing=self._instances)
         async with ec2_instance_manager:
             # TODO: Add more options for supporting the case where
             #     num_fires > num_instances; Some possibilities:
