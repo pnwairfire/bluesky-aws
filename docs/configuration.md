@@ -2,34 +2,75 @@
 
 ## Required Configuration settings
 
- - `bluesky_version` -- defaults to `v4.1.31` (so it desn't need to be set; it just cant be explicitly set to to an invalid version)
- - `ssh_key` -- ssh key to use for ssh'ing to and running commands on ec2 instances
- - `aws` > `iam_instance_profile` > `Arn` --
- - `aws` > `iam_instance_profile` > `Name` --
- - `aws` > `ec2` > `image_id` -- name of image to luanch ec2 image
- - `aws` > `ec2` > `instance_type` -- instance type to use
- - `aws` > `ec2` > `key_pair_name` -- key pair to use for ssh
- - `aws` > `ec2` > `security_groups` -- security group that allows ssh access
- - `aws` > `s3` > `bucket_name` -- name of s3 bucket used for publishing output
- - `aws` > `s3` > `output_path` -- output path to nest output under within s3 bucket; defaults to 'output'
- - `bluesky` > `modules` -- list of bluesky modules to run
+ - `bluesky_version`
+   - defaults to `v4.1.31` (so it desn't need to be set; it just cant be explicitly set to to an invalid version)
+ - `ssh_key`
+   - ssh key to use for ssh'ing to and running commands on ec2 instances
+ - `aws` > `iam_instance_profile` > `Arn`
+ - `aws` > `iam_instance_profile` > `Name`
+ - `aws` > `ec2` > `image_id`
+   - name of image to luanch ec2 image
+ - `aws` > `ec2` > `instance_type`
+   - instance type to use
+ - `aws` > `ec2` > `key_pair_name`
+   - key pair to use for ssh
+ - `aws` > `ec2` > `security_groups`
+   - security group that allows ssh access
+ - `aws` > `s3` > `bucket_name`
+   - name of s3 bucket used for publishing output
+ - `aws` > `s3` > `output_path`
+   - output path to nest output under within s3 bucket; defaults to 'output'
+ - `bluesky` > `modules`
+   - list of bluesky modules to run
 
 ## Optional Settings
- - `request_id_format` -- used in input, log, status, and output file names; defaults to input file name with `.json` removed
- - `run_id_format` -- defaults to fire id
- - `cleanup_output` -- delete output after publihing to s3; only useful when using an existing instance, when you might want to inspect the output on the instance after the run; defaults to `false`
- - `aws` > `ec2` > `max_num_instances` -- max number of new plus existing instances to use
- - `aws` > `ec2` > `efs_volumes` -- key pair to use for ssh
- - `aws` > `ec2` > `ebs` > `volume_size` -- EBS volume size (GB); default 8GB
- - `aws` > `ec2` > `ebs` > `device_name` -- EBS volume device name; default "/dev/sda1"
- - `bluesky` > `today` --
- - `bluesky` > `config_file` -- bluesky config file(s) to use when running bluesky; may be string or array (for specifying multiple files)
- - `notitifications` > `email` > `enabled` -- defaults to `false`
- - `notitifications` > `email` > `recipients` --
- - `notitifications` > `email` > `sender` -- defaults to 'blueskyaws@blueskyaws'
- - `notitifications` > `email` > `subject` --  defaults to 'BlueSky AWS Output Status'
- - `notitifications` > `email` > `smtp_server` --  defaults to 'localhost'
- - `notitifications` > `email` > `smtp_port` --  defaults to 1025
- - `notitifications` > `email` > `smtp_starttls` --  defaults to 'false'
- - `notitifications` > `email` > `username` --
- - `notitifications` > `email` > `password` --
+ - `request_id_format`
+   - used in input, log, status, and output file names
+   - defaults to input file name with `.json` removed
+   - Supports the following wildcards:
+     - '{uuid}' - replaced with an 8 character guid
+     - '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
+     - '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
+   - e.g. "bluesky-aws-{uuid}-{utc_now}" would translate to something like "bluesky-aws-dk38fj3d-20191210T052322"
+ - `run_id_format`
+   - defaults to fire id
+   - Supports the following wildcards:
+     - '{request_id}' - replaced with the request id
+     - `{uuid}` - replaced with an 8 character guid
+     - `{fire_id}` - replaced with the id of the run's fire
+     - `{utc_today}` - replaced with current UTC date, formatted "%Y%m%d"
+     - `{utc_now}` - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
+   - e.g. "bluesky-aws-run-{fire_id}-{uuid}-{utc_today}" would translate to something like "bluesky-aws-run-fire123-dk38fj3d-20191210"
+ - `cleanup_output`
+   - delete output after publihing to s3; only useful when using an existing instance, when you might want to inspect the output on the instance after the run; defaults to `false`
+ - `aws` > `ec2` > `max_num_instances`
+   - max number of new plus existing instances to use
+ - `aws` > `ec2` > `image_name_prefix_format`
+   - prefix to use in name of each new
+   - supports the following wildcards
+     - '{request_id}' - replaced with the request id
+   - e.g. "{request_id}-", given request id "bluesky-aws-20191210" would translate to something like "bluesky-aws-20191210-sjdk1j23-2"
+ - `aws` > `ec2` > `efs_volumes`
+   - key pair to use for ssh
+ - `aws` > `ec2` > `ebs` > `volume_size`
+   - EBS volume size (GB); default 8GB
+ - `aws` > `ec2` > `ebs` > `device_name`
+   - EBS volume device name; default "/dev/sda1"
+ - `bluesky` > `today`
+ - `bluesky` > `config_file`
+   - bluesky config file(s) to use when running bluesky; may be string or array (for specifying multiple files)
+ - `notitifications` > `email` > `enabled`
+   - defaults to `false`
+ - `notitifications` > `email` > `recipients`
+ - `notitifications` > `email` > `sender`
+   - defaults to 'blueskyaws@blueskyaws'
+ - `notitifications` > `email` > `subject`
+   -  defaults to 'BlueSky AWS Output Status'
+ - `notitifications` > `email` > `smtp_server`
+   -  defaults to 'localhost'
+ - `notitifications` > `email` > `smtp_port`
+   -  defaults to 1025
+ - `notitifications` > `email` > `smtp_starttls`
+   -  defaults to 'false'
+ - `notitifications` > `email` > `username`
+ - `notitifications` > `email` > `password`

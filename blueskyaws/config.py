@@ -21,7 +21,8 @@ class InvalidConfigurationUsageError(Exception):
 class Config(object):
 
     _DEFAULTS = {
-        # request_id_format defaults to input file name
+        # request_id_format is used in input, log, status, and output file names
+        # defaults to input file name with `.json` removed
         # Supports the following wildcards:
         #  '{uuid}' - replaced with an 8 character guid
         #  '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
@@ -64,7 +65,7 @@ class Config(object):
                 # Supports the following wildcards:
                 #  '{request_id}' - replaced with the request id
                 # e.g. "{request_id}-", given request id "bluesky-aws-20191210"
-                # would translate tosomething like "bluesky-aws-20191210-sjdk1j23-2"
+                # would translate to something like "bluesky-aws-20191210-sjdk1j23-2"
                 "image_name_prefix_format": "bluesky-aws-{request_id}",
                 "image_id": None,
                 "instance_type": None,
