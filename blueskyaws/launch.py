@@ -6,6 +6,8 @@ from afaws.ec2.initialization import InstanceInitializerSsh
 #from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
 from afaws.ec2.shutdown import Ec2Shutdown
 
+from .config import substitude_config_wildcards
+
 class Ec2InstancesManager(object):
 
     def __init__(self, config, num_total, request_id, existing=None):
@@ -50,8 +52,9 @@ class Ec2InstancesManager(object):
                 self._config("aws", "ec2", "image_id"),
                 self._afaws_config, **options)
 
-            name_prefix = (self._config("aws", "ec2", "image_name_prefix_format")
-                or '').format(request_id=self.request_id) + '-' + str(uuid.uuid4())[:8]
+            name_prefix = substitude_config_wildcards(self._config, "aws",
+                "ec2", "image_name_prefix_format", request_id=self._request_id)
+            name_prefix += '-' + str(uuid.uuid4())[:8]
             new_instance_names = [
                 '{}-{}'.format(name_prefix, n) for n in range(num_new)
             ]

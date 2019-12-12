@@ -13,7 +13,8 @@ from afaws.asyncutils import run_in_loop_executor
 
 from .launch import Ec2InstancesManager
 from .config import (
-        Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG
+        Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG,
+        substitude_config_wildcards
 )
 
 __all__ = [
@@ -29,18 +30,6 @@ class Status(object):
     RUNNING = 'running'
     SUCCESS = 'success'
     FAILURE = 'failure'
-
-
-class ConfigurationError(ValueError):
-    pass
-
-
-def substitude_wildcards(config, config_key, **wildcard_dict):
-    try:
-        return config(config_key).format(**wildcard_dict)
-    except KeyError as e:
-        raise ConfigurationError("Invalid wildcard, '{}', used in '{}' "
-            "config field".format(e.args[0], config_key))
 
 
 class BlueskyParallelRunner(object):
@@ -125,7 +114,7 @@ class BlueskyParallelRunner(object):
 
     def _set_request_id(self, input_file_name):
         if self._config('request_id_format'):
-            self._request_id = substitude_wildcards(self._config,
+            self._request_id = substitude_config_wildcards(self._config,
                 'request_id_format', uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),
                 utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
@@ -239,7 +228,7 @@ class BlueskySingleRunner(object):
         # only one fire, else set to new uuid (?)
         fire_id = self._get_fire_id()
         if self._config('run_id_format'):
-            run_id = substitude_wildcards(self._config, 'run_id_format',
+            run_id = substitude_config_wildcards(self._config, 'run_id_format',
                 fire_id=fire_id or '', request_id=self._request_id,
                 uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),

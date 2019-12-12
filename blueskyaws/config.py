@@ -7,6 +7,7 @@ __all__ = [
     "MissingConfigurationError",
     "InvalidConfigurationError",
     "InvalidConfigurationUsageError"
+    "substitude_config_wildcards"
 ]
 
 class MissingConfigurationError(Exception):
@@ -17,6 +18,15 @@ class InvalidConfigurationError(Exception):
 
 class InvalidConfigurationUsageError(Exception):
     pass
+
+
+def substitude_config_wildcards(config, *config_keys, **wildcard_dict):
+    try:
+        return (config(*config_keys) or '').format(**wildcard_dict)
+    except KeyError as e:
+        raise InvalidConfigurationError("Invalid wildcard, '{}', used in '{}' "
+            "config field".format(e.args[0], config_key))
+
 
 class Config(object):
 
