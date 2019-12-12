@@ -54,7 +54,7 @@ class Ec2InstancesManager(object):
 
             name_prefix = substitude_config_wildcards(self._config, "aws",
                 "ec2", "image_name_prefix_format", request_id=self._request_id)
-            name_prefix += '-' + str(uuid.uuid4())[:8]
+            name_prefix = (name_prefix + '-' + str(uuid.uuid4())[:8]).strip('-')
             new_instance_names = [
                 '{}-{}'.format(name_prefix, n) for n in range(num_new)
             ]
