@@ -175,6 +175,7 @@ class TestConfig(object):
         c = Config(input_config)
         expected = dict(copy.deepcopy(Config._DEFAULTS), **input_config)
         expected['aws']['ec2']['max_num_instances'] = None
+        expected['aws']['ec2']['image_name_prefix_format'] = "bluesky-aws-{request_id}"
         expected['aws']['ec2']['efs_volumes'] = None
         expected['aws']['ec2']['ebs'] = {"volume_size": 8, "device_name": "/dev/sda1"}
         expected['aws']['s3']['output_path'] = "output"
@@ -234,6 +235,7 @@ class TestConfig(object):
                     },
                     "ec2": {
                         "max_num_instances": None,
+                        "image_name_prefix_format": "bluesky-aws-{request_id}",
                         "image_id": "ami-123abc",
                         "instance_type":"t2.nano",
                         "key_pair_name": "sdfsdf",
@@ -336,6 +338,7 @@ class TestConfig(object):
                     },
                     "ec2": {
                         "max_num_instances": None,
+                        "image_name_prefix_format": "bluesky-aws-{request_id}",
                         "image_id": "ami-123abc",
                         "instance_type":"t2.nano",
                         "key_pair_name": "sdfsdf",
