@@ -45,6 +45,11 @@ def parse_args():
     parser.add_argument('--lng', type=float, default=DEFAULT_LNG,
         help=("longitude to place fires if generating input data; "
             "default {}".format(DEFAULT_LNG)))
+    parser.add_argument('-C', action='append', default=[])
+    parser.add_argument('-B', action='append', default=[])
+    parser.add_argument('-I', action='append', default=[])
+    parser.add_argument('-F', action='append', default=[])
+    parser.add_argument('-J', action='append', default=[])
 
     parser.epilog = EPILOG_STR
     return parser.parse_args()
@@ -110,7 +115,7 @@ class get_input_file(object):
 
         return data
 
-def get_command(input_file, config_file, instance):
+def get_command(input_file, args):
     cwd = os.getcwd()
     home = str(pathlib.Path.home())
     cmd = [
@@ -123,13 +128,24 @@ def get_command(input_file, config_file, instance):
         "./bin/run-bluesky",
         "--log-level", "INFO",
         "-i", input_file,
-        "-c", config_file
+        "-c", args.config_file
     ]
 
     #    '-v', '$HOME/code/pnwairfire-afaws/afaws/:/bluesky-aws/afaws/',
 
-    if instance:
-        cmd.extend(['--instance', instance])
+    if args.instance:
+        cmd.extend(['--instance', args.instance])
+
+    for v in args.C:
+        cmd.extend(['-C', v])
+    for v in args.B:
+        cmd.extend(['-B', v])
+    for v in args.I:
+        cmd.extend(['-I', v])
+    for v in args.F:
+        cmd.extend(['-F', v])
+    for v in args.J:
+        cmd.extend(['-J', v])
 
     return cmd
 
@@ -138,7 +154,7 @@ def main():
     logging.basicConfig(level=logging.INFO,
         format='%(asctime)s %(levelname)s: %(message)s')
     with get_input_file(args) as input_file:
-        cmd = get_command(input_file, args.config_file, args.instance)
+        cmd = get_command(input_file, args)
         logging.info("Running %s", ' '.join(cmd))
         subprocess.run(cmd)
 
