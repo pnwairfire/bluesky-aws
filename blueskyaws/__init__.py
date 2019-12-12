@@ -56,6 +56,7 @@ class BlueskyParallelRunner(object):
     async def run(self, input_file_name):
         self._load_input(input_file_name)
         self._set_config()
+        await self._load_bluesky_config()
         self._set_request_id(input_file_name)
         await self._record_input(input_file_name)
 
@@ -78,7 +79,7 @@ class BlueskyParallelRunner(object):
             runs = zip(self._fires, ec2_instance_manager.instances)
             runners = [
                 BlueskySingleRunner({'fires': [fire]}, instance,
-                    self._config, self._request_id,
+                    self._config, self._bluesky_config, self._request_id,
                     self._update_single_run_status)
                 for fire, instance in runs
             ]
@@ -112,6 +113,27 @@ class BlueskyParallelRunner(object):
             self._config = ParallelConfig(self._raw_config)
         else:
             self._config = SingleConfig(self._raw_config)
+
+    async def _load_bluesky_config(self):
+        self._bluesky_config = {'config': {}}
+
+        # First load config file, if specified
+        if self._config('bluesky', 'config_file'):
+            with open(self._config('bluesky', 'config_file')) as f:
+                self._bluesky_config = json.loads(f.read())
+
+        # Then apply any overrides specified in the bluesky-aws config file
+        # or on the command line
+        if self._config('bluesky', 'config'):
+            # merges in place
+            afconfig.merge_configs(self._bluesky_config['config'],
+                self._config('bluesky', 'config'))
+
+        # Finally, override export config what hardcoded value
+        # TODO: allow user config to include export settings and
+        #   merge BLUESKY_EXPORT_CONFIG into them?
+        self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
+
 
     def _set_request_id(self, input_file_name):
         if self._config('request_id_format'):
@@ -187,12 +209,13 @@ class BlueskyParallelRunner(object):
 
 class BlueskySingleRunner(object):
 
-    def __init__(self, input_data, instance, config,
+    def __init__(self, input_data, instance, config, bluesky_config,
             request_id, update_single_run_status_func, utcnow=None):
         self._utcnow = utcnow or datetime.datetime.utcnow()
         self._input_data = input_data
         self._instance = instance
         self._config = config
+        self._bluesky_config = bluesky_config
         self._request_id = request_id
         self._update_single_run_status = update_single_run_status_func
         self._set_run_id()
@@ -204,7 +227,6 @@ class BlueskySingleRunner(object):
         logging.info("Running bluesky on %s", ip)
         with SshClient(self._config('ssh_key'), ip) as ssh_client:
             self._ssh_client = ssh_client
-            await self._load_bluesky_config()
             await self._create_remote_dirs()
             await self._write_remote_files()
             await self._install_bluesky_and_dependencies()
@@ -237,28 +259,6 @@ class BlueskySingleRunner(object):
             self._run_id = self._utcnow.strftime(run_id)
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
-
-    async def _load_bluesky_config(self):
-        # Note that the bluesky config is loaded in BlueskySingleRunner
-        # instead of in BlueskyParallelRunner to facilitate single-run mode,
-        # in which BlueskySingleRunner is used directly by bin/run-bluesky.
-        # This does mean that the config will be loaded N+1 redundant times
-        # in paralle runs for N fires, but performance and run time hit
-        # should be insignificant for most if not all uses of this package.
-        self._bluesky_config = {'config': {}}
-        if self._config('bluesky', 'config_file'):
-            with open(self._config('bluesky', 'config_file')) as f:
-                self._bluesky_config = json.loads(f.read())
-        if self._config('bluesky', 'config'):
-            # merges in place
-            afconfig.merge_configs(self._bluesky_config['config'],
-                self._config('bluesky', 'config'))
-
-        # Override any export config specified in the provided config file
-        # or command line config overrides
-        # TODO: allow user config to include export settings and
-        #   merge BLUESKY_EXPORT_CONFIG into them?
-        self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
 
     async def _execute(self, cmd):
         stdin, stdout, stderr = await self._ssh_client .execute(cmd)
