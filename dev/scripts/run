@@ -31,7 +31,7 @@ DEFAULT_LNG = -119.7615805
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.formatter_class = argparse.RawTextHelpFormatter
-    parser.add_argument('-c', '--config_file', required=True,
+    parser.add_argument('-c', '--config-file', required=True,
         help="bluesky-aws config file")
     parser.add_argument('-i', '--input-file', help="input data file")
     parser.add_argument('-d', help=("date used to generate input data, "
