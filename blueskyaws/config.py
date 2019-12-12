@@ -42,6 +42,9 @@ class Config(object):
         # to something like "bluesky-aws-run-fire123-dk38fj3d-20191210"
         "run_id_format": None,
 
+        # bluesky_version must be astring value matching one of the published
+        # bluesky docker image tags listed on
+        # https://hub.docker.com/r/pnwairfire/bluesky/tags
         "bluesky_version": "v4.1.31",
 
         # setting cleanup_output to False is only useful when using an

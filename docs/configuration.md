@@ -1,9 +1,55 @@
 # Configuration
 
+Each bluesky-aws run is configured with a json file, with nested fields and
+top level "config" key. A minimal config would look something like the
+following:
+
+```
+{
+    "config": {
+        "ssh_key": "id_rsa",
+        "aws": {
+            "iam_instance_profile": {
+                "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
+                "Name": "bluesky-iam-role"
+            },
+            "ec2": {
+                "image_id": "ami-123abc",
+                "instance_type":"t2.nano",
+                "key_pair_name": "sdf",
+                "security_groups": ["ssh"],
+                "efs_volumes": [
+                    ["fs-abc123.efs.us-west-2.amazonaws.com:/", "/Met/"]
+                ]
+            },
+            "s3": {
+                "bucket_name": "bluesky-aws"
+            }
+        },
+        "bluesky": {
+            "config_file": null,
+            "modules": [
+                "fuelbeds",
+                "consumption",
+                "emissions"
+            ]
+        }
+    }
+}
+```
+
+The full list of config settings is listed below.
+
 ## Required Configuration settings
 
+Note that required settings with non-null default values don't need to be set
+by the user.  They just can't be explicitly overridden by the user with a
+null or otherwise invalid value.  For example, setting `bluesky_version`
+can not be set to `null` or something like `foo`
+
  - `bluesky_version`
-   - defaults to `v4.1.31` (so it desn't need to be set; it just cant be explicitly set to to an invalid version)
+   - string value matching one of the published bluesky docker image tags listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
+   - defaults to `v4.1.31`
  - `ssh_key`
    - ssh key to use for ssh'ing to and running commands on ec2 instances
  - `aws` > `iam_instance_profile` > `Arn`
