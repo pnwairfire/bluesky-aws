@@ -39,6 +39,7 @@ class BlueskyParallelRunner(object):
     """
 
     def __init__(self, instances=None, **config):
+        self._utcnow = datetime.datetime.utcnow()
         self._instances = instances
         # A more restrictive config object will be created from the
         # unrestricted Conig object based on whether or not new
@@ -53,6 +54,7 @@ class BlueskyParallelRunner(object):
     async def run(self, input_file_name):
         self._load_input(input_file_name)
         self._set_config()
+        self._set_request_id(input_file_name)
         await self._record_input(input_file_name)
 
         ec2_instance_manager = Ec2InstancesManager(self._config,
@@ -94,15 +96,6 @@ class BlueskyParallelRunner(object):
     JSON_EXT_STRIPPER = re.compile('\.json$')
 
     def _load_input(self, input_file_name):
-        base_name = os.path.basename(input_file_name)
-        if self._config('request_id_format'):
-            self._request_id = self._config('request_id_format').format(
-                uuid=str(uuid.uuid4()).split('-')[0],
-                utc_today=utcnow.strftime("%Y%m%d"),
-                utc_now=utcnow.strftime("%Y%m%dT%H%M%S"))
-        else:
-            self._request_id = self.JSON_EXT_STRIPPER.sub('', base_name)
-
         with open(input_file_name, 'r') as f:
             # reset point to beginning of file and load json data
             f.seek(0)
@@ -117,6 +110,17 @@ class BlueskyParallelRunner(object):
             self._config = ParallelConfig(self._raw_config)
         else:
             self._config = SingleConfig(self._raw_config)
+
+    def _set_request_id(self, input_file_name):
+        if self._config('request_id_format'):
+            self._request_id = self._config('request_id_format').format(
+                uuid=str(uuid.uuid4()).split('-')[0],
+                utc_today=self._utcnow.strftime("%Y%m%d"),
+                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
+        else:
+            base_name = os.path.basename(input_file_name)
+            self._request_id = self.JSON_EXT_STRIPPER.sub('', base_name)
+
 
     async def _record_input(self, input_file_name):
         await run_in_loop_executor(self._s3_client.upload_file,
@@ -182,7 +186,8 @@ class BlueskyParallelRunner(object):
 class BlueskySingleRunner(object):
 
     def __init__(self, input_data, instance, config,
-            request_id, update_single_run_status_func):
+            request_id, update_single_run_status_func, utcnow=None):
+        self._utcnow = utcnow or datetime.datetime.utcnow()
         self._input_data = input_data
         self._instance = instance
         self._config = config
@@ -222,14 +227,13 @@ class BlueskySingleRunner(object):
         # only one fire, else set to new uuid (?)
         fire_id = self._get_fire_id()
         if self._config('run_id_format'):
-            utcnow = datetime.datetime.utcnow()
             run_id = self._config('run_id_format').format(
                 request_id=self._request_id,
                 uuid=str(uuid.uuid4()).split('-')[0],
                 fire_id=fire_id or '',
-                utc_today=utcnow.strftime("%Y%m%d"),
-                utc_now=utcnow.strftime("%Y%m%dT%H%M%S"))
-            self._run_id = datetime.datetime.utcnow().strftime(run_id)
+                utc_today=self._utcnow.strftime("%Y%m%d"),
+                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
+            self._run_id = self._utcnow.strftime(run_id)
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
 
