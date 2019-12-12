@@ -5,17 +5,8 @@ import logging
 import os
 import sys
 
-from afaws.scripting import get_config
-from afaws.ec2.resources import Instance
-
-
 import afscripting
 
-try:
-    import blueskyaws
-except:
-    sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '../')))
-    import blueskyaws
 
 ##
 ## Args
@@ -54,8 +45,26 @@ def parse_args():
 
     return args
 
+
+def inline_imports():
+    """Imports aws and blueskyaws packages inline in order to support
+    the '-h'/'--help' option without needing an aws credentials file.
+    """
+    global get_config, Instance, blueskyaws
+
+    from afaws.scripting import get_config
+    from afaws.ec2.resources import Instance
+    try:
+        import blueskyaws
+    except:
+        sys.path.insert(0, os.path.abspath(os.path.join(sys.path[0], '../')))
+        import blueskyaws
+
 async def main():
     args = parse_args()
+
+    inline_imports()
+
     config = get_config(args)
     instances = [await Instance(i) for i in args.instances]
     runner = blueskyaws.BlueskyParallelRunner(instances=instances, **config)
