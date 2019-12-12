@@ -153,7 +153,8 @@ class Config(object):
                     raise InvalidConfigurationError(
                         self.INVALID_CONFIG_FIELD_MSG.format(
                         ' > '.join(new_parent_keys)))
-                if isinstance(v, dict):
+
+                if isinstance(v, dict) and new_parent_keys != ['bluesky', 'config']:
                     _(defaults[k], v, *new_parent_keys)
                 else:
                     defaults[k] = v
