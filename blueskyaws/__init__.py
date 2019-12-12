@@ -31,6 +31,18 @@ class Status(object):
     FAILURE = 'failure'
 
 
+class ConfigurationError(ValueError):
+    pass
+
+
+def substitude_wildcards(config, config_key, **wildcard_dict):
+    try:
+        return config(config_key).format(**wildcard_dict)
+    except KeyError as e:
+        raise ConfigurationError("Invalid wildcard, '{}', used in '{}' "
+            "config field".format(e.args[0], config_key))
+
+
 class BlueskyParallelRunner(object):
     """Given a pool of existing instances along with instances
     to be launced, runs bluesky on a set of fires in as parallel a
@@ -113,8 +125,8 @@ class BlueskyParallelRunner(object):
 
     def _set_request_id(self, input_file_name):
         if self._config('request_id_format'):
-            self._request_id = self._config('request_id_format').format(
-                uuid=str(uuid.uuid4()).split('-')[0],
+            self._request_id = substitude_wildcards(self._config,
+                'request_id_format', uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),
                 utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
         else:
@@ -227,10 +239,9 @@ class BlueskySingleRunner(object):
         # only one fire, else set to new uuid (?)
         fire_id = self._get_fire_id()
         if self._config('run_id_format'):
-            run_id = self._config('run_id_format').format(
-                request_id=self._request_id,
+            run_id = substitude_wildcards(self._config, 'run_id_format',
+                fire_id=fire_id or '', request_id=self._request_id,
                 uuid=str(uuid.uuid4()).split('-')[0],
-                fire_id=fire_id or '',
                 utc_today=self._utcnow.strftime("%Y%m%d"),
                 utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
             self._run_id = self._utcnow.strftime(run_id)
