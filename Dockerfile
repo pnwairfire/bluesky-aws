@@ -16,7 +16,7 @@ RUN pip install --extra-index https://pypi.airfire.org/simple \
     boto3==1.9.70 \
     pycrypto==2.6.1 \
     afscripting==1.1.5 \
-    afaws==0.1.2 \
+    afaws==0.1.3 \
     ipython \
     pytest
 
