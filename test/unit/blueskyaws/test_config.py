@@ -181,6 +181,7 @@ class TestConfig(object):
         expected['aws']['s3']['output_path'] = "output"
         expected['bluesky']['today'] = None
         expected['bluesky']['config_file'] = None
+        expected['bluesky']['config'] = {}
         assert c._config == expected
 
         # Both Parallel and Single config require iam instance profile name
@@ -258,7 +259,8 @@ class TestConfig(object):
                         "consumption",
                         "emissions"
                     ],
-                    "config_file": None
+                    "config_file": None,
+                    "config": {}
                 },
                 "notifications": {
                     "email": {
@@ -361,7 +363,8 @@ class TestConfig(object):
                         "consumption",
                         "emissions"
                     ],
-                    "config_file": "sdsdf.json"
+                    "config_file": "sdsdf.json",
+                    "config": {}
                 },
                 "notifications": {
                     "email": {

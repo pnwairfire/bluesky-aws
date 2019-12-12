@@ -104,7 +104,9 @@ class Config(object):
                 "consumption",
                 "emissions"
             ],
-            "config_file": None
+            "config_file": None,
+            # config overrides to apply over what's loaded from config file
+            "config": {}
         },
         "notifications": {
             "email": {

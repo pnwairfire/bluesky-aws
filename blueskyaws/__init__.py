@@ -7,6 +7,7 @@ import re
 import tempfile
 import uuid
 
+import afconfig
 import boto3
 from afaws.ec2.ssh import SshClient
 from afaws.asyncutils import run_in_loop_executor
@@ -248,8 +249,13 @@ class BlueskySingleRunner(object):
         if self._config('bluesky', 'config_file'):
             with open(self._config('bluesky', 'config_file')) as f:
                 self._bluesky_config = json.loads(f.read())
+        if self._config('bluesky', 'config'):
+            # merges in place
+            afconfig.merge_configs(self._bluesky_config['config'],
+                self._config('bluesky', 'config'))
 
         # Override any export config specified in the provided config file
+        # or command line config overrides
         # TODO: allow user config to include export settings and
         #   merge BLUESKY_EXPORT_CONFIG into them?
         self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)

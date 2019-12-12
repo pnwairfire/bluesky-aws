@@ -8,6 +8,9 @@ RUN apk --update add --no-cache --virtual .build-deps \
     && apk --update add --no-cache \
         musl-dev libffi-dev openssl-dev python3-dev
 
+# Note: afconfig is used by bluesky-aws, but it doesn't need
+# to be explicitly listed in the following pip install package
+# list, since it's installed as a dependency of afscripting
 RUN pip install --extra-index https://pypi.airfire.org/simple \
     paramiko==2.4.2 \
     boto3==1.9.70 \
