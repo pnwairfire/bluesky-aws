@@ -26,7 +26,7 @@ class Config(object):
         #  '{uuid}' - replaced with an 8 character guid
         #  '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
         #  '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
-        # e.g. "bluesky-aws-{uuid}-{utc_now}" => something like
+        # e.g. "bluesky-aws-{uuid}-{utc_now}" would translate to something like
         # "bluesky-aws-dk38fj3d-20191210T052322"
         "request_id_format": None,
 
@@ -37,8 +37,8 @@ class Config(object):
         #  '{fire_id}' - replaced with the id of the run's fire
         #  '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
         #  '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
-        # e.g. "bluesky-aws-{uuid}-{utc_now}" => something like
-        # "bluesky-aws-dk38fj3d-20191210T052322"
+        # e.g. "bluesky-aws-run-{fire_id}-{uuid}-{utc_today}" would translate
+        # to something like "bluesky-aws-run-fire123-dk38fj3d-20191210"
         "run_id_format": None,
 
         "bluesky_version": "v4.1.31",
@@ -63,6 +63,8 @@ class Config(object):
                 # plus the integer
                 # Supports the following wildcards:
                 #  '{request_id}' - replaced with the request id
+                # e.g. "{request_id}-", given request id "bluesky-aws-20191210"
+                # would translate tosomething like "bluesky-aws-20191210-sjdk1j23-2"
                 "image_name_prefix_format": "bluesky-aws-{request_id}",
                 "image_id": None,
                 "instance_type": None,
