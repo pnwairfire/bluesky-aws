@@ -45,6 +45,9 @@ def parse_args():
     parser.add_argument('--lng', type=float, default=DEFAULT_LNG,
         help=("longitude to place fires if generating input data; "
             "default {}".format(DEFAULT_LNG)))
+    parser.add_argument('--local-afaws',
+        help=("local afaws package source code to mount in docker container"
+            "e.g. /home/foo/pnwairfire-afaws/afaws/"))
     parser.add_argument('-C', action='append', default=[])
     parser.add_argument('-B', action='append', default=[])
     parser.add_argument('-I', action='append', default=[])
@@ -123,15 +126,18 @@ def get_command(input_file, args):
         "-v", "{}/:/bluesky-aws/".format(cwd),
         "-v", "{}/.aws/:/home/blueskyaws/.aws/".format(cwd),
         "-v", "{}/.ssh:/home/blueskyaws/.ssh".format(home),
-        "-v", "{d}:{d}".format(d=os.path.dirname(input_file)),
+        "-v", "{d}:{d}".format(d=os.path.dirname(input_file))
+    ]
+    if args.local_afaws:
+        cmd.extend(['-v', '{}:/bluesky-aws/afaws/'.format(args.local_afaws)])
+
+    cmd.extend([
         "bluesky-aws",
         "./bin/run-bluesky",
         "--log-level", "INFO",
         "-i", input_file,
         "-c", args.config_file
-    ]
-
-    #    '-v', '$HOME/code/pnwairfire-afaws/afaws/:/bluesky-aws/afaws/',
+    ])
 
     if args.instance:
         cmd.extend(['--instance', args.instance])
