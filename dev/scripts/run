@@ -107,7 +107,7 @@ class get_input_file(object):
                                     {
                                         "lat": args_object.lat + n * 0.01,
                                         "lng": args_object.lng - n * 0.01,
-                                        "area": 10000
+                                        "area": 1000
                                     }
                                 ]
                             }
