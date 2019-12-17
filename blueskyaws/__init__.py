@@ -367,8 +367,8 @@ class BlueskySingleRunner(object):
 
         # Pushes log file from remote ec2 instance to s3
         cmd = ("aws s3 cp {host_data_dir}/output.log "
-            "s3://{bucket}/log/{request_id}.log").format(
-                host_data_dir=self._host_data_dir,
+            "s3://{bucket}/log/{request_id}/{run_id}.log").format(
+                host_data_dir=self._host_data_dir, run_id=self._run_id,
                 bucket=self._config('aws', 's3', 'bucket_name'),
                 request_id=self._request_id)
         await self._execute(cmd)
