@@ -99,11 +99,7 @@ class Config(object):
             # 'today' defaults to current day (i.e not
             #  specified in the pipeline command)
             "today": None,
-            "modules": [
-                "fuelbeds",
-                "consumption",
-                "emissions"
-            ],
+            "modules": None,
             "config_file": None,
             # config overrides to apply over what's loaded from config file
             "config": {}
