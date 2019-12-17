@@ -105,6 +105,8 @@ can not be set to `null` or something like `foo`
  - `bluesky` > `today`
  - `bluesky` > `config_file`
    - bluesky config file(s) to use when running bluesky; may be string or array (for specifying multiple files)
+ - `bluesky` > `config`
+   - bluesky config settings that override what's specified in the separate bluesky config file, if one is specified (see below)
  - `notitifications` > `email` > `enabled`
    - defaults to `false`
  - `notitifications` > `email` > `recipients`
@@ -120,3 +122,54 @@ can not be set to `null` or something like `foo`
    -  defaults to 'false'
  - `notitifications` > `email` > `username`
  - `notitifications` > `email` > `password`
+
+
+## BlueSky Configuration
+
+The bluesky processes run by bluesky-aws may be configured in three
+different ways, listed here in order of precedence
+
+ 1. On the `run-bluesky` command line with the options `-C`, `-B`, `-I`, `-F`, and `-J`
+ 2. In the `bluesky-aws` config file under `bluesky` > `config`
+ 3. in a separate `bluesky` config file, referenced in the `bluesky-aws` config by `bluesky` > `config_file`
+
+For example, if the bluesky dispersion.num_hours is specified on the command line with
+
+```
+-I bluesky.config.dispersion.num_hours=24
+```
+
+in the `bluesky-aws` config file with
+
+
+```
+{
+    "config": {
+        ...,
+        "bluesky": {
+            ...,
+            "config": {
+                "dispersion": {
+                    "num_hours": 48
+                }
+            }
+        }
+    }
+}
+```
+
+And in the bluesky config file with:
+
+```
+{
+    "config": {
+        ...,
+        "dispersion": {
+            ...,
+            "num_hours": 72
+        }
+    }
+}
+```
+
+Then `num_hours` would be set to 24 for the bluesky run(s).
