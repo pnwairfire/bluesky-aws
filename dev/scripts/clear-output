@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+if ! which aws >/dev/null; then
+    echo "*** Install awscli"
+    exit 1
+fi
+
+show_help=false
+bucket=false
+instance=false
+
+while [ -n "$1" ]; do # while loop starts
+    case "$1" in
+    -h) show_help=true && shift ;;
+    --help) show_help=true && shift ;;
+    -b) bucket="$2" && shift && shift ;;
+    --bucket) bucket="$2" && shift && shift ;;
+    -i) instance="$2" && shift && shift ;;
+    --instance) instance="$2" && shift && shift ;;
+    *) echo "Option $1 not recognized" && exit 1 ;;
+    esac
+done
+
+if [ "$show_help" = true ] ; then
+    echo ""
+    echo "Options:"
+    echo "   -h/--help      - show this help message"
+    echo "   -b/--bucket    - bucket to empty"
+    echo "   -i/--instance  - instance to delete output on"
+    echo ""
+    echo "Usage:"
+    echo "   $0 --bucket foo-bar"
+    echo "   $0 --bucket foo-bar --instance 123.23.23.123"
+    echo ""
+    exit 0
+fi
+
+if [ "$bucket" = false ] ; then
+    echo "**"
+    echo "** ERROR:   Specify -b / --bucket"
+    echo "**"
+    echo "**   Run '$0 -h' for usage"
+    echo "**"
+    exit 1
+fi
+
+echo  "This will delete all data in the bucket '$bucket'"
+read -p "Are you sure you want to proceed [yN]? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo "Aborting."
+    exit 1
+fi
+
+echo "Clearing $bucket bucket"
+aws s3 rm --recursive s3://$bucket/
+
+if [ ! "$instance" = false ] ; then
+    echo "Deleting output on $instance"
+    ssh $instance rm -r /home/ubuntu/data/bluesky/*
+fi
