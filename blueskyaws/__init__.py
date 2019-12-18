@@ -12,6 +12,7 @@ import boto3
 from afaws.ec2.ssh import SshClient
 from afaws.asyncutils import run_in_loop_executor
 
+from .input import InputLoader
 from .launch import Ec2InstancesManager
 from .config import (
         Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG,
@@ -54,58 +55,22 @@ class BlueskyParallelRunner(object):
     ##
 
     async def run(self, input_file_name):
-        self._load_input(input_file_name)
-        self._set_config()
-        await self._load_bluesky_config()
-        self._set_request_id(input_file_name)
-        await self._record_input(input_file_name)
-
-        ec2_instance_manager = Ec2InstancesManager(self._config,
-            self._total_instances_needed, self._request_id,
-            existing=self._instances)
-        async with ec2_instance_manager:
-            # TODO: Add more options for supporting the case where
-            #     num_fires > num_instances; Some possibilities:
-            #       1) take the first num_instances fires, given the order the
-            #          fires are specified in the input data
-            #          ***(this is the current implementation***)
-            #       2) somehow prioritize fires and run only first
-            #          num_instances fires
-            #       3) tranche fires, one tranche per instance, and within
-            #          each tranche, execute one of the following:
-            #            a) separate runs sequentially
-            #            b) separate runs in parallel
-            #            c) single run
-            runs = zip(self._fires, ec2_instance_manager.instances)
-            runners = [
-                BlueskySingleRunner({'fires': [fire]}, instance,
-                    self._config, self._bluesky_config, self._request_id,
-                    self._update_single_run_status)
-                for fire, instance in runs
-            ]
-
-            await self._initialize_status(runners)
-
-            await asyncio.gather(*[
-                runner.run() for runner in runners
-            ])
-
-        await self._finalize_status()
-
-        await self._notify()
+        async with InputLoader(input_file_name) as input_loader:
+            self._input_loader = input_loader
+            self._set_config()
+            await self._load_bluesky_config()
+            self._set_request_id()
+            await self._record_input()
+            await self._run_all()
+            await self._finalize_status()
+            await self._notify()
 
     ## Initialization
 
     JSON_EXT_STRIPPER = re.compile('\.json$')
 
-    def _load_input(self, input_file_name):
-        with open(input_file_name, 'r') as f:
-            # reset point to beginning of file and load json data
-            f.seek(0)
-            self._fires = json.loads(f.read())['fires']
-
     def _set_config(self):
-        num_fires = len(self._fires)
+        num_fires = len(self._input_loader.fires)
         self._total_instances_needed = min(num_fires,
             self._raw_config("aws", 'ec2', "max_num_instances") or num_fires)
 
@@ -134,22 +99,51 @@ class BlueskyParallelRunner(object):
         #   merge BLUESKY_EXPORT_CONFIG into them?
         self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
 
-
-    def _set_request_id(self, input_file_name):
+    def _set_request_id(self):
         if self._config('request_id_format'):
             self._request_id = substitude_config_wildcards(self._config,
                 'request_id_format', uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),
                 utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
         else:
-            base_name = os.path.basename(input_file_name)
+            base_name = os.path.basename(self._input_loader.input_file_name)
             self._request_id = self.JSON_EXT_STRIPPER.sub('', base_name)
 
-
-    async def _record_input(self, input_file_name):
+    async def _record_input(self):
         await run_in_loop_executor(self._s3_client.upload_file,
-            input_file_name, self._config('aws', 's3', 'bucket_name'),
+            self._input_loader.input_file_name, self._config('aws', 's3', 'bucket_name'),
             os.path.join('requests', self._request_id + '.json'))
+
+    async def _run_all(self):
+        ec2_instance_manager = Ec2InstancesManager(self._config,
+            self._total_instances_needed, self._request_id,
+            existing=self._instances)
+        async with ec2_instance_manager:
+            # TODO: Add more options for supporting the case where
+            #     num_fires > num_instances; Some possibilities:
+            #       1) take the first num_instances fires, given the order the
+            #          fires are specified in the input data
+            #          ***(this is the current implementation***)
+            #       2) somehow prioritize fires and run only first
+            #          num_instances fires
+            #       3) tranche fires, one tranche per instance, and within
+            #          each tranche, execute one of the following:
+            #            a) separate runs sequentially
+            #            b) separate runs in parallel
+            #            c) single run
+            runs = zip(self._input_loader.fires, ec2_instance_manager.instances)
+            runners = [
+                BlueskySingleRunner({'fires': [fire]}, instance,
+                    self._config, self._bluesky_config, self._request_id,
+                    self._update_single_run_status)
+                for fire, instance in runs
+            ]
+
+            await self._initialize_status(runners)
+
+            await asyncio.gather(*[
+                runner.run() for runner in runners
+            ])
 
 
     ## Status
@@ -164,7 +158,7 @@ class BlueskyParallelRunner(object):
         self._status = {
             "status": Status.RUNNING,
             "counts": {
-                Status.RUNNING: len(self._fires),
+                Status.RUNNING: len(self._input_loader.fires),
                 Status.SUCCESS: 0,
                 Status.FAILURE: 0,
                 Status.COMPLETE: 0
