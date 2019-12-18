@@ -45,7 +45,6 @@ def parse_args():
 
     return args
 
-
 def inline_imports():
     """Imports aws and blueskyaws packages inline in order to support
     the '-h'/'--help' option without needing an aws credentials file.

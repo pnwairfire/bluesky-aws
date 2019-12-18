@@ -18,20 +18,11 @@ from .config import (
         Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG,
         substitude_config_wildcards
 )
+from .status import Status
 
 __all__ = [
     "BlueskyParallelRunner"
 ]
-
-
-class Status(object):
-    # Used in overal stats
-    COMPLETE = 'complete'
-
-    # Assigned to individual runs
-    RUNNING = 'running'
-    SUCCESS = 'success'
-    FAILURE = 'failure'
 
 
 class BlueskyParallelRunner(object):
@@ -156,7 +147,8 @@ class BlueskyParallelRunner(object):
 
     async def _initialize_status(self, runners):
         self._status = {
-            "status": Status.RUNNING,
+            "system_status": Status.RUNNING,
+            "system_error": None,
             "counts": {
                 Status.RUNNING: len(self._input_loader.fires),
                 Status.SUCCESS: 0,
@@ -219,21 +211,26 @@ class BlueskySingleRunner(object):
     async def run(self):
         ip = self._instance.classic_address.public_ip
         logging.info("Running bluesky on %s", ip)
-        with SshClient(self._config('ssh_key'), ip) as ssh_client:
-            self._ssh_client = ssh_client
-            await self._create_remote_dirs()
-            await self._write_remote_files()
-            await self._install_bluesky_and_dependencies()
-            await self._run_bluesky()
-            await self._tarball()
-            await self._upload_aws_credentials()
-            await self._publish()
-            await self._cleanup()
-        # TODO: check return value of bluesky and/or look in bluesky
-        #   output for error, and determine status from that
-        await self._update_single_run_status(self, Status.SUCCESS,
-            output_url=self._s3_url(self._config('aws', 's3', 'output_path'), 'tar.gz'),
-            log_url=self._s3_url('log', 'log'))
+        try:
+            with SshClient(self._config('ssh_key'), ip) as ssh_client:
+                self._ssh_client = ssh_client
+                await self._create_remote_dirs()
+                await self._write_remote_files()
+                await self._install_bluesky_and_dependencies()
+                await self._run_bluesky()
+                await self._tarball()
+                await self._upload_aws_credentials()
+                await self._publish()
+                await self._cleanup()
+            # TODO: check return value of bluesky and/or look in bluesky
+            #   output for error, and determine status from that
+            await self._update_single_run_status(self, Status.SUCCESS,
+                output_url=self._s3_url(self._config('aws', 's3', 'output_path'), 'tar.gz'),
+                log_url=self._s3_url('log', 'log'))
+        except Exception as e:
+            await self._update_single_run_status(self, Status.UNKNOWN,
+                message=str(e))
+
 
     ## Run Helpers
 
