@@ -178,10 +178,10 @@ class BlueskyParallelRunner(object):
         }
         await self._save_status()
 
-    async def _update_single_run_status(self, run, status, message=None):
+    async def _update_single_run_status(self, run, status, **kwargs):
         # Update run's status
         self._status["runs"][run._run_id]["status"] = status
-        self._status["runs"][run._run_id]["message"] = message
+        self._status["runs"][run._run_id].update(**kwargs)
 
         # Update count for this status, if it has a count
         if status in self._status['counts']:
@@ -237,7 +237,9 @@ class BlueskySingleRunner(object):
             await self._cleanup()
         # TODO: check return value of bluesky and/or look in bluesky
         #   output for error, and determine status from that
-        await self._update_single_run_status(self, Status.SUCCESS)
+        await self._update_single_run_status(self, Status.SUCCESS,
+            output_url=self._s3_url(self._config('aws', 's3', 'output_path'), 'tar.gz'),
+            log_url=self._s3_url('log', 'log'))
 
     ## Run Helpers
 
@@ -377,3 +379,14 @@ class BlueskySingleRunner(object):
         if self._config('cleanup_output'):
             # delete the entire output dir
             await self._execute("rm -r {}".format(self._host_data_dir))
+
+
+    REGION = "us-west-2" # TODO: don't hard code this
+
+    def _s3_url(self, path, extension):
+         return ("https://{bucket}.s3-{region}.amazonaws.com/{path}/"
+            "{request_id}/{run_id}.{ext}").format(
+                bucket=self._config('aws', 's3', 'bucket_name'),
+                region=self.REGION, path=path.strip('/'),
+                request_id=self._request_id, run_id=self._run_id,
+                ext=extension)
