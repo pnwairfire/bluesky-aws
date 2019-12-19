@@ -37,6 +37,10 @@ class InputLoader(object):
             self._attempts = 0
             await self._download(self._orig_input_file_name)
 
+        except InputLoadFailure as e:
+            # download of remote file must have failed
+            raise e
+
         except:
             # TODO: check for file existence, and support retry logic (configurable)
             self._local_input_file_name = self._orig_input_file_name
@@ -72,6 +76,7 @@ class InputLoader(object):
         @wait_to_retry(self._config, urllib.request.HTTPError,
             self._status_tracker, lambda e: getattr(e, 'code', None) == 404)
         async def _():
+            logging.info("Downloading remote_input_file_name")
             await run_in_loop_executor(urllib.request.urlretrieve,
                 remote_input_file_name, self._local_input_file_name)
             return
