@@ -33,7 +33,7 @@ def parse_args():
     parser.formatter_class = argparse.RawTextHelpFormatter
     parser.add_argument('-c', '--config-file', required=True,
         help="bluesky-aws config file")
-    parser.add_argument('-i', '--input-file', help="input data file")
+    parser.add_argument('-i', '--input', help="input data file or url")
     parser.add_argument('-d', help=("date used to generate input data, "
         "if file isn't specified; e.g. '2019-12-01"))
     parser.add_argument('-n', default=1, type=int,
@@ -61,8 +61,12 @@ def parse_args():
 class get_input_file(object):
 
     def __init__(self, args_object):
-        if args_object.input_file:
-            self._input_file_name = os.path.abspath(args_object.input_file)
+        if args_object.input:
+            if not args_object.input.startswith('http'):
+                self._input_file_name = os.path.abspath(args_object.input)
+            else:
+                # else, it's a url, so leave it as is
+                self._input_file_name = args_object.input
 
         else:
             self._id = 'run-script-{}-fire{}'.format(args_object.n,
@@ -125,9 +129,12 @@ def get_command(input_file, args):
         "docker", "run", "--rm", "-ti", "--user", "blueskyaws",
         "-v", "{}/:/bluesky-aws/".format(cwd),
         "-v", "{}/.aws/:/home/blueskyaws/.aws/".format(cwd),
-        "-v", "{}/.ssh:/home/blueskyaws/.ssh".format(home),
-        "-v", "{d}:{d}".format(d=os.path.dirname(input_file))
+        "-v", "{}/.ssh:/home/blueskyaws/.ssh".format(home)
     ]
+    if not input_file.startswith('http'):
+        cmd.extend([
+            "-v", "{d}:{d}".format(d=os.path.dirname(input_file))
+        ])
     if args.local_afaws:
         cmd.extend(['-v', '{}:/bluesky-aws/afaws/'.format(args.local_afaws)])
 

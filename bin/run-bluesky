@@ -13,7 +13,7 @@ import afscripting
 ##
 
 REQUIRED_ARGS = [
-    {'short': '-i', 'long': '--input', 'help': "input file"}
+    {'short': '-i', 'long': '--input', 'help': "input file or url"}
 ]
 
 OPTIONAL_ARGS = [
