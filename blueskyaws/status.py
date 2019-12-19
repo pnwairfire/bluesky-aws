@@ -24,8 +24,10 @@ class SystemErrors(object):
     """Encapsulates string constants representing error states."""
 
     # Waiting for resources dependecies
-    WAITING_FOR_MET = "waiting_for_met"
     WAITING_FOR_FIRES = "waiting_for_fires"
+    WAITING_FOR_MET = "waiting_for_met"
+    # TODO: remove the folowing, since we're not concenred with met until
+    #    we've already got the fires ???
     WAITING_FOR_FIRES_AND_MET = "waiting_for_fires_and_met"
 
     # Cases where one or more runs failed or are in an unknown state

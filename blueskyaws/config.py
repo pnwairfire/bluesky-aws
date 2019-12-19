@@ -57,6 +57,14 @@ class Config(object):
         # https://hub.docker.com/r/pnwairfire/bluesky/tags
         "bluesky_version": "v4.1.31",
 
+        "input": {
+            "wait": {
+                "strategy": "fixed", # alternatively, 'backoff'
+                "time": 15*60, # seconds
+                "max_attempts": 3
+            }
+        },
+
         # setting cleanup_output to False is only useful when using an
         # existing instance in dev, when you might want to inspect
         # the output on the instance after the run
