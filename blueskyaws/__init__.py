@@ -14,10 +14,7 @@ from afaws.asyncutils import run_in_loop_executor
 
 from .input import InputLoader
 from .launch import Ec2InstancesManager
-from .config import (
-        Config, ParallelConfig, SingleConfig, BLUESKY_EXPORT_CONFIG,
-        substitude_config_wildcards
-)
+from .config import Config, BLUESKY_EXPORT_CONFIG, substitude_config_wildcards
 from .status import Status
 
 __all__ = [
@@ -33,12 +30,11 @@ class BlueskyParallelRunner(object):
     """
 
     def __init__(self, instances=None, **config):
-        self._utcnow = datetime.datetime.utcnow()
         self._instances = instances
         # A more restrictive config object will be created from the
         # unrestricted Conig object based on whether or not new
         # instances are needed for the number of fires passed into run
-        self._raw_config = Config(config)
+        self._config = Config(config)
         self._s3_client = boto3.client('s3')
 
     ##
@@ -46,11 +42,13 @@ class BlueskyParallelRunner(object):
     ##
 
     async def run(self, input_file_name):
-        async with InputLoader(input_file_name) as input_loader:
+        self._utcnow = datetime.datetime.utcnow()
+        self._set_request_id(input_file_name)
+
+        async with InputLoader(input_file_name, self._status_tracker) as input_loader:
             self._input_loader = input_loader
-            self._set_config()
+            self._set_instances_needed()
             await self._load_bluesky_config()
-            self._set_request_id()
             await self._record_input()
             await self._run_all()
             await self._finalize_status()
@@ -60,15 +58,20 @@ class BlueskyParallelRunner(object):
 
     JSON_EXT_STRIPPER = re.compile('\.json$')
 
-    def _set_config(self):
+    def _set_request_id(self, input_file_name):
+        if self._config('request_id_format'):
+            self._request_id = substitude_config_wildcards(self._config,
+                'request_id_format', uuid=str(uuid.uuid4()).split('-')[0],
+                utc_today=self._utcnow.strftime("%Y%m%d"),
+                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
+        else:
+            self._request_id = self.JSON_EXT_STRIPPER.sub('',
+                os.path.basename(input_file_name))
+
+    def _set_instances_needed(self):
         num_fires = len(self._input_loader.fires)
         self._total_instances_needed = min(num_fires,
             self._raw_config("aws", 'ec2', "max_num_instances") or num_fires)
-
-        if self._total_instances_needed > len(self._instances):
-            self._config = ParallelConfig(self._raw_config)
-        else:
-            self._config = SingleConfig(self._raw_config)
 
     async def _load_bluesky_config(self):
         self._bluesky_config = {'config': {}}
@@ -89,16 +92,6 @@ class BlueskyParallelRunner(object):
         # TODO: allow user config to include export settings and
         #   merge BLUESKY_EXPORT_CONFIG into them?
         self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)
-
-    def _set_request_id(self):
-        if self._config('request_id_format'):
-            self._request_id = substitude_config_wildcards(self._config,
-                'request_id_format', uuid=str(uuid.uuid4()).split('-')[0],
-                utc_today=self._utcnow.strftime("%Y%m%d"),
-                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
-        else:
-            base_name = os.path.basename(self._input_loader.input_file_name)
-            self._request_id = self.JSON_EXT_STRIPPER.sub('', base_name)
 
     async def _record_input(self):
         await run_in_loop_executor(self._s3_client.upload_file,

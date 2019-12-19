@@ -125,8 +125,6 @@ class Config(object):
         else:
             self._set(config)
 
-        # We need to check, in case we're instantiating from an object
-        # with fewer required fields.  e.g. ParallelConfig(Config({}))
         self._check()
         self._log()
 
@@ -157,8 +155,20 @@ class Config(object):
 
         _(self._config, user_config)
 
-    # Derived classse define REQUIRED_CONFIG_SETTINGS
-    REQUIRED_CONFIG_SETTINGS = []
+    REQUIRED_CONFIG_SETTINGS = [
+        # top level keys need extra comma to make a tuple
+        ("bluesky_version", ),
+        ("ssh_key", ),
+        ("aws", "iam_instance_profile", "Arn"),
+        ("aws", "iam_instance_profile", "Name"),
+        ("aws", "ec2", "image_id"),
+        ("aws", "ec2", "instance_type"),
+        ("aws", "ec2", "key_pair_name"),
+        ("aws", "ec2", "security_groups"),
+        ("aws", "s3", "bucket_name"),
+        ("aws", "s3", "output_path"),
+        ("bluesky", "modules")
+    ]
     MISSING_CONFIG_FIELD_MSG = "BlueskyParallelRunner config must define {}"
 
     def _check(self):
@@ -190,36 +200,6 @@ class Config(object):
     def __call__(self, *args):
         return self._get_config_value(args)
     get = __call__
-
-class ParallelConfig(Config):
-
-    REQUIRED_CONFIG_SETTINGS = [
-        # top level keys need extra comma to make a tuple
-        ("bluesky_version", ),
-        ("ssh_key", ),
-        ("aws", "iam_instance_profile", "Arn"),
-        ("aws", "iam_instance_profile", "Name"),
-        ("aws", "ec2", "image_id"),
-        ("aws", "ec2", "instance_type"),
-        ("aws", "ec2", "key_pair_name"),
-        ("aws", "ec2", "security_groups"),
-        ("aws", "s3", "bucket_name"),
-        ("aws", "s3", "output_path"),
-        ("bluesky", "modules")
-    ]
-
-class SingleConfig(Config):
-
-    REQUIRED_CONFIG_SETTINGS = [
-        # top level keys need extra comma to make a tuple
-        ("bluesky_version", ),
-        ("ssh_key", ),
-        ("aws", "iam_instance_profile", "Arn"),
-        ("aws", "iam_instance_profile", "Name"),
-        ("aws", "s3", "bucket_name"),
-        ("aws", "s3", "output_path"),
-        ("bluesky", "modules")
-    ]
 
 
 BLUESKY_EXPORT_CONFIG = {
