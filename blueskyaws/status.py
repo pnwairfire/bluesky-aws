@@ -71,10 +71,9 @@ class StatusTracker(object):
         }
         await self._save_status()
 
-    async def set_system_status(self, system_status, system_error=None):
+    async def set_system_status(self, system_status, **kwargs):
         self._status['system_status'] = system_status
-        if system_error:
-            self._status['system_status'] = system_status
+        self._status.update(**kwargs)
 
         await self._save_status()
 

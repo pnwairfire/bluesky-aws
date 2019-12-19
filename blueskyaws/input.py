@@ -118,7 +118,7 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
                             # third wait will be 4 x the configured wait time, etc.
                             wait_time * math.pow(2, attempts - 1)
 
-                        status_tracker.set_system_status(Status.WAITING,
+                        await status_tracker.set_system_status(Status.WAITING,
                             system_error=SystemErrors.WAITING_FOR_FIRES)
                         attempts += 1
                         logging.warn(("Waiting %s seconds before retrying "
@@ -135,7 +135,7 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
             # We only get here if we reached the max number of retries
             # or if an exception unrelaterd to existence was caught
             logging.error("Failed to load input")
-            status_tracker.set_system_status(Status.FAILURE,
+            await status_tracker.set_system_status(Status.FAILURE,
                 system_error=SystemErrors.NO_FIRE_DATA,
                 system_error_message=error_msg)
             raise InputLoadFailure(error_msg)
