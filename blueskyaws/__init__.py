@@ -46,7 +46,7 @@ class BlueskyParallelRunner(object):
         self._set_request_id(input_file_name)
 
         await self._set_status_tracker()
-        async with InputLoader(input_file_name, self._status_tracker) as input_loader:
+        async with InputLoader(self._config, input_file_name, self._status_tracker) as input_loader:
             self._input_loader = input_loader
             self._set_instances_needed()
             await self._load_bluesky_config()
@@ -76,7 +76,7 @@ class BlueskyParallelRunner(object):
     def _set_instances_needed(self):
         num_fires = len(self._input_loader.fires)
         self._total_instances_needed = min(num_fires,
-            self._raw_config("aws", 'ec2', "max_num_instances") or num_fires)
+            self._config("aws", 'ec2', "max_num_instances") or num_fires)
 
     async def _load_bluesky_config(self):
         self._bluesky_config = {'config': {}}

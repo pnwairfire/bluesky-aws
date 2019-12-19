@@ -14,31 +14,33 @@ class InputLoadFailure(Exception):
 
 class InputLoader(object):
 
-    def __init__(self, input_file_name, status_tracker):
+    def __init__(self, config, input_file_name, status_tracker):
         """Loads data from input file
 
         Args:
 
          - input_file_name` - local file path name or url of remote resource
         """
+        self._config = config
         self._orig_input_file_name = input_file_name
         self._status_tracker = status_tracker
 
     async def __aenter__(self):
         try:
-            uri_parts = rfc3987.parse(input_file_name, rule='IRI')
+            uri_parts = rfc3987.parse(self._orig_input_file_name, rule='IRI')
             # set local file name
             self._tmp_dir = tempfile.mkdtemp()
             self._local_input_file_name = os.path.join(self._tmp_dir,
                 os.path.basename(uri_parts['path']))
             self._attempts = 0
-            await self._download(input_file_name)
+            await self._download(self._orig_input_file_name)
 
         except:
             # TODO: check for file existence, and support retry logic (configurable)
-            self._local_input_file_name = input_file_name
+            self._local_input_file_name = self._orig_input_file_name
 
-        self._load_input()
+        await self._load_input()
+        return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         # TODO: delete self._tmp_dir
@@ -71,7 +73,7 @@ class InputLoader(object):
             await run_in_loop_executor(urllib.request.urlretrieve,
                 remote_input_file_name, self._local_input_file_name)
             return
-        _()
+        await _()
 
 
 
@@ -88,7 +90,7 @@ class InputLoader(object):
                 # reset point to beginning of file and load json data
                 f.seek(0)
                 self._fires = json.loads(f.read())['fires']
-        _()
+        await _()
 
 
 def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
