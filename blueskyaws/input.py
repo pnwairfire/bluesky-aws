@@ -5,6 +5,8 @@ import rfc3987
 import tempfile
 import urllib
 
+from afaws.asyncutils import run_in_loop_executor
+
 from .status import Status, SystemErrors
 
 class InputLoadFailure(Exception):
@@ -17,7 +19,7 @@ class InputLoader(object):
 
         Args:
 
-         - input_file_name` - local file path name or url
+         - input_file_name` - local file path name or url of remote resource
         """
         self._orig_input_file_name = input_file_name
         self._status_tracker = status_tracker
@@ -58,15 +60,16 @@ class InputLoader(object):
         # TODO: more r
         return input_file_name.startswith('http')
 
-    async def _download(self):
+    async def _download(self, remote_input_file_name):
         """Downloads remote input data, with optional retry logic
         """
 
         # catch 404's and retry
         @wait_to_retry(self._config, urllib.request.HTTPError,
             self._status_tracker, lambda e: getattr(e, 'code', None) == 404)
-        def _():
-            urllib.request.urlretrieve(input_file_name, self._input_file_name)
+        async def _():
+            await run_in_loop_executor(urllib.request.urlretrieve,
+                remote_input_file_name, self._local_input_file_name)
             return
         _()
 
