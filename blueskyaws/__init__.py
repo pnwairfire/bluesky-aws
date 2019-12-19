@@ -15,7 +15,7 @@ from afaws.asyncutils import run_in_loop_executor
 from .input import InputLoader
 from .launch import Ec2InstancesManager
 from .config import Config, BLUESKY_EXPORT_CONFIG, substitude_config_wildcards
-from .status import Status
+from .status import Status, StatusTracker
 
 __all__ = [
     "BlueskyParallelRunner"
@@ -45,13 +45,13 @@ class BlueskyParallelRunner(object):
         self._utcnow = datetime.datetime.utcnow()
         self._set_request_id(input_file_name)
 
+        await self._set_status_tracker()
         async with InputLoader(input_file_name, self._status_tracker) as input_loader:
             self._input_loader = input_loader
             self._set_instances_needed()
             await self._load_bluesky_config()
             await self._record_input()
             await self._run_all()
-            await self._finalize_status()
             await self._notify()
 
     ## Initialization
@@ -67,6 +67,11 @@ class BlueskyParallelRunner(object):
         else:
             self._request_id = self.JSON_EXT_STRIPPER.sub('',
                 os.path.basename(input_file_name))
+
+    async def _set_status_tracker(sel):
+        self._status_tracker = StatusTracker(
+            self._request_id, self._s3_client, self._config)
+        await self._status_tracker.initialize()
 
     def _set_instances_needed(self):
         num_fires = len(self._input_loader.fires)
@@ -117,65 +122,18 @@ class BlueskyParallelRunner(object):
             #            c) single run
             runs = zip(self._input_loader.fires, ec2_instance_manager.instances)
             runners = [
-                BlueskySingleRunner({'fires': [fire]}, instance,
-                    self._config, self._bluesky_config, self._request_id,
-                    self._update_single_run_status)
+                BlueskySingleRunner({'fires': [fire]}, instance, self._config,
+                    self._bluesky_config, self._request_id,
+                    self._status_tracker)
                 for fire, instance in runs
             ]
-
-            await self._initialize_status(runners)
 
             await asyncio.gather(*[
                 runner.run() for runner in runners
             ])
 
+            await self._status_tracker.set_system_status(Status.COMPLETE)
 
-    ## Status
-
-    async def _save_status(self):
-        await run_in_loop_executor(self._s3_client.put_object,
-            Body=json.dumps(self._status),
-            Bucket=self._config('aws', 's3', 'bucket_name'),
-            Key=os.path.join('status', self._request_id + '-status.json'))
-
-    async def _initialize_status(self, runners):
-        self._status = {
-            "system_status": Status.RUNNING,
-            "system_error": None,
-            "counts": {
-                Status.RUNNING: len(self._input_loader.fires),
-                Status.SUCCESS: 0,
-                Status.FAILURE: 0,
-                Status.COMPLETE: 0
-            },
-            "runs": {
-                runner._run_id: {
-                    "status": Status.RUNNING,
-                    "message": None
-                } for runner in runners
-            }
-        }
-        await self._save_status()
-
-    async def _update_single_run_status(self, run, status, **kwargs):
-        # Update run's status
-        self._status["runs"][run._run_id]["status"] = status
-        self._status["runs"][run._run_id].update(**kwargs)
-
-        # Update count for this status, if it has a count
-        if status in self._status['counts']:
-            self._status['counts'][status] += 1
-
-        # update running and complete counts, if appropriate
-        if status in (Status.SUCCESS, Status.FAILURE):
-            self._status['counts'][Status.RUNNING] -= 1
-            self._status['counts'][Status.COMPLETE] += 1
-
-        await self._save_status()
-
-    async def _finalize_status(self):
-        self._status['status'] = Status.COMPLETE
-        await self._save_status()
 
 
     ## Notifications
@@ -189,14 +147,14 @@ class BlueskyParallelRunner(object):
 class BlueskySingleRunner(object):
 
     def __init__(self, input_data, instance, config, bluesky_config,
-            request_id, update_single_run_status_func, utcnow=None):
+            request_id, status_tracker, utcnow=None):
         self._utcnow = utcnow or datetime.datetime.utcnow()
         self._input_data = input_data
         self._instance = instance
         self._config = config
         self._bluesky_config = bluesky_config
         self._request_id = request_id
-        self._update_single_run_status = update_single_run_status_func
+        self._status_tracker = status_tracker
         self._set_run_id()
 
     ## Public Interface
@@ -204,6 +162,7 @@ class BlueskySingleRunner(object):
     async def run(self):
         ip = self._instance.classic_address.public_ip
         logging.info("Running bluesky on %s", ip)
+
         try:
             with SshClient(self._config('ssh_key'), ip) as ssh_client:
                 self._ssh_client = ssh_client
@@ -217,11 +176,13 @@ class BlueskySingleRunner(object):
                 await self._cleanup()
             # TODO: check return value of bluesky and/or look in bluesky
             #   output for error, and determine status from that
-            await self._update_single_run_status(self, Status.SUCCESS,
+            await self._status_tracker.set_run_status(self, Status.SUCCESS,
                 output_url=self._s3_url(self._config('aws', 's3', 'output_path'), 'tar.gz'),
                 log_url=self._s3_url('log', 'log'))
+
         except Exception as e:
-            await self._update_single_run_status(self, Status.UNKNOWN,
+            # TODO: determine error, if possible
+            await self._status_tracker.set_run_status(self, Status.UNKNOWN,
                 message=str(e))
 
 
