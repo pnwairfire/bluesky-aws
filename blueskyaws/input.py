@@ -1,8 +1,10 @@
 import json
+import logging
 import math
 import os
 import rfc3987
 import tempfile
+import time
 import urllib
 
 from afaws.asyncutils import run_in_loop_executor
@@ -103,7 +105,7 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
             max_attempts = config('input', 'wait', 'max_attempts')
 
             attempts = 1
-            error_msg = None
+            error_msg = "Fire data does not exist"
             while True:
                 try:
                     return await f(*args, **kwargs)
@@ -118,19 +120,25 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
 
                         status_tracker.set_system_status(Status.WAITING,
                             system_error=SystemErrors.WAITING_FOR_FIRES)
-                        attemps += 1
+                        attempts += 1
+                        logging.warn(("Waiting %s seconds before retrying "
+                            "input load"), wait_time)
+                        time.sleep(wait_time)
                     else:
                         break
 
                 except Exception as e:
+                    logging.warn("Failed to load input: %s", e)
                     error_msg = str(e)
                     break
 
             # We only get here if we reached the max number of retries
             # or if an exception unrelaterd to existence was caught
+            logging.error("Failed to load input")
             status_tracker.set_system_status(Status.FAILURE,
                 system_error=SystemErrors.NO_FIRE_DATA,
-                system_error_message=error_msg or "Fire data does not exist")
+                system_error_message=error_msg)
+            raise InputLoadFailure(error_msg)
 
         return decorated
 
