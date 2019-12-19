@@ -68,7 +68,7 @@ class BlueskyParallelRunner(object):
             self._request_id = self.JSON_EXT_STRIPPER.sub('',
                 os.path.basename(input_file_name))
 
-    async def _set_status_tracker(sel):
+    async def _set_status_tracker(self):
         self._status_tracker = StatusTracker(
             self._request_id, self._s3_client, self._config)
         await self._status_tracker.initialize()
@@ -100,7 +100,8 @@ class BlueskyParallelRunner(object):
 
     async def _record_input(self):
         await run_in_loop_executor(self._s3_client.upload_file,
-            self._input_loader.input_file_name, self._config('aws', 's3', 'bucket_name'),
+            self._input_loader.local_input_file_name,
+            self._config('aws', 's3', 'bucket_name'),
             os.path.join('requests', self._request_id + '.json'))
 
     async def _run_all(self):

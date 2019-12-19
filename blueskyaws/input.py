@@ -29,14 +29,14 @@ class InputLoader(object):
             uri_parts = rfc3987.parse(input_file_name, rule='IRI')
             # set local file name
             self._tmp_dir = tempfile.mkdtemp()
-            self._input_file_name = os.path.join(self._tmp_dir,
+            self._local_input_file_name = os.path.join(self._tmp_dir,
                 os.path.basename(uri_parts['path']))
             self._attempts = 0
-            await self._download()
+            await self._download(input_file_name)
 
         except:
             # TODO: check for file existence, and support retry logic (configurable)
-            self._input_file_name = input_file_name
+            self._local_input_file_name = input_file_name
 
         self._load_input()
 
@@ -47,8 +47,8 @@ class InputLoader(object):
     ## Properties
 
     @property
-    def input_file_name(self):
-        return self._input_file_name
+    def local_input_file_name(self):
+        return self._local_input_file_name
 
     @property
     def fires(self):
@@ -84,6 +84,7 @@ class InputLoader(object):
     async def _load_input(self):
         @wait_to_retry(self._config, FileNotFoundError, self._status_tracker)
         async def _():
+            with open(self._local_input_file_name, 'r') as f:
                 # reset point to beginning of file and load json data
                 f.seek(0)
                 self._fires = json.loads(f.read())['fires']
