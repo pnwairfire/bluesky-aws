@@ -31,6 +31,7 @@ class SystemErrors(object):
     WAITING_FOR_FIRES_AND_MET = "waiting_for_fires_and_met"
 
     # Cases where one or more runs failed or are in an unknown state
+    NO_FIRE_DATA = "no-fire-data"
     SOME_RUNS_FAILED = "some_runs_failed"
     SOME_RUNS_UNKNOWN = "some_runs_unknown"
     SOME_RUNS_UNKNOWN_AND_FAILED = "some_runs_unknown_and_failed"

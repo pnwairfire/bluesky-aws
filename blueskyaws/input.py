@@ -61,36 +61,71 @@ class InputLoader(object):
     async def _download(self):
         """Downloads remote input data, with optional retry logic
         """
-        self._attempts += 1
-        # TODO: catch 404 and support retry logic (configurable)
-        # TODO: if retries remaining, set status to waiting; else
-        #    set status to fail with message saying that
-        # TODO: download asyncronously
-        try:
+
+        # catch 404's and retry
+        @wait_to_retry(self._config, urllib.request.HTTPError,
+            self._status_tracker, lambda e: getattr(e, 'code', None) == 404)
+        def _():
             urllib.request.urlretrieve(input_file_name, self._input_file_name)
             return
+        _()
 
-        except HTTPError as e:
-            if getattr(e, 'code', None) == 404:
-                if self._attempts < self._config('input', 'wait', 'max_attempts'):
-                    wait_time = self._config('input', 'wait', 'time')
-                    if self._config('input', 'wait', 'strategy') == 'backoff':
-                        # first wait will be the configured wait time,
-                        # second wait will be 2 x the configured wait time,
-                        # third wait will be 4 x the configured wait time, etc.
-                        wait_time * math.pow(2, self._attempts - 1)
-                    self._download()
-                    return
+
+
+        # TODO: if retries remaining, set status to waiting; else
+        #    set status to fail with message saying that
 
             # TODO: set system status to failure and set error message
             #    to something based on e
-            self._status_tracker.set_system_status(Status.WAITING,
-                system_error=SystemErrors.WAITING_FOR_FIRES)
 
-        except Exception as e:
+    async def _load_input(self):
+        @wait_to_retry(self._config, FileNotFoundError, self._status_tracker)
+        async def _():
+                # reset point to beginning of file and load json data
+                f.seek(0)
+                self._fires = json.loads(f.read())['fires']
+        _()
 
-    def _load_input(self):
-        with open(self._input_file_name, 'r') as f:
-            # reset point to beginning of file and load json data
-            f.seek(0)
-            self._fires = json.loads(f.read())['fires']
+
+def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
+
+    def decorator(f):
+
+        async def decorated(*args, **kwargs):
+            wait_strategy = config('input', 'wait', 'strategy')
+            wait_time = config('input', 'wait', 'time')
+            max_attempts = config('input', 'wait', 'max_attempts')
+
+            attempts = 1
+            error_msg = None
+            while True:
+                try:
+                    return await f(*args, **kwargs)
+
+                except exc_class as e:
+                    if check_func(e) and attempts < max_attempts:
+                        if wait_strategy == 'backoff':
+                            # first wait will be the configured wait time,
+                            # second wait will be 2 x the configured wait time,
+                            # third wait will be 4 x the configured wait time, etc.
+                            wait_time * math.pow(2, attempts - 1)
+
+                        status_tracker.set_system_status(Status.WAITING,
+                            system_error=SystemErrors.WAITING_FOR_FIRES)
+                        attemps += 1
+                    else:
+                        break
+
+                except Exception as e:
+                    error_msg = str(e)
+                    break
+
+            # We only get here if we reached the max number of retries
+            # or if an exception unrelaterd to existence was caught
+            status_tracker.set_system_status(Status.FAILURE,
+                system_error=SystemErrors.NO_FIRE_DATA,
+                system_error_message=error_msg or "Fire data does not exist")
+
+        return decorated
+
+    return decorator
