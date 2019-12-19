@@ -112,18 +112,19 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
 
                 except exc_class as e:
                     if check_func(e) and attempts < max_attempts:
-                        if wait_strategy == 'backoff':
-                            # first wait will be the configured wait time,
-                            # second wait will be 2 x the configured wait time,
-                            # third wait will be 4 x the configured wait time, etc.
-                            wait_time * math.pow(2, attempts - 1)
-
                         await status_tracker.set_system_status(Status.WAITING,
                             system_error=SystemErrors.WAITING_FOR_FIRES)
                         attempts += 1
                         logging.warn(("Waiting %s seconds before retrying "
                             "input load"), wait_time)
                         time.sleep(wait_time)
+
+                        if wait_strategy == 'backoff':
+                            # first wait will be the configured wait time,
+                            # second wait will be 2 x the configured wait time,
+                            # third wait will be 4 x the configured wait time, etc.
+                            wait_time *= 2
+
                     else:
                         break
 
