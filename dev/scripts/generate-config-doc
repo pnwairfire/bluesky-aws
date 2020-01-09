@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
 
 import argparse
-import datetime
-import json
-import logging
 import os
-import pathlib
-import subprocess
+import shutil
 import sys
 import tempfile
 
+
+def import_config():
+    # To avoid having to use docker, copy config.py to temp dir, add and
+    # __init__.py, and import from there
+    d = tempfile.mkdtemp()
+    with open(os.path.join(d, '__init__.py'), 'w') as f:
+        f.write("")
+
+    config_module = os.path.abspath(os.path.join(
+        sys.path[0], '../../blueskyaws/config.py'))
+    shutil.copyfile(config_module, os.path.join(d, 'config.py'))
+    sys.path.insert(0, d)
+
+    import config
+    return config
+
+config = import_config()
 
 
 DOC_TEMPLATE = """
@@ -119,27 +132,7 @@ And in the bluesky config file with:
 ```
 
 Then `num_hours` would be set to 24 for the bluesky run(s).
-
 """
-
-
-import afscripting
-
-
-##
-## Args
-##
-
-REQUIRED_ARGS = [
-    {
-        'short': '-o',
-        'long': '--output-file',
-        'help': 'config doc file; default docs/configuration.md',
-        'default': './docs/configuration.md'
-    }
-]
-
-OPTIONAL_ARGS = []
 
 EXAMPLES_STRING = """
 Examples:
@@ -149,24 +142,25 @@ Examples:
  """.format(script=sys.argv[0])
 
 def parse_args():
-    _, args = afscripting.args.parse_args(REQUIRED_ARGS,
-        OPTIONAL_ARGS, epilog=EXAMPLES_STRING,
-        support_configuration_options_short_names=True)
+    parser = argparse.ArgumentParser()
+    parser.formatter_class = argparse.RawTextHelpFormatter
+    parser.add_argument('-0', '--output-file', default='./docs/configuration.md',
+        help='config doc file; default docs/configuration.md')
 
-    return args
-
-def generate_required_section():
-    return ""
-
-def generate_optional_section():
-    return ""
+    parser.epilog = EXAMPLES_STRING
+    return parser.parse_args()
 
 def main():
     args = parse_args()
-    contents = DOC_TEMPLATE.format(
-        required_settings_section=generate_required_section(),
-        optional_settings_section=generate_optional_section()
-    )
+    generator = config.ConfigSettingsMarkdownGenerator()
+
+    # Note: using 'replace' instead of string interpolation so
+    # that template string doesn't have to deal with escapinga ll
+    # {'s and }'s
+    contents = DOC_TEMPLATE.replace(
+        '{required_settings_section}', generator.required).replace(
+        '{optional_settings_section}', generator.optional)
+
     with open(args.output_file, 'w') as f:
         f.write(contents)
 

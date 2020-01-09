@@ -1,5 +1,6 @@
 import copy
 import logging
+from collections import OrderedDict
 
 __all__ = [
     "Config",
@@ -36,6 +37,19 @@ class ConfigSetting(object):
         self._validator = validator
         self._required = required
 
+    @property
+    def default(self):
+        return self._default
+
+    @property
+    def help_string(self):
+        return self._help_string or "(n/a)"
+
+    @property
+    def required(self):
+        return self._required
+
+
     INVALID_CONFIG_FIELD_MSG = "Invalid config setting {} = {}"
     REQUIRED_CONFIG_SETTING_IS_NONE_MSG = "Required config setting {} can't be None"
 
@@ -59,7 +73,7 @@ class ConfigSetting(object):
         return self._default
 
 
-CONFIG_SETTINGS = {
+CONFIG_SETTINGS = OrderedDict({
     "request_id_format": ConfigSetting(None, help_string="""
         request_id_format is used in input, log, status, and output file names
         defaults to input file name with `.json` removed
@@ -183,8 +197,54 @@ CONFIG_SETTINGS = {
             'password': ConfigSetting(None, help_string="")
         }
     }
-}
+})
 
+class ConfigSettingsMarkdownGenerator(object):
+
+    def __init__(self):
+        self._required_text = ""
+        self._optional_text = ""
+        self._generate()
+
+    @property
+    def required(self):
+        return self._required_text
+
+    @property
+    def optional(self):
+        return self._optional_text
+
+
+    CONFIG_SETTINGS_MARKDOWN_TEMPLATE = """### {keys}
+default: {default}
+
+{help_string}
+
+"""
+
+    def _generate(self):
+        def _gen(config_settings, *parent_keys):
+            for k, v in config_settings.items():
+                new_parent_keys = list(parent_keys) + [k]
+                if isinstance(config_settings[k], ConfigSetting):
+                    text = self.CONFIG_SETTINGS_MARKDOWN_TEMPLATE.format(
+                        keys=' > '.join(new_parent_keys),
+                        default=config_settings[k].default,
+                        help_string=config_settings[k].help_string).text.strip()
+
+                    # TODO: convert all '\n \w*' into just '\n'
+
+                    if config_settings[k].required:
+                        self._required_text += text
+                    else:
+                        self._optional_text += text
+
+                elif isinstance(config_settings[k], dict):
+                    _gen(config_settings[k], *new_parent_keys)
+
+                # else leave is is - must be an already set config setting value
+
+        _gen(CONFIG_SETTINGS)
 
 class Config(object):
 
