@@ -29,27 +29,34 @@ def substitude_config_wildcards(config, *config_keys, **wildcard_dict):
 
 
 class ConfigSetting(object):
+
     def __init__(self, default, help_string=None, validator=None, required=False):
         self._default = default
         self._help_string = help_string
         self._validator = validator
         self._required = required
 
+    INVALID_CONFIG_FIELD_MSG = "Invalid config setting {} = {}"
+    REQUIRED_CONFIG_SETTING_IS_NONE_MSG = "Required config setting {} can't be None"
+
     def validate(self, val, *keys):
         if self._validator and not self._validator(val):
-            raise InvalidConfigurationError("Invalid value '{}' for {}".format(
-                val, ' > '.format(keys)))
+            raise InvalidConfigurationError(
+                self.INVALID_CONFIG_FIELD_MSG.format(' > '.join(keys), val))
 
         if self._required and val is None:
             raise InvalidConfigurationError(
-                "Required config setting {} can't be None".format(
-                ' > '.format(keys)))
+                self.REQUIRED_CONFIG_SETTING_IS_NONE_MSG.format(
+                ' > '.join(keys)))
 
-    def default(self):
+    MISSING_CONFIG_FIELD_MSG = "Missing required config setting {}"
+
+    def get_default(self, *keys):
         if self._required and self._default is None:
             raise MissingConfigurationError(
-                "Missing required config setting {}".format(
-                ' > '.format(keys)))
+                self.MISSING_CONFIG_FIELD_MSG.format(' > '.join(keys)))
+
+        return self._default
 
 
 CONFIG_SETTINGS = {
@@ -104,6 +111,7 @@ CONFIG_SETTINGS = {
     "ssh_key": ConfigSetting(None,help_string="""
         ssh key to use for ssh'ing to and running commands on ec2 instances
     """, required=True),
+
     "aws": {
         "iam_instance_profile": {
             "Arn": ConfigSetting(None, required=True),
@@ -189,8 +197,7 @@ class Config(object):
         self._log()
 
 
-    INVALID_CONFIG_FIELD_MSG = "Invalid config setting {}"
-    MISSING_CONFIG_FIELD_MSG = "BlueskyParallelRunner config must define {}"
+    INVALID_CONFIG_FIELD_MSG = "Invalid config field {}"
 
     def _set(self, user_config):
         # Initialize config to config settings
@@ -229,7 +236,7 @@ class Config(object):
                 new_parent_keys = list(parent_keys) + [k]
                 if isinstance(config[k], ConfigSetting):
                     # replace with default
-                    config[k] = config[k].default
+                    config[k] = config[k].get_default(*new_parent_keys)
 
                 elif isinstance(config[k], dict):
                     _fill(config[k], *new_parent_keys)

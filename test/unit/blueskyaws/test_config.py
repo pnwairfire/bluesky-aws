@@ -3,6 +3,7 @@ import copy
 from py.test import raises
 
 from blueskyaws.config import (
+    ConfigSetting,
     Config,
     InvalidConfigurationError,
     InvalidConfigurationUsageError,
@@ -104,7 +105,7 @@ class TestConfig(object):
     def test_empty_user_config(self):
         with raises(MissingConfigurationError) as e_info:
             Config({})
-        assert e_info.value.args[0] == Config.MISSING_CONFIG_FIELD_MSG.format(
+        assert e_info.value.args[0] == ConfigSetting.MISSING_CONFIG_FIELD_MSG.format(
             'ssh_key')
 
     def test_user_config_missing_some_required(self):
@@ -117,10 +118,9 @@ class TestConfig(object):
             }
         }
 
-
         with raises(MissingConfigurationError) as e_info:
             Config(input_config)
-        assert e_info.value.args[0] == Config.MISSING_CONFIG_FIELD_MSG.format(
+        assert e_info.value.args[0] == ConfigSetting.MISSING_CONFIG_FIELD_MSG.format(
             'aws > iam_instance_profile > Name')
 
     def test_user_config_has_undefined_required(self):
@@ -150,10 +150,12 @@ class TestConfig(object):
             }
         }
 
-        with raises(MissingConfigurationError) as e_info:
+        with raises(InvalidConfigurationError) as e_info:
             Config(input_config)
-        assert e_info.value.args[0] == Config.MISSING_CONFIG_FIELD_MSG.format(
-            'aws > iam_instance_profile > Name')
+        assert e_info.value.args[0] == (
+            ConfigSetting.REQUIRED_CONFIG_SETTING_IS_NONE_MSG.format(
+                'aws > iam_instance_profile > Name')
+        )
 
     ## Valid
 
@@ -187,6 +189,13 @@ class TestConfig(object):
             "request_id_format": None,
             "run_id_format": None,
             "bluesky_version": "v4.1.31",
+            'input': {
+                'wait': {
+                    'max_attempts': 3,
+                    'strategy': 'fixed',
+                    'time': 900
+                }
+            },
             "cleanup_output": True,
             "ssh_key": "id_rsa",
             "aws": {
@@ -290,6 +299,13 @@ class TestConfig(object):
             "request_id_format": None,
             "run_id_format": None,
             "bluesky_version": "v4.1.31",
+            'input': {
+                'wait': {
+                    'max_attempts': 3,
+                    'strategy': 'fixed',
+                    'time': 900
+                }
+            },
             "cleanup_output": True,
             "ssh_key": "id_rsa",
             "aws": {
