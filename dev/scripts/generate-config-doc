@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+
+import argparse
+import datetime
+import json
+import logging
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+
+
+
+DOC_TEMPLATE = """
+# Configuration
+
+Each bluesky-aws run is configured with a json file, with nested fields and
+top level "config" key. A minimal config would look something like the
+following:
+
+```
+{
+    "config": {
+        "ssh_key": "id_rsa",
+        "aws": {
+            "iam_instance_profile": {
+                "Arn": "arn:aws:iam::abc123:instance-profile/bluesky-iam-role",
+                "Name": "bluesky-iam-role"
+            },
+            "ec2": {
+                "image_id": "ami-123abc",
+                "instance_type":"t2.nano",
+                "key_pair_name": "sdf",
+                "security_groups": ["ssh"],
+                "efs_volumes": [
+                    ["fs-abc123.efs.us-west-2.amazonaws.com:/", "/Met/"]
+                ]
+            },
+            "s3": {
+                "bucket_name": "bluesky-aws"
+            }
+        },
+        "bluesky": {
+            "config_file": null,
+            "modules": [
+                "fuelbeds",
+                "consumption",
+                "emissions"
+            ]
+        }
+    }
+}
+```
+
+The full list of config settings is listed below.
+
+## Required Configuration settings
+
+Note that required settings with non-null default values don't need to be set
+by the user.  They just can't be explicitly overridden by the user with a
+null or otherwise invalid value.  For example, setting `bluesky_version`
+can not be set to `null` or something like `foo`
+
+{required_settings_section}
+
+
+## Optional Settings
+
+{optional_settings_section}
+
+
+## BlueSky Configuration
+
+The bluesky processes run by bluesky-aws may be configured in three
+different ways, listed here in order of precedence
+
+ 1. On the `run-bluesky` command line with the options `-C`, `-B`, `-I`, `-F`, and `-J`
+ 2. In the `bluesky-aws` config file under `bluesky` > `config`
+ 3. in a separate `bluesky` config file, referenced in the `bluesky-aws` config by `bluesky` > `config_file`
+
+For example, if the bluesky dispersion.num_hours is specified on the command line with
+
+```
+-I bluesky.config.dispersion.num_hours=24
+```
+
+in the `bluesky-aws` config file with
+
+
+```
+{
+    "config": {
+        ...,
+        "bluesky": {
+            ...,
+            "config": {
+                "dispersion": {
+                    "num_hours": 48
+                }
+            }
+        }
+    }
+}
+```
+
+And in the bluesky config file with:
+
+```
+{
+    "config": {
+        ...,
+        "dispersion": {
+            ...,
+            "num_hours": 72
+        }
+    }
+}
+```
+
+Then `num_hours` would be set to 24 for the bluesky run(s).
+
+"""
+
+
+import afscripting
+
+
+##
+## Args
+##
+
+REQUIRED_ARGS = [
+    {
+        'short': '-o',
+        'long': '--output-file',
+        'help': 'config doc file; default docs/configuration.md',
+        'default': './docs/configuration.md'
+    }
+]
+
+OPTIONAL_ARGS = []
+
+EXAMPLES_STRING = """
+Examples:
+
+    {script} --log-level DEBUG
+
+ """.format(script=sys.argv[0])
+
+def parse_args():
+    _, args = afscripting.args.parse_args(REQUIRED_ARGS,
+        OPTIONAL_ARGS, epilog=EXAMPLES_STRING,
+        support_configuration_options_short_names=True)
+
+    return args
+
+def generate_required_section():
+    return ""
+
+def generate_optional_section():
+    return ""
+
+def main():
+    args = parse_args()
+    contents = DOC_TEMPLATE.format(
+        required_settings_section=generate_required_section(),
+        optional_settings_section=generate_optional_section()
+    )
+    with open(args.output_file, 'w') as f:
+        f.write(contents)
+
+if __name__ == "__main__":
+    main()
