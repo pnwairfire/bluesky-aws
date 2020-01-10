@@ -223,11 +223,13 @@ class ConfigSettingsMarkdownGenerator(object):
         return self._optional_text
 
 
-    CONFIG_SETTINGS_MARKDOWN_TEMPLATE = """### {keys}
+    CONFIG_SETTINGS_MARKDOWN_TEMPLATE = """#### {keys}
 
-default: {default}
+***default***: {default}
 
 {help_string}
+
+---
 
 """
 
