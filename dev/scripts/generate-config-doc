@@ -26,6 +26,12 @@ config = import_config()
 
 
 DOC_TEMPLATE = """
+<!--
+    THIS FILE IS GENERATED. DO NOT MANUALLY EDIT.
+    UPDATE ./dev/scripts/generate-config-doc INSTEAD
+-->
+
+
 # Configuration
 
 Each bluesky-aws run is configured with a json file, with nested fields and

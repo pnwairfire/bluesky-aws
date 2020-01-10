@@ -1,4 +1,10 @@
 
+<!--
+    THIS FILE IS GENERATED. DO NOT MANUALLY EDIT.
+    UPDATE ./dev/scripts/generate-config-doc INSTEAD
+-->
+
+
 # Configuration
 
 Each bluesky-aws run is configured with a json file, with nested fields and
@@ -54,14 +60,12 @@ default: v4.1.31
 
         a string value matching one of the published bluesky docker image tags
         listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
-    
 
 ### ssh_key
 default: None
 
 
         ssh key to use for ssh'ing to and running commands on ec2 instances
-    
 
 ### aws > iam_instance_profile > Arn
 default: None
@@ -125,7 +129,6 @@ default: None
          '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
         e.g. "bluesky-aws-{uuid}-{utc_now}" would translate to something like
         "bluesky-aws-dk38fj3d-20191210T052322"
-    
 
 ### run_id_format
 default: None
@@ -140,7 +143,6 @@ default: None
          '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
         e.g. "bluesky-aws-run-{fire_id}-{uuid}-{utc_today}" would translate
         to something like "bluesky-aws-run-fire123-dk38fj3d-20191210"
-    
 
 ### input > wait > strategy
 default: fixed
@@ -164,7 +166,6 @@ default: True
         delete output after publihing to s3;
         only useful when using an existing instance, when you might want to
         inspect the output on the instance after the run; defaults to `false`.
-    
 
 ### aws > ec2 > max_num_instances
 default: None
@@ -186,7 +187,6 @@ default: bluesky-aws-{request_id}
                  '{request_id}' - replaced with the request id
                 e.g. "{request_id}-", given request id "bluesky-aws-20191210"
                 would translate to something like "bluesky-aws-20191210-sjdk1j23-2"
-            
 
 ### aws > ec2 > efs_volumes
 default: None
@@ -214,7 +214,6 @@ default: None
 
             bluesky config file(s) to use when running bluesky;
             may be string or array (for specifying multiple files)
-        
 
 ### bluesky > config
 default: {}
@@ -222,7 +221,6 @@ default: {}
 
             bluesky config settings that override what's specified in the separate
             bluesky config file, if one is specified (see below)
-        
 
 ### notifications > email > enabled
 default: False

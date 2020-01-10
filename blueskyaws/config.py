@@ -230,7 +230,7 @@ default: {default}
                     text = self.CONFIG_SETTINGS_MARKDOWN_TEMPLATE.format(
                         keys=' > '.join(new_parent_keys),
                         default=config_settings[k].default,
-                        help_string=config_settings[k].help_string).text.strip()
+                        help_string=config_settings[k].help_string).strip() +'\n\n'
 
                     # TODO: convert all '\n \w*' into just '\n'
 
