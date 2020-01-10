@@ -74,36 +74,40 @@ class ConfigSetting(object):
 
 
 CONFIG_SETTINGS = OrderedDict({
-    "request_id_format": ConfigSetting(None, help_string="""
-        request_id_format is used in input, log, status, and output file names
-        defaults to input file name with `.json` removed
-        Supports the following wildcards:
-         '{uuid}' - replaced with an 8 character guid
-         '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
-         '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
-        e.g. "bluesky-aws-{uuid}-{utc_now}" would translate to something like
-        "bluesky-aws-dk38fj3d-20191210T052322"
-    """),
+    "request_id_format": ConfigSetting(None, help_string='\n'.join([
+        "request_id_format is used in input, log, status, and output file names",
+        "defaults to input file name with `.json` removed",
+        "",
+        "Supports the following wildcards:",
+        " - '{uuid}' - replaced with an 8 character guid",
+        " - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'",
+        " - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'",
+        "",
+        "e.g. 'bluesky-aws-{uuid}-{utc_now}' would translate to something like",
+        "'bluesky-aws-dk38fj3d-20191210T052322'"])
+    ),
 
-    "run_id_format": ConfigSetting(None, help_string="""
-        run_id_format defaults to fire id.
-        Supports the following wildcards:
-         '{request_id}' - replaced with the request id
-         '{uuid}' - replaced with an 8 character guid
-         '{fire_id}' - replaced with the id of the run's fire
-         '{utc_today}' - replaced with current UTC date, formatted "%Y%m%d"
-         '{utc_now}' - replaced with current UTC timestamp, formatted "%Y%m%dT%H%M%S"
-        e.g. "bluesky-aws-run-{fire_id}-{uuid}-{utc_today}" would translate
-        to something like "bluesky-aws-run-fire123-dk38fj3d-20191210"
-    """),
+    "run_id_format": ConfigSetting(None, help_string='\n'.join([
+        "run_id_format defaults to fire id.",
+        "",
+        "Supports the following wildcards:",
+        " - '{request_id}' - replaced with the request id",
+        " - '{uuid}' - replaced with an 8 character guid",
+        " - '{fire_id}' - replaced with the id of the run's fire",
+        " - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'",
+        " - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'",
+        "",
+        "e.g. 'bluesky-aws-run-{fire_id}-{uuid}-{utc_today}' would translate",
+        "to something like 'bluesky-aws-run-fire123-dk38fj3d-20191210'"])
+    ),
 
     # bluesky_version must be astring value matching one of the published
     # bluesky docker image tags listed on
     # https://hub.docker.com/r/pnwairfire/bluesky/tags
-    "bluesky_version": ConfigSetting("v4.1.31", help_string="""
-        a string value matching one of the published bluesky docker image tags
-        listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
-    """, required=True),
+    "bluesky_version": ConfigSetting("v4.1.31", help_string='\n'.join([
+        "a string value matching one of the published bluesky docker image tags",
+        "listed on https://hub.docker.com/r/pnwairfire/bluesky/tags"]),
+        required=True),
 
     "input": {
         "wait": {
@@ -117,11 +121,12 @@ CONFIG_SETTINGS = OrderedDict({
     # setting cleanup_output to False is only useful when using an
     # existing instance in dev, when you might want to inspect
     # the output on the instance after the run
-    "cleanup_output": ConfigSetting(True, help_string="""
-        delete output after publihing to s3;
-        only useful when using an existing instance, when you might want to
-        inspect the output on the instance after the run; defaults to `false`.
-    """),
+    "cleanup_output": ConfigSetting(True, help_string='\n'.join([
+        "Whether or not to delete output after publihing to s3.",
+        "",
+        "Only useful when using an existing instance, when you might want to",
+        "inspect the output on the instance after the run; defaults to `false`."])
+    ),
     "ssh_key": ConfigSetting(None,help_string="""
         ssh key to use for ssh'ing to and running commands on ec2 instances
     """, required=True),
@@ -134,19 +139,22 @@ CONFIG_SETTINGS = OrderedDict({
         "ec2": {
             "max_num_instances": ConfigSetting(None,
                 help_string="the maximum number of new plus existing instances to use"),
-            "image_name_prefix_format": ConfigSetting("bluesky-aws-{request_id}", help_string="""
-                prefix to use in name of each new instance
-                A guid assigned to the request will be appended to the
-                image_name_prefix_format to prevent name collisions.
-                An integer from 1 to num_new_instances will then be appended
-                to that. If image_name_prefix_format is set to null or
-                an empty string, each image will be named simply with the guid
-                plus the integer
-                Supports the following wildcards:
-                 '{request_id}' - replaced with the request id
-                e.g. "{request_id}-", given request id "bluesky-aws-20191210"
-                would translate to something like "bluesky-aws-20191210-sjdk1j23-2"
-            """),
+            "image_name_prefix_format": ConfigSetting("bluesky-aws-{request_id}", help_string='\n'.join([
+                "Prefix to use in name of each new instance",
+                "",
+                "A guid assigned to the request will be appended to the",
+                "image_name_prefix_format to prevent name collisions.",
+                "An integer from 1 to num_new_instances will then be appended",
+                "to that. If image_name_prefix_format is set to null or",
+                "an empty string, each image will be named simply with the guid",
+                "plus the integer",
+                "",
+                "Supports the following wildcards:",
+                " - '{request_id}' - replaced with the request id",
+                "",
+                "e.g. '{request_id}-', given request id 'bluesky-aws-20191210'",
+                "would translate to something like 'bluesky-aws-20191210-sjdk1j23-2'"])
+            ),
             "image_id": ConfigSetting(None, help_string="name of image to luanch ec2 image", required=True),
             "instance_type": ConfigSetting(None, help_string="instance type to use", required=True),
             "key_pair_name": ConfigSetting(None, help_string="key pair to use for ssh", required=True),
@@ -216,6 +224,7 @@ class ConfigSettingsMarkdownGenerator(object):
 
 
     CONFIG_SETTINGS_MARKDOWN_TEMPLATE = """### {keys}
+
 default: {default}
 
 {help_string}
@@ -230,7 +239,8 @@ default: {default}
                     text = self.CONFIG_SETTINGS_MARKDOWN_TEMPLATE.format(
                         keys=' > '.join(new_parent_keys),
                         default=config_settings[k].default,
-                        help_string=config_settings[k].help_string).strip() +'\n\n'
+                        help_string=config_settings[k].help_string.strip()
+                    ).strip() +'\n\n'
 
                     # TODO: convert all '\n \w*' into just '\n'
 
