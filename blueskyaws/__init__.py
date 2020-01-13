@@ -172,7 +172,7 @@ class BlueskySingleRunner(object):
                 await self._write_remote_files()
                 await self._install_bluesky_and_dependencies()
                 # TODO: check for met and wait until it arrives,
-                #   setting system status to WAITING
+                #   setting system status to WAITING until is available
                 await self._run_bluesky()
                 await self._tarball()
                 await self._upload_aws_credentials()

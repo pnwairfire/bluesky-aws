@@ -82,14 +82,6 @@ class InputLoader(object):
             return
         await _()
 
-
-
-        # TODO: if retries remaining, set status to waiting; else
-        #    set status to fail with message saying that
-
-            # TODO: set system status to failure and set error message
-            #    to something based on e
-
     async def _load_input(self):
         @wait_to_retry(self._config, FileNotFoundError, self._status_tracker)
         async def _():
