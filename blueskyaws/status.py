@@ -5,25 +5,18 @@ from collections import defaultdict
 from afaws.asyncutils import run_in_loop_executor
 
 __all__ = [
+    "SystemState",
     "Status",
     "SystemErrors",
     "StatusTracker"
 ]
 
-class Status(object):
-    """Encapsulates string constants representing system and run statues"""
+class SystemState(object):
+    """Encapsulates string constants representing system state"""
 
-    # Used only for systemn stats
-    COMPLETE = 'complete'
-
-    # Used for both system and run statues
     WAITING = 'waiting'
     RUNNING = 'running'
-
-    # Used only for run status
-    SUCCESS = 'success'
-    FAILURE = 'failure'
-    UNKNOWN = "unknown"
+    COMPLETE = 'complete'
 
 class SystemErrors(object):
     """Encapsulates string constants representing error states."""
@@ -40,6 +33,15 @@ class SystemErrors(object):
     SOME_RUNS_FAILED = "some_runs_failed"
     SOME_RUNS_UNKNOWN = "some_runs_unknown"
     SOME_RUNS_UNKNOWN_AND_FAILED = "some_runs_unknown_and_failed"
+
+class Status(object):
+    """Encapsulates string constants representing run statues"""
+
+    WAITING = 'waiting'
+    RUNNING = 'running'
+    SUCCESS = 'success'
+    FAILURE = 'failure'
+    UNKNOWN = "unknown"
 
 class StatusTracker(object):
 

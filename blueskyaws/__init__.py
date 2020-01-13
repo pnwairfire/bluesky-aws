@@ -15,7 +15,7 @@ from afaws.asyncutils import run_in_loop_executor
 from .input import InputLoader
 from .launch import Ec2InstancesManager
 from .config import Config, BLUESKY_EXPORT_CONFIG, substitude_config_wildcards
-from .status import Status, StatusTracker
+from .status import SystemState, Status, StatusTracker
 
 __all__ = [
     "BlueskyParallelRunner"
@@ -133,7 +133,7 @@ class BlueskyParallelRunner(object):
                 runner.run() for runner in runners
             ])
 
-            await self._status_tracker.set_system_state(Status.COMPLETE)
+            await self._status_tracker.set_system_state(SystemState.COMPLETE)
 
 
 
