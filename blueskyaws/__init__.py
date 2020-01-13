@@ -133,7 +133,7 @@ class BlueskyParallelRunner(object):
                 runner.run() for runner in runners
             ])
 
-            await self._status_tracker.set_system_status(Status.COMPLETE)
+            await self._status_tracker.set_system_state(Status.COMPLETE)
 
 
 
