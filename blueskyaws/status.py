@@ -70,6 +70,7 @@ class StatusTracker(object):
         self._status = {
             "system_state": Status.RUNNING,
             "system_error": None,
+            "system_message": None,
             "runs": defaultdict(lambda: {})
         }
         self._initialize_counts()

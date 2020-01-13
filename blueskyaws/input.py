@@ -135,7 +135,7 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
             logging.error("Failed to load input")
             await status_tracker.set_system_state(SystemState.COMPLETE,
                 system_error=SystemErrors.NO_FIRE_DATA,
-                system_error_message=error_msg)
+                system_message=error_msg)
             raise InputLoadFailure(error_msg)
 
         return decorated
