@@ -161,6 +161,7 @@ class BlueskySingleRunner(object):
     ## Public Interface
 
     async def run(self):
+        await self._status_tracker.set_run_status(self, Status.RUNNING)
         ip = self._instance.classic_address.public_ip
         logging.info("Running bluesky on %s", ip)
 
