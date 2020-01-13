@@ -57,20 +57,22 @@ class StatusTracker(object):
             Bucket=self._config('aws', 's3', 'bucket_name'),
             Key=os.path.join('status', self._request_id + '-status.json'))
 
+    def _initialize_counts(self):
+        self._status["counts"] = {
+            Status.WAITING: 0,
+            Status.RUNNING: 0,
+            Status.SUCCESS: 0,
+            Status.FAILURE: 0,
+            Status.UNKNOWN: 0
+        }
+
     async def initialize(self):
         self._status = {
             "system_state": Status.RUNNING,
             "system_error": None,
-            "counts": {
-                Status.WAITING: 0,
-                Status.RUNNING: 0,
-                Status.SUCCESS: 0,
-                Status.FAILURE: 0,
-                Status.UNKNOWN: 0,
-                Status.COMPLETE: 0
-            },
             "runs": defaultdict(lambda: {})
         }
+        self._initialize_counts()
         await self._save_status()
 
     async def set_system_state(self, system_state, **kwargs):
@@ -84,16 +86,12 @@ class StatusTracker(object):
             await self.initialize()
 
         # Update run's status
-        self._status["runs"][run._run_id]["status"] = status
-        self._status["runs"][run._run_id].update(**kwargs)
+        self._status["runs"][run.run_id]["status"] = status
+        self._status["runs"][run.run_id].update(**kwargs)
 
-        # Update count for this status, if it has a count
-        if status in self._status['counts']:
-            self._status['counts'][status] += 1
-
-        # update running and complete counts, if appropriate
-        if status in (Status.SUCCESS, Status.FAILURE, Status.UNKNOWN):
-            self._status['counts'][Status.RUNNING] -= 1
-            self._status['counts'][Status.COMPLETE] += 1
+        # update counts
+        self._initialize_counts()
+        for r in self._status["runs"].values():
+            self._status["counts"][r['status']] += 1
 
         await self._save_status()

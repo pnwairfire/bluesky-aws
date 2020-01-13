@@ -188,6 +188,10 @@ class BlueskySingleRunner(object):
             await self._status_tracker.set_run_status(self, Status.UNKNOWN,
                 message=str(e))
 
+    @property
+    def run_id(self):
+        return self._run_id
+
 
     ## Run Helpers
 
