@@ -84,17 +84,23 @@ class BlueskyParallelRunner(object):
         # First load config file, if specified
         if self._config('bluesky', 'config_file'):
             with open(self._config('bluesky', 'config_file')) as f:
-                self._bluesky_config = json.loads(f.read())
+                c = json.loads(f.read())
+                logging.debug("bluesky configuration from bluesky config file: %s", c)
+                self._bluesky_config = c
 
         # Then apply any overrides specified in the bluesky-aws config file
         # or on the command line
         if self._config('bluesky', 'config'):
             # merges in place
+            logging.debug("bluesky configuration from blueskyaws config file: %s",
+                self._config('bluesky', 'config'))
             afconfig.merge_configs(self._bluesky_config['config'],
                 self._config('bluesky', 'config'))
 
         # Then apply any run_config specified in the input file
         if self._input_loader.bluesky_config:
+            logging.debug("bluesky configuration from blueskyaws input file: %s",
+                self._input_loader.bluesky_config)
             afconfig.merge_configs(self._bluesky_config['config'],
                 self._input_loader.bluesky_config)
 
