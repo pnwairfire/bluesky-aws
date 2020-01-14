@@ -95,7 +95,8 @@ class InputLoader(object):
                 f.seek(0)
                 self._data = json.loads(f.read())
                 self._fires = self._data['fires']
-                self._bluesky_config = self._data.get('run_config', {})
+                self._bluesky_config = (self._data.get('run_config')
+                    or self._data.get('bluesky_config') or {})
         await _()
 
 
