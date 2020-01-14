@@ -93,7 +93,12 @@ class BlueskyParallelRunner(object):
             afconfig.merge_configs(self._bluesky_config['config'],
                 self._config('bluesky', 'config'))
 
-        # Finally, override export config what hardcoded value
+        # Then apply any run_config specified in the input file
+        if self._input_loader.bluesky_config:
+            afconfig.merge_configs(self._bluesky_config['config'],
+                self._input_loader.bluesky_config)
+
+        # Finally, override export config with hardcoded value
         # TODO: allow user config to include export settings and
         #   merge BLUESKY_EXPORT_CONFIG into them?
         self._bluesky_config['config'].update(BLUESKY_EXPORT_CONFIG)

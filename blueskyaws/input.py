@@ -62,6 +62,11 @@ class InputLoader(object):
     def fires(self):
         return self._fires
 
+    @property
+    def bluesky_config(self):
+        return self._bluesky_config
+
+
     ## Helper
 
     def _is_url(self, input_file_name):
@@ -88,7 +93,9 @@ class InputLoader(object):
             with open(self._local_input_file_name, 'r') as f:
                 # reset point to beginning of file and load json data
                 f.seek(0)
-                self._fires = json.loads(f.read())['fires']
+                self._data = json.loads(f.read())
+                self._fires = self._data['fires']
+                self._bluesky_config = self._data.get('run_config', {})
         await _()
 
 
