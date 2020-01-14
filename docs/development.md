@@ -75,4 +75,4 @@ To additionally delete output data on an ec2 instance, e.g.
         -v $PWD/.aws/:/home/blueskyaws/.aws/ \
         -v $HOME/.ssh:/home/blueskyaws/.ssh \
         bluesky-aws \
-        py.test
+        py.test --disable-warnings
