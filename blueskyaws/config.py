@@ -287,16 +287,17 @@ class Config(object):
 
             for k, v in config.items():
                 new_parent_keys = list(parent_keys) + [k]
-                if isinstance(v, dict) != isinstance(defaults[k], dict):
-                    raise InvalidConfigurationError(
-                        self.INVALID_CONFIG_FIELD_MSG.format(
-                        ' > '.join(new_parent_keys)))
 
                 if isinstance(defaults[k], ConfigSetting):
                     defaults[k].validate(v, *new_parent_keys)
                     defaults[k] = v
 
                 else:
+                    if isinstance(v, dict) != isinstance(defaults[k], dict):
+                        raise InvalidConfigurationError(
+                            self.INVALID_CONFIG_FIELD_MSG.format(
+                            ' > '.join(new_parent_keys)))
+
                     _set(defaults[k], v, *new_parent_keys)
 
         _set(self._config, user_config)

@@ -82,23 +82,12 @@ class TestConfig(object):
     def test_invalid_nesting(self):
         with raises(InvalidConfigurationError) as e_info:
             Config({
-                "aws": {
-                    "ec2": {
-                        # image_id should *not* be a dict
-                        "image_id": {'s': 13}
-                    }
-                }
+                "ssh_key": "id_rsa",
+                "aws": "Sdfd",  # 'aws' should be a dict
+                "bluesky": {"modules": ["fuelbeds"]}
             })
         assert e_info.value.args[0] == Config.INVALID_CONFIG_FIELD_MSG.format(
-            'aws > ec2 > image_id')
-
-        with raises(InvalidConfigurationError) as e_info:
-            Config({
-                # notifications *should* be a dict
-                "notifications": "sdf"
-            })
-        assert e_info.value.args[0] == Config.INVALID_CONFIG_FIELD_MSG.format(
-            'notifications')
+            'aws')
 
     ## Missing Required
 
