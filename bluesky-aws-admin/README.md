@@ -1,3 +1,7 @@
+# bluesky-web Admin Web Dashboard
+
+This web app is build with nextjs and reactjs.
+
 ## Set up and run
 
 In a terminal:
