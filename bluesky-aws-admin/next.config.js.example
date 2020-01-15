@@ -1,0 +1,7 @@
+module.exports = {
+  env: {
+    s3: {
+        'bucketName': 'bluesky-aws'
+    }
+  }
+}

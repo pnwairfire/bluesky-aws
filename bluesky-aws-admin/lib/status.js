@@ -1,5 +1,10 @@
-//var s3 = require('s3');
-//import * as s3 from 's3'
+// S3 Docs: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
+//var AWS = require('aws-sdk');
+//var S3 = require('aws-sdk/clients/s3');
+import * as AWS from 'aws-sdk';
+
+
+const s3 = new AWS.S3();
 
 // var client = s3.createClient({
 //   s3Options: {
@@ -13,26 +18,36 @@
 
 
 export function getRequestStatus(requestId) {
-    // var params = {
-    //   localFile: "some/local/file",
+    var params = {
+        Bucket: process.env.s3.bucketName,
+        Key: 'status/' + requestId + '-status.json',
+        Range: "bytes=0-9"
+    };
+    console.log('Fetching ' + params.Bucket +'/' + params.Key);
+    s3.getObject(params, function(err, data) {
+        if (err) {
+            console.log(err); //, err.stack);
+            // TODO: throw exception?
+        }
+        else {
+            console.log(data);
 
-    //   s3Params: {
-    //     Bucket: "s3 bucket name",
-    //     Key: "some/remote/file",
-    //     // other options supported by getObject
-    //     // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getObject-property
-    //   },
-    // };
-    // var downloader = client.downloadFile(params);
-    // downloader.on('error', function(err) {
-    //   console.error("unable to download:", err.stack);
-    // });
-    // downloader.on('progress', function() {
-    //   console.log("progress", downloader.progressAmount, downloader.progressTotal);
-    // });
-    // downloader.on('end', function() {
-    //   console.log("done downloading");
-    // });
+           /*
+           data = {
+            AcceptRanges: "bytes",
+            ContentLength: 10,
+            ContentRange: "bytes 0-9/43",
+            ContentType: "text/plain",
+            ETag: "\"...\"",
+            LastModified: <Date Representation>,
+            Metadata: {
+            },
+            VersionId: "null"
+           }
+           */
 
-    return { test: 'dsf'}
+           // TODO: return actual contentsx
+           return data
+        }
+     });
 }
