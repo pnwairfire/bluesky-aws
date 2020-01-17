@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { getRequestStatus } from '../../../lib/status'
+import { getRequests } from '../../../lib/status'
 
 // This handler fails to run when defined as an async function,
 // so we're using promise then / catch syntax rather than async / await
@@ -9,7 +9,7 @@ export default (req, res) => {
             writeReponse(res, requests);
         })
        .catch(err => {
-            console.log("Failed to load status:" + err);
+            console.log("Failed to get list of requests:" + err);
             writeReponse(res, null, err);
         });
 }
