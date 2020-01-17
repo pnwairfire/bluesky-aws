@@ -8,16 +8,17 @@ function parseArgs () {
       .version('0.0.1', '-v, --version')
       .usage('[OPTIONS]...')
       .requiredOption('-b, --bucket <bucket>', 's3 bucket')
+      .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
       .parse(process.argv);
 }
 
 //async function go(){
 function go() {
     // let s = await status.getRequestStatus(
-    //     commander.bucket, 'emissions-request-20200114');
+    //     commander.bucket, commander.request);
     // console.log(s)
     status.getRequestStatus(
-        commander.bucket, 'emissions-request-20200114')
+        commander.bucket, commander.request)
         .then(status => {
             console.log('status: \n' + JSON.stringify(status, null, 2));
         })
