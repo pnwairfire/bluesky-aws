@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { getRequestStatus } from '../../../lib/status'
 
-export default (req, res) => {
+export default async (req, res) => {
     const {
         query: { request },
     } = req
@@ -10,6 +10,7 @@ export default (req, res) => {
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify({
         request: req.query.request,
-        status: getRequestStatus(req.query.request)
+        status: await getRequestStatus(
+            process.env.s3.bucketName, req.query.request)
     }))
 }
