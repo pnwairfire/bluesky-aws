@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { getRequestStatus } from '../../../lib/status'
+import { getRequestStatus } from '../../../../lib/status'
 
 // This handler fails to run when defined as an async function,
 // so we're using promise then / catch syntax rather than async / await
