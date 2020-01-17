@@ -1,14 +1,6 @@
 #!/usr/bin/env nodejs
 
-/* Run with:
-
-    npx babel-node bin/get-status -b bluesky-aws
-    npx babel-node inspect bin/get-status -b bluesky-aws
-
-*/
-
 const commander = require('commander');
-
 const status = require('../lib/status')
 
 function parseArgs () {
@@ -27,7 +19,7 @@ function go() {
     status.getRequestStatus(
         commander.bucket, 'emissions-request-20200114')
         .then(status => {
-            console.log('status: ' + status);
+            console.log('status: \n' + JSON.stringify(status, null, 2));
         })
         .catch(err => {
             console.log('Failed to get status: ' + err);

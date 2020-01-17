@@ -11,15 +11,15 @@ export default (req, res) => {
     // writeReponse(req.query.request, status);
 
     getRequestStatus(process.env.s3.bucketName, req.query.request)
-        .then((status) => {
-            writeReponse(req.query.request, status);
+        .then(status => {
+            writeReponse(res, req.query.request, status);
         })
        .catch(err => {
             console.log("The reason for the error:", );
         });
 }
 
-function writeReponse(requestId, status) {
+function writeReponse(res, requestId, status) {
     res.statusCode = 200
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify({
