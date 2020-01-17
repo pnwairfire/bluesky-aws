@@ -1,5 +1,7 @@
-function HomePage() {
-  return <div>BlueSky AWS Admin</div>
-}
+import Layout from '../components/Layout'
 
-export default HomePage
+export default () => (
+  <Layout>
+    <div>...</div>
+  </Layout>
+)
