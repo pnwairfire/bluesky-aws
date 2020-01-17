@@ -1,0 +1,33 @@
+#!/usr/bin/env nodejs
+
+const commander = require('commander');
+const status = require('../lib/status')
+
+function parseArgs () {
+    commander
+      .version('0.0.1', '-v, --version')
+      .usage('[OPTIONS]...')
+      .requiredOption('-b, --bucket <bucket>', 's3 bucket')
+      .parse(process.argv);
+}
+
+//async function go(){
+function go() {
+    status.getRequests(commander.bucket)
+        .then(requests => {
+            // TODO: find npm package to tabulate output
+            console.log('\n'+ 'request'.padEnd(40), 'last modified')
+            console.log('-'.repeat(80))
+            for (let r in requests){
+                console.log(
+                    requests[r].requestId.padEnd(40) + requests[r].ts + '');
+            }
+            console.log('\n')
+        })
+        .catch(err => {
+            console.log('Failed to get request ids: ' + err);
+        });
+}
+
+parseArgs()
+go()
