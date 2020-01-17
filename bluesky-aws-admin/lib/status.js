@@ -8,9 +8,39 @@ const S3 = require('aws-sdk/clients/s3');
 
 const s3 = new S3();
 
+const REQUEST_S3_PREFIX = 'requests/';
+const REQUEST_S3_PREFIX_STRIPPER = new RegExp('^'+REQUEST_S3_PREFIX);
+const JSON_EXT_STRIPPER = /.json/;
+
+exports.getRequests = async function(bucketName) {
+    let params = {
+        Bucket: bucketName,
+        Prefix: REQUEST_S3_PREFIX
+    };
+    console.log('Fetching request ids from ' + params.Bucket);
+
+    try {
+        let data = await s3.listObjects(params).promise();
+        let requests = data.Contents.map(e => {
+            return {
+                requestId: e.Key
+                    .replace(REQUEST_S3_PREFIX_STRIPPER, '')
+                    .replace(JSON_EXT_STRIPPER, ''),
+                ts: e.LastModified
+            }
+        })
+        return requests
+    }
+    catch (err) {
+        console.log('ERROR:', err);
+        throw "Failure to get request list";
+    }
+
+}
+
 //export async function getRequestStatus(bucketName, requestId) {
 exports.getRequestStatus = async function (bucketName, requestId) {
-    var params = {
+    let params = {
         Bucket: bucketName,
         Key: 'status/' + requestId + '-status.json'
     };
@@ -19,7 +49,7 @@ exports.getRequestStatus = async function (bucketName, requestId) {
     try {
         // Note: util.promisify(s3.getObject) doesn't work with s3 sdk,
         // but s3.getObject.promise is supported
-        var data = await s3.getObject(params).promise();
+        let data = await s3.getObject(params).promise();
         return JSON.parse(data.Body.toString());
     }
     catch (err) {
