@@ -17,15 +17,16 @@ export default (req, res) => {
             writeReponse(res, req.query.request, status);
         })
        .catch(err => {
-            console.log("The reason for the error:", );
+            console.log("Failed to load status:" + err);
+            writeReponse(res, req.query.request, null, err);
         });
 }
 
-function writeReponse(res, requestId, status) {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify({
-        request: requestId,
-        status: status
-    }))
+function writeReponse(res, requestId, status, error) {
+    let body = {request: requestId};
+    if (status) body.status = status;
+    if (error) body.error = error;
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(body));
 }

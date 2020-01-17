@@ -24,6 +24,10 @@ exports.getRequestStatus = async function (bucketName, requestId) {
     }
     catch (err) {
         console.log('ERROR:', err);
-        // TODO throw an exception?
+        if (err.code == "NoSuchKey") {
+            throw "Request does no exist"
+        } else {
+            throw "Failure to load request status"
+        }
     }
 }
