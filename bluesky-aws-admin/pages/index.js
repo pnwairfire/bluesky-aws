@@ -1,10 +1,8 @@
-
-
+import Table from 'react-bootstrap/Table'
 import Link from 'next/link';
 
 import Layout from '../components/Layout'
 import { getRequests } from '../lib/status'
-
 import fetchapi from '../lib/apifetcher'
 
 
@@ -17,7 +15,6 @@ function Index() {
 
     let requests = data && data.requests;
     let error = fetchError || (data && data.error);
-    console.log(data)
 
     return (
         <Layout>
@@ -27,16 +24,28 @@ function Index() {
                         error
                     </Alert>
                 }
-                <h4>Requests ({requests && requests.length})</h4>
-                <ul>
-                    {requests && requests.map((request, idx) => (
-                        <li key={idx}>
-                            <Link href="/requests/[id]" as={`/requests/${request.requestId}`}>
-                                <a>{request.requestId} </a>
-                            </Link> ({request.ts})
-                        </li>
-                    ))}
-                </ul>
+                <h4>Requests {requests && '('+requests.length+')'}</h4>
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>Request Id</th>
+                            <th>Last Modified</th>
+                        </tr>
+                      </thead>
+                    <tbody>
+                        {requests && requests.map((request, idx) => (
+                            <tr key={idx}>
+
+                                <td>
+                                    <Link href="/requests/[id]" as={`/requests/${request.requestId}`}>
+                                        <a>{request.requestId} </a>
+                                    </Link>
+                                </td>
+                                 ({request.ts})
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
             </div>
         </Layout>
     )
