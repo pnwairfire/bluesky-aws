@@ -78,10 +78,10 @@ function RunsTable(props) {
                                 <td>{runId}</td>
                                 <td>{props.runs[runId].status}</td>
                                 <td>
-                                    <a target="_blank" href={props.runs[runId].output_url}>Output</a>
+                                    <a target="_blank" href={props.runs[runId].log_url}>log</a>
                                 </td>
                                 <td>
-                                    <a target="_blank" href={props.runs[runId].log_url}>log</a>
+                                    <a target="_blank" href={props.runs[runId].output_url}>Output</a>
                                 </td>
                             </tr>
                         ))}
