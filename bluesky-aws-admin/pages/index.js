@@ -45,7 +45,9 @@ function Index() {
                                         <a>{request.requestId} </a>
                                     </Link>
                                 </td>
+                                <td>
                                     {request.ts}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
