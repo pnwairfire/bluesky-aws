@@ -95,28 +95,3 @@ function RunsTable(props) {
     }
 
 }
-
-/*
-{
-"request": "emissions-request-20200114",
-"status": {
-"system_state": "complete",
-"system_error": null,
-"system_message": null,
-"runs": {
-"emissions-request-20200114-PFIRS-DS3DSK23DFJ-20200114T011625": {
-"status": "success",
-"output_url": "https://bluesky-aws-dev.s3-us-west-2.amazonaws.com/output/emissions-request-20200114/emissions-request-20200114-PFIRS-DS3DSK23DFJ-20200114T011625.tar.gz",
-"log_url": "https://bluesky-aws-dev.s3-us-west-2.amazonaws.com/log/emissions-request-20200114/emissions-request-20200114-PFIRS-DS3DSK23DFJ-20200114T011625.log"
-}
-},
-"counts": {
-"waiting": 0,
-"running": 0,
-"success": 1,
-"failure": 0,
-"unknown": 0
-}
-}
-}
-*/

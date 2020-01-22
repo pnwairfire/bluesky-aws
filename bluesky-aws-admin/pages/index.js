@@ -51,20 +51,4 @@ function Index() {
     )
 };
 
-
-// Index.getInitialProps = async function() {
-//     // This is rendered server side, so we'l call getRequests
-//     // directly rather than use the /api/requests/ api.
-//     try {
-//         return {
-//             requests: await getRequests(process.env.s3.bucketName)
-//         }
-//     } catch {
-//         console.log("Failed to get list of requests:" + err);
-//         return {
-//             error: err
-//         };
-//     };
-// };
-
 export default Index;
