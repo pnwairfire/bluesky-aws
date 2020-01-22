@@ -2,7 +2,6 @@ import Table from 'react-bootstrap/Table'
 import Link from 'next/link';
 
 import Layout from '../components/Layout'
-import { getRequests } from '../lib/status'
 import { ApiClient } from '../lib/apiutils'
 
 

@@ -1,11 +1,9 @@
-// TODO: load data client side
-//   see: https://nextjs.org/docs/basic-features/data-fetching
 import { useRouter } from 'next/router'
 import Table from 'react-bootstrap/Table'
+import Alert from 'react-bootstrap/Table'
 import Link from 'next/link';
 
 import Layout from '../../../components/Layout'
-import { getRequestStatus } from '../../../lib/status'
 import { ApiClient } from '../../../lib/apiutils'
 
 
