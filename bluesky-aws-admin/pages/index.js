@@ -11,7 +11,7 @@ import { ApiClient } from '../lib/apiutils'
 //    let requests = props.requests;
 //    let error = props.error
 function Index() {
-    let {data, fetchError} = ApiClient.get('/api/requests');
+    let {data, fetchError} = ApiClient.get('api/requests');
 
     let requests = data && data.requests;
     let error = fetchError || (data && data.error);

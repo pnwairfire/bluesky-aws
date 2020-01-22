@@ -8,7 +8,7 @@ async function fetcher(url) {
 }
 
 // TODO: dynamically determine endpoint
-const ENDPOINT_BASE = 'http://localhost:3000/';
+const ENDPOINT_BASE = 'http://localhost:3000';
 
 export class ApiClient {
     // constructor(endpointBase) {
@@ -16,7 +16,7 @@ export class ApiClient {
     // }
 
     static get(path) {
-        path = path.replace(/\/+/, '');
+        path = path.replace(/^\/+/, '');
         return useSWR(ENDPOINT_BASE + '/' + path, fetcher);
     }
 }
