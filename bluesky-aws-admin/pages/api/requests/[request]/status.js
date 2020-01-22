@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import { getRequestStatus } from '../../../../lib/status'
+import { ApiServerUtils } from '../../../../lib/apiutils'
 
 // This handler fails to run when defined as an async function,
 // so we're using promise then / catch syntax rather than async / await
@@ -10,23 +11,14 @@ export default (req, res) => {
 
     // let status = await getRequestStatus(
     //     process.env.s3.bucketName, req.query.request);
-    // writeReponse(req.query.request, status);
+    // ApiServerUtils.writeReponse(req.query.request, status);
 
-    getRequestStatus(process.env.s3.bucketName, req.query.request)
+    getRequestStatus(process.env.s3.bucketName, request)
         .then(status => {
-            writeReponse(res, req.query.request, status);
+            ApiServerUtils.writeReponse(res, {request, status});
         })
-       .catch(err => {
-            console.log("Failed to load status:" + err);
-            writeReponse(res, req.query.request, null, err);
+       .catch(error => {
+            console.log("Failed to load status:" + error);
+            ApiServerUtils.writeReponse(res, {request, error});
         });
-}
-
-function writeReponse(res, requestId, status, error) {
-    let body = {request: requestId};
-    if (status) body.status = status;
-    if (error) body.error = error;
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(body));
 }

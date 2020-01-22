@@ -38,11 +38,10 @@ exports.getRequests = async function(bucketName) {
 
 }
 
-//export async function getRequestStatus(bucketName, requestId) {
-exports.getRequestStatus = async function (bucketName, requestId) {
+async function getObject(bucketName, key) {
     let params = {
         Bucket: bucketName,
-        Key: 'status/' + requestId + '-status.json'
+        Key: key
     };
     console.log('Fetching ' + params.Bucket +'/' + params.Key);
 
@@ -50,14 +49,22 @@ exports.getRequestStatus = async function (bucketName, requestId) {
         // Note: util.promisify(s3.getObject) doesn't work with s3 sdk,
         // but s3.getObject.promise is supported
         let data = await s3.getObject(params).promise();
-        return JSON.parse(data.Body.toString());
+        return data.Body.toString();
     }
     catch (err) {
         console.log('ERROR:', err);
         if (err.code == "NoSuchKey") {
-            throw "Request does no exist"
+            throw key + ' does no exist';
         } else {
-            throw "Failure to load request status"
+            throw 'Failure to load ' + key;
         }
     }
+}
+
+
+
+//export async function getRequestStatus(bucketName, requestId) {
+exports.getRequestStatus = async function (bucketName, requestId) {
+    let obj = await getObject(bucketName, 'status/' + requestId + '-status.json');
+    return JSON.parse(obj);
 }

@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import Layout from '../../../components/Layout'
 import { getRequestStatus } from '../../../lib/status'
-import fetchapi from '../../../lib/apifetcher'
+import { ApiClient } from '../../../lib/apiutils'
 
 
 
@@ -17,8 +17,7 @@ export default function Index() {
     const router = useRouter()
     const { request } = router.query
 
-    let {data, fetchError} = fetchapi('/api/requests/' +
-        request + '/status');
+    let {data, fetchError} = ApiClient.get('/api/requests/' + request + '/status');
 
     let status = data && data.status;
     let error = fetchError || (data && data.error);

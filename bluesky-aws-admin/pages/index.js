@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import Layout from '../components/Layout'
 import { getRequests } from '../lib/status'
-import fetchapi from '../lib/apifetcher'
+import { ApiClient } from '../lib/apiutils'
 
 
 
@@ -11,7 +11,7 @@ import fetchapi from '../lib/apifetcher'
 //    let requests = props.requests;
 //    let error = props.error
 function Index() {
-    let {data, fetchError} = fetchapi('/api/requests');
+    let {data, fetchError} = ApiClient.get('/api/requests');
 
     let requests = data && data.requests;
     let error = fetchError || (data && data.error);
