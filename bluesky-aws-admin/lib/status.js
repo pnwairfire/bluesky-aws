@@ -12,10 +12,15 @@ const REQUEST_S3_PREFIX = 'requests/';
 const REQUEST_S3_PREFIX_STRIPPER = new RegExp('^'+REQUEST_S3_PREFIX);
 const JSON_EXT_STRIPPER = /.json/;
 
-exports.getRequests = async function(bucketName) {
+
+/*
+ *  Listing Objects
+ */
+
+async function listObjects(bucketName, prefix) {
     let params = {
         Bucket: bucketName,
-        Prefix: REQUEST_S3_PREFIX
+        Prefix: prefix
     };
     console.log('Fetching request ids from ' + params.Bucket);
 
@@ -35,8 +40,16 @@ exports.getRequests = async function(bucketName) {
         console.log('ERROR:', err);
         throw "Failure to get request list";
     }
-
 }
+
+exports.getRequests = async function(bucketName) {
+    return await listObjects(bucketName, REQUEST_S3_PREFIX);
+}
+
+
+/*
+ *  Getting Objects
+ */
 
 async function getObject(bucketName, key) {
     let params = {
