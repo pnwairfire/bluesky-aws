@@ -36,7 +36,8 @@ function Index() {
                             <tr key={idx}>
 
                                 <td>
-                                    <Link href="/requests/[id]" as={`/requests/${request.requestId}`}>
+                                    <Link href="/requests/[id]"
+                                            as={`/requests/${request.requestId}`}>
                                         <a>{request.requestId} </a>
                                     </Link>
                                 </td>

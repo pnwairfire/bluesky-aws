@@ -15,13 +15,11 @@ export default function Index() {
     const router = useRouter()
     const { request } = router.query
 
-    let {data, fetchError} = ApiClient.get('/api/requests/' + request + '/status');
+    let {data, fetchError} = ApiClient.get(
+        '/api/requests/' + request + '/status');
 
     let status = data && data.status;
     let error = fetchError || (data && data.error);
-    console.log(data)
-
-    RequestBlock(request)
 
     return (
         <Layout>
