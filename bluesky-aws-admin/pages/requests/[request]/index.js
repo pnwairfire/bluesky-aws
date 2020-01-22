@@ -44,7 +44,7 @@ function RequestBlock(props) {
                     <div><b>Error</b>: {props.status.system_error}</div>
                 }
                 <div><b>Message</b>: {props.status.system_message || '(none)'}</div>
-                <RunsTable runs={props.status.runs} />
+                <RunsTable request={props.request} runs={props.status.runs} />
 
             </div>
         )
@@ -74,7 +74,10 @@ function RunsTable(props) {
                                 <td>{runId}</td>
                                 <td>{props.runs[runId].status}</td>
                                 <td>
-                                    <a target="_blank" href={props.runs[runId].log_url}>log</a>
+                                    <Link href="/requests/[request]/runs/[run]/log"
+                                            as={`/requests/${props.request}/runs/${runId}/log`}>
+                                        <a>log</a>
+                                    </Link>
                                 </td>
                                 <td>
                                     <a target="_blank" href={props.runs[runId].output_url}>Output</a>
