@@ -74,10 +74,13 @@ async function getObject(bucketName, key) {
     }
 }
 
-
-
 //export async function getRequestStatus(bucketName, requestId) {
 exports.getRequestStatus = async function (bucketName, requestId) {
     let obj = await getObject(bucketName, 'status/' + requestId + '-status.json');
     return JSON.parse(obj);
+}
+
+//export async function getRequestStatus(bucketName, requestId) {
+exports.getRunLog = async function (bucketName, requestId, runId) {
+    return await getObject(bucketName, 'log/' + requestId + '/' + runId + '.log');
 }
