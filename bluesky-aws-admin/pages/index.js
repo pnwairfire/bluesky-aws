@@ -1,3 +1,4 @@
+import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Table from 'react-bootstrap/Table'
 import Link from 'next/link';
 
@@ -18,6 +19,9 @@ function Index() {
     return (
         <Layout>
             <div>
+                <Breadcrumb>
+                    <Breadcrumb.Item active>Home</Breadcrumb.Item>
+                </Breadcrumb>
                 {error &&
                     <Alert variant="danger">
                         error
