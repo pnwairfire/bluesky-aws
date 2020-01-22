@@ -5,6 +5,7 @@ import Layout from '../../../../../components/Layout'
 import { getRunLog } from '../../../../../lib/status'
 import { ApiClient } from '../../../../../lib/apiutils'
 
+import styles from './log.module.css'
 
 export default function Index() {
     const router = useRouter()
@@ -25,9 +26,7 @@ export default function Index() {
                     <Alert variant="danger">{error}</Alert>
                 }
                 {log &&
-
-                    {log}
-
+                    <textarea className={styles.logtext} disabled>{log}</textarea>
                 }
             </div>
         </Layout>
