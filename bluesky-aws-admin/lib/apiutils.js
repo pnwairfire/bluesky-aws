@@ -15,9 +15,11 @@ export class ApiClient {
     //   this.endpointBase = endpointBase.replace(/\/+$/, '');
     // }
 
-    static get(path) {
+    static get(path, query) {
         path = path.replace(/^\/+/, '');
-        return useSWR(ENDPOINT_BASE + '/' + path, fetcher);
+        query = Object.keys(query).map(key => key + '=' + query[key]).join('&');
+        let url = ENDPOINT_BASE + '/' + path + '?' + query;
+        return useSWR(url, fetcher);
     }
 }
 

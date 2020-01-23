@@ -9,9 +9,13 @@ import { ApiServerUtils } from '../../../lib/apiutils'
 // This handler fails to run when defined as an async function,
 // so we're using promise then / catch syntax rather than async / await
 export default (req, res) => {
-    getRequests(process.env.s3.bucketName)
+    const {
+        query: { limit, next },
+    } = req
+
+    getRequests(process.env.s3.bucketName, limit, next)
         .then(data => {
-            ApiServerUtils.writeReponse(res, {requests: data.requests});
+            ApiServerUtils.writeReponse(res, data);
         })
        .catch(error => {
             console.log("Failed to get list of requests:" + error);
