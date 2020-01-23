@@ -37,7 +37,7 @@ and then modified to reflect your S3 bucket name, etc.
 In a terminal:
 
     docker build -t bluesky-aws-admin . -f Dockerfile-admin
-    docker run --rm -p 3000:3000 bluesky-aws-admin
+    docker run --rm -p 3000:3000 -v $HOME/.aws/:/root/.aws/ bluesky-aws-admin
 
 
 In a browser, load http://localhost:3000/
