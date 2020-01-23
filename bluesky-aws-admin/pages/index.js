@@ -35,7 +35,7 @@ export class Index extends Component {
     loadRequests(nextTokensIdx) {
         nextTokensIdx = nextTokensIdx || 0;
         let query = (nextTokensIdx && this.state.nextTokens[nextTokensIdx])
-            ? ({next: this.state.nextTokens[nextTokensIdx], limit:1}) : ({limit: 1})
+            ? ({next: this.state.nextTokens[nextTokensIdx]}) : ({})
 
         console.log('query: ' + JSON.stringify(query));
 
