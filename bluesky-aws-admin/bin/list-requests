@@ -19,6 +19,7 @@ function go() {
         .then(data => {
             let requests = data.requests
             // TODO: find npm package to tabulate output
+            console.log('\n' + JSON.stringify(data, null, 2) + '\n');
             console.log('\n'+ 'request'.padEnd(40), 'last modified')
             console.log('-'.repeat(80))
             for (let r in requests){
