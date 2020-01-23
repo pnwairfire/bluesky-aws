@@ -10,8 +10,8 @@ import { ApiServerUtils } from '../../../lib/apiutils'
 // so we're using promise then / catch syntax rather than async / await
 export default (req, res) => {
     getRequests(process.env.s3.bucketName)
-        .then(requests => {
-            ApiServerUtils.writeReponse(res, {requests});
+        .then(data => {
+            ApiServerUtils.writeReponse(res, {requests: data.requests});
         })
        .catch(error => {
             console.log("Failed to get list of requests:" + error);

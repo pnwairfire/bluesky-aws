@@ -17,15 +17,18 @@ const JSON_EXT_STRIPPER = /.json/;
  *  Listing Objects
  */
 
-async function listObjects(bucketName, prefix) {
+async function listObjects(bucketName, prefix, limit, next) {
     let params = {
         Bucket: bucketName,
-        Prefix: prefix
+        Prefix: prefix,
+        ContinuationToken: next,
+        MaxKeys: limit || 25
     };
+
     console.log('Fetching request ids from ' + params.Bucket);
 
     try {
-        let data = await s3.listObjects(params).promise();
+        let data = await s3.listObjectsV2(params).promise();
         let requests = data.Contents.map(e => {
             return {
                 requestId: e.Key
@@ -34,7 +37,7 @@ async function listObjects(bucketName, prefix) {
                 ts: e.LastModified
             }
         })
-        return requests
+        return {requests, next: data.NextContinuationToken}
     }
     catch (err) {
         console.log('ERROR:', err);
@@ -42,8 +45,8 @@ async function listObjects(bucketName, prefix) {
     }
 }
 
-exports.getRequests = async function(bucketName) {
-    return await listObjects(bucketName, REQUEST_S3_PREFIX);
+exports.getRequests = async function(bucketName, limit, next) {
+    return await listObjects(bucketName, REQUEST_S3_PREFIX, limit, next);
 }
 
 

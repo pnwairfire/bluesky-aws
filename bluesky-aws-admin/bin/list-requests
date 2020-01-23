@@ -8,13 +8,16 @@ function parseArgs () {
       .version('0.0.1', '-v, --version')
       .usage('[OPTIONS]...')
       .requiredOption('-b, --bucket <bucket>', 's3 bucket')
+      .option('-l, --limit <number>', 'max numver of requests')
+      .option('-n, --next <next continuation token>', 'where previous request left off')
       .parse(process.argv);
 }
 
 //async function go(){
 function go() {
-    status.getRequests(commander.bucket)
-        .then(requests => {
+    status.getRequests(commander.bucket, commander.limit, commander.next)
+        .then(data => {
+            let requests = data.requests
             // TODO: find npm package to tabulate output
             console.log('\n'+ 'request'.padEnd(40), 'last modified')
             console.log('-'.repeat(80))
@@ -22,7 +25,7 @@ function go() {
                 console.log(
                     requests[r].requestId.padEnd(40) + requests[r].ts + '');
             }
-            console.log('\n')
+            console.log('\nNext: ' + data.next + '\n');
         })
         .catch(err => {
             console.log('Failed to get request ids: ' + err);
