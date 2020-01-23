@@ -17,7 +17,7 @@ export class ApiClient {
 
     static get(path, query) {
         path = path.replace(/^\/+/, '');
-        query = Object.keys(query).map(key => key + '=' + query[key]).join('&');
+        query = Object.keys(query || {}).map(key => key + '=' + query[key]).join('&');
         let url = ENDPOINT_BASE + '/' + path + '?' + query;
         return useSWR(url, fetcher);
     }

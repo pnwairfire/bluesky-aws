@@ -41,7 +41,7 @@ async function listObjects(bucketName, prefix, limit, next) {
     }
     catch (err) {
         console.log('ERROR:', err);
-        throw "Failure to get request list";
+        throw "Failure to get request list: " + err.message;
     }
 }
 
