@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
+import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
 import Link from 'next/link';
@@ -31,21 +32,25 @@ export class Index extends Component {
         // this.handleNextClick = this.handleNextClick.bind(this)
     }
 
-    loadRequests(nextIdx) {
-        let query = (next) ? ({next}) : ({})
+    loadRequests(nextTokensIdx) {
+        nextTokensIdx = nextTokensIdx || 0;
+        let query = (nextTokensIdx && this.state.nextTokens[nextTokensIdx])
+            ? ({next: this.state.nextTokens[nextTokensIdx], limit:1}) : ({limit: 1})
+
+        console.log('query: ' + JSON.stringify(query));
 
         //let {data, error} = ApiClient.get('api/requests', query);
-        ApiClient.getNoSwr('/api/requests/').then(data => {
+        ApiClient.getNoSwr('/api/requests/', query).then((data) => {
             let error = null;
-
             if (data && data.requests) {
                 let nextTokens = this.state.nextTokens;
-                nextTokens[this.state.nextTokensIdx + 1] = data.next
+                nextTokens[nextTokensIdx + 1] = data.next
+
 
                 this.setState({
                     requests: data && data.requests,
-                    previousNext: this.state.currentNext,
-                    currentNext: this.state.next,
+                    nextTokens: nextTokens,
+                    nextTokensIdx: nextTokensIdx,
                     next: data && data.next,
                     error: error || (data && data.error)
                 })
@@ -68,16 +73,17 @@ export class Index extends Component {
     }
 
     handlePreviousClick = data => {
-        alert('previous')
-        //this.loadRequests();
+        this.loadRequests(this.state.nextTokensIdx - 1);
     };
 
     handleNextClick = data => {
-        alert('next')
-        //this.loadRequests();
+        this.loadRequests(this.state.nextTokensIdx + 1);
     };
 
     render() {
+        let prevDisabled = this.state.nextTokensIdx <= 0;
+        let nextDisabled = ! this.state.nextTokens[this.state.nextTokensIdx + 1]
+        console.log(prevDisabled + '/' +nextDisabled);
         return (
             <Layout>
                 <div>
@@ -115,10 +121,12 @@ export class Index extends Component {
                         </tbody>
                     </Table>
                     <div>
-                        <Button variant="outline-dark"
-                            onClick={this.handlePreviousClick}>&lt;</Button>
-                        <Button variant="outline-dark"
-                            onClick={this.handleNextClick}>&gt;</Button>
+                        <Button variant="outline-dark" size="sm"
+                            onClick={this.handlePreviousClick}
+                            disabled={prevDisabled}>&lt;</Button>
+                        <Button variant="outline-dark" size="sm"
+                            onClick={this.handleNextClick}
+                            disabled={nextDisabled}>&gt;</Button>
                     </div>
                 </div>
             </Layout>

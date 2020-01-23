@@ -17,7 +17,9 @@ export class ApiClient {
 
     static formUrl(path, query) {
         path = path.replace(/^\/+/, '').replace(/\/+$/, '');
-        query = Object.keys(query || {}).map(key => key + '=' + query[key]).join('&');
+        query = Object.keys(query || {}).map(key => {
+            return key + '=' + encodeURIComponent(query[key])
+        }).join('&');
         return ENDPOINT_BASE + '/' + path + '?' + query;
     }
 
