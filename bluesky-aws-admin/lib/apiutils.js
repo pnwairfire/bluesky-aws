@@ -1,7 +1,7 @@
 import fetch from 'unfetch'
 import useSWR from 'swr'
 
-async function fetcher(url) {
+export async function fetcher(url) {
     const res = await fetch(url)
     const json = await res.json()
     return json
@@ -15,11 +15,20 @@ export class ApiClient {
     //   this.endpointBase = endpointBase.replace(/\/+$/, '');
     // }
 
-    static get(path, query) {
-        path = path.replace(/^\/+/, '');
+    static formUrl(path, query) {
+        path = path.replace(/^\/+/, '').replace(/\/+$/, '');
         query = Object.keys(query || {}).map(key => key + '=' + query[key]).join('&');
-        let url = ENDPOINT_BASE + '/' + path + '?' + query;
+        return ENDPOINT_BASE + '/' + path + '?' + query;
+    }
+
+    static get(path, query) {
+        let url = this.formUrl(path, query)
         return useSWR(url, fetcher);
+    }
+
+    static getNoSwr(path, query) {
+        let url = this.formUrl(path, query)
+        return fetcher(url);
     }
 }
 
