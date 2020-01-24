@@ -2,7 +2,6 @@
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
-import Link from 'next/link'
 import Head from 'next/head'
 
 import styles from './Layout.module.css'
@@ -21,9 +20,6 @@ export default ({ children, title = 'BlueSky AWS Admin' }) => (
               <Navbar.Brand href="#">BlueSky AWS Admin</Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="mr-auto">
-                  <Nav.Link href="/">Home</Nav.Link>
-                </Nav>
               </Navbar.Collapse>
             </Navbar>
         </header>

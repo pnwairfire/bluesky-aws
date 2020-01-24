@@ -1,4 +1,8 @@
 module.exports = {
+    assetPrefix: '',
+    publicRuntimeConfig: {
+        basePath: ''
+    },
     env: {
         s3: {
             'bucketName': 'bluesky-aws',

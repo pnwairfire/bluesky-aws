@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Alert from 'react-bootstrap/Table'
 import Table from 'react-bootstrap/Table'
-import Link from 'next/link';
+import Link from '../../../components/Link';
 
 import Layout from '../../../components/Layout'
 import { ApiClient } from '../../../lib/apiutils'
