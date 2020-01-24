@@ -1,7 +1,9 @@
+const basePath = ''
+
 module.exports = {
-    assetPrefix: '',
+    assetPrefix: basePath,
     publicRuntimeConfig: {
-        basePath: ''
+        basePath: basePath
     },
     env: {
         s3: {
