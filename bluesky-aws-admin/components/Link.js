@@ -10,6 +10,7 @@ const { publicRuntimeConfig } = getConfig()
 export default ({ children, ...props }) => (
   <NextLink
     {...props}
+    href={`${publicRuntimeConfig.basePath || ''}${format(props.href)}`}
     as={`${publicRuntimeConfig.basePath || ''}${format(props.as)}`}
   >
     {children}
