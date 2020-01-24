@@ -41,3 +41,16 @@ In a terminal:
 
 
 In a browser, load http://localhost:3000/
+
+
+## Run in Dev
+
+This is to run with local files counted
+
+    docker run --rm -p 3000:3000 -v $HOME/.aws/:/root/.aws/ \
+        -v $PWD/bluesky-aws-admin/components/:/bluesky-aws-admin/components/ \
+        -v $PWD/bluesky-aws-admin/lib/:/bluesky-aws-admin/lib/ \
+        -v $PWD/bluesky-aws-admin/pages/:/bluesky-aws-admin/pages/ \
+        -v $PWD/bluesky-aws-admin/public/:/bluesky-aws-admin/public/ \
+        -v $PWD/bluesky-aws-admin/next.config.js:/bluesky-aws-admin/next.config.js \
+        bluesky-aws-admin npm run dev
