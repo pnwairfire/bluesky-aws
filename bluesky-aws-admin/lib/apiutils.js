@@ -7,9 +7,6 @@ export async function fetcher(url) {
     return json
 }
 
-// TODO: dynamically determine endpoint
-const ENDPOINT_BASE = 'http://localhost:3000';
-
 export class ApiClient {
     // constructor(endpointBase) {
     //   this.endpointBase = endpointBase.replace(/\/+$/, '');
@@ -20,7 +17,8 @@ export class ApiClient {
         query = Object.keys(query || {}).map(key => {
             return key + '=' + encodeURIComponent(query[key])
         }).join('&');
-        return ENDPOINT_BASE + '/' + path + '?' + query;
+        // TODO: dynamically determine endpoint
+        return process.env.api.baseEndpoint + '/' + path + '?' + query;
     }
 
     static get(path, query) {

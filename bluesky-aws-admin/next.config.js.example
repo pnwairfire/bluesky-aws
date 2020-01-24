@@ -1,8 +1,11 @@
 module.exports = {
-  env: {
-    s3: {
-        'bucketName': 'bluesky-aws',
-        'outputPath': 'output'
+    env: {
+        s3: {
+            'bucketName': 'bluesky-aws',
+            'outputPath': 'output'
+        },
+        api: {
+            baseEndpoint: 'http://localhost:3000'
+        }
     }
-  }
 }
