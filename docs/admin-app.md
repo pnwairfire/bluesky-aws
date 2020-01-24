@@ -54,3 +54,14 @@ This is to run with local files counted
         -v $PWD/bluesky-aws-admin/public/:/bluesky-aws-admin/public/ \
         -v $PWD/bluesky-aws-admin/next.config.js:/bluesky-aws-admin/next.config.js \
         bluesky-aws-admin npm run dev
+
+
+## Running in Production with Custom Path Prefix
+
+If you want to run in production with a custom path prefix, e.g. `/foo`,
+you'll first need to update `next.config.js` to set `basePath` to `foo/`.
+Then, you'll need to set up a reverse proxy. For example, using apache,
+add the following to your apache config:
+
+    ProxyPass /foo http://127.0.0.1:3000
+    ProxyPassReverse /foo http://127.0.0.1:3000
