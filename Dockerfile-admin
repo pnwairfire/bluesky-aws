@@ -17,4 +17,6 @@ COPY bluesky-aws-admin/pages/ /bluesky-aws-admin/pages/
 COPY bluesky-aws-admin/public/ /bluesky-aws-admin/public/
 COPY bluesky-aws-admin/next.config.js /bluesky-aws-admin/next.config.js
 
-CMD npm run dev
+RUN npm run build
+
+CMD npm run start
