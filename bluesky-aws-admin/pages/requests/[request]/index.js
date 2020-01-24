@@ -2,11 +2,13 @@ import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Alert from 'react-bootstrap/Table'
 import Table from 'react-bootstrap/Table'
-import Link from '../../../components/Link';
+import getConfig from 'next/config'
 
+import Link from '../../../components/Link';
 import Layout from '../../../components/Layout'
 import { ApiClient } from '../../../lib/apiutils'
 
+const { publicRuntimeConfig } = getConfig()
 
 
 //const Index = props => {
@@ -26,7 +28,7 @@ export default function Index() {
         <Layout>
             <div>
                 <Breadcrumb>
-                    <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+                    <Breadcrumb.Item href={publicRuntimeConfig.basePath + '/'}>Home</Breadcrumb.Item>
                     <Breadcrumb.Item active>{request}</Breadcrumb.Item>
                 </Breadcrumb>
                 {error &&
