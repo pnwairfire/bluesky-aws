@@ -37,7 +37,7 @@ export default function Index() {
                     <Alert variant="danger">{error}</Alert>
                 }
                 {log &&
-                    <textarea className={styles.logtext} disabled>{log}</textarea>
+                    <textarea className={styles.logtext} value={log} disabled />
                 }
             </div>
         </Layout>
