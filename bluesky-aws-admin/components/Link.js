@@ -7,12 +7,20 @@ import getConfig from 'next/config'
 
 const { publicRuntimeConfig } = getConfig()
 
-export default ({ children, ...props }) => (
-  <NextLink
-    {...props}
-    href={`${publicRuntimeConfig.basePath || ''}${format(props.href)}`}
-    as={`${publicRuntimeConfig.basePath || ''}${format(props.as)}`}
-  >
-    {children}
-  </NextLink>
-)
+// TODO: make sure intelligently join
+//   publicRuntimeConfig.basePath and props.href/as
+
+export default ({ children, ...props }) => {
+    console.log('basePath:  ' + publicRuntimeConfig.basePath);
+    console.log('href: ' +  props.href)
+    console.log('as: ' +  props.as)
+    return (
+      <NextLink
+        {...props}
+        href={`${publicRuntimeConfig.basePath || ''}${format(props.href)}`}
+        as={`${publicRuntimeConfig.basePath || ''}${format(props.as)}`}
+      >
+        {children}
+      </NextLink>
+    )
+}
