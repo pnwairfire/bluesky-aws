@@ -6,6 +6,9 @@ module.exports = {
         basePath: basePath
     },
     env: {
+        links: {
+            useNextLink: !basePath,
+        },
         s3: {
             bucketName: 'bluesky-aws',
             outputPath: 'output'

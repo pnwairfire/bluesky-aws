@@ -14,13 +14,27 @@ export default ({ children, ...props }) => {
     console.log('basePath:  ' + publicRuntimeConfig.basePath);
     console.log('href: ' +  props.href)
     console.log('as: ' +  props.as)
-    return (
-      <NextLink
-        {...props}
-        href={`${publicRuntimeConfig.basePath || ''}${format(props.href)}`}
-        as={`${publicRuntimeConfig.basePath || ''}${format(props.as)}`}
-      >
-        {children}
-      </NextLink>
-    )
+
+    if (process.env.links.useNextLink) {
+        // The following results in the error
+        //  "Mismatching `as` and `href` failed to manually
+        //   provide the params: request in the `href`'s `query`"
+        // when basePath (in next.config.js) it set to nonemtpy string
+        // TODO: figure out how to get this working and switch to always
+        //    using next/link Link's
+        return (
+          <NextLink
+            {...props}
+            as={`${publicRuntimeConfig.basePath || ''}${format(props.as)}`}
+          >
+            {children}
+          </NextLink>
+        )
+    } else {
+        return (
+            <a href={`${publicRuntimeConfig.basePath || ''}${format(props.as)}`}>
+                {children.props.children}
+            </a>
+        )
+    }
 }
