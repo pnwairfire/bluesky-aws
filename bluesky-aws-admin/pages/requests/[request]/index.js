@@ -4,9 +4,9 @@ import Alert from 'react-bootstrap/Table'
 import Table from 'react-bootstrap/Table'
 import getConfig from 'next/config'
 
-import Link from '../../../../components/Link';
-import Layout from '../../../../components/Layout'
-import { ApiClient } from '../../../../lib/apiutils'
+import Link from '../../../components/Link';
+import Layout from '../../../components/Layout'
+import { ApiClient } from '../../../lib/apiutils'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -20,7 +20,7 @@ export default function Index() {
 
     let {data, fetchError} = {data:null, fetchError:null}
     if (request) {
-        let res = ApiClient.get('/bsaa/api/requests/' + request + '/status');
+        let res = ApiClient.get('/api/requests/' + request + '/status');
         data = res.data;
         fetchError = res.fetchError;
     }
