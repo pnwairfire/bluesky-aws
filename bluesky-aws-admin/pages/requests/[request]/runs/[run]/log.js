@@ -4,24 +4,16 @@ import Alert from 'react-bootstrap/Table'
 import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
+import RunLog from '../../../../../components/RunLog'
 import { getRunLog } from '../../../../../lib/status'
 import { ApiClient } from '../../../../../lib/apiutils'
-
-import styles from './log.module.css'
 
 const { publicRuntimeConfig } = getConfig()
 
 export default function Index() {
     const router = useRouter()
     const { request, run } = router.query
-    console.log(request + ' - ' + run)
 
-    let path ='/api/requests/' + request + '/runs/' + run + '/log'
-    console.log(path)
-    let {data, fetchError} = ApiClient.get(path);
-
-    let log = data && data.log;
-    let error = fetchError || (data && data.error);
 
     return (
         <Layout>
@@ -33,12 +25,8 @@ export default function Index() {
                     <Breadcrumb.Item active>Log</Breadcrumb.Item>
                 </Breadcrumb>
 
-                {error &&
-                    <Alert variant="danger">{error}</Alert>
-                }
-                {log &&
-                    <textarea className={styles.logtext} value={log} disabled />
-                }
+                <RunLog request={request} run={run} />
+
             </div>
         </Layout>
     )
