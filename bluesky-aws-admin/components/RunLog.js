@@ -12,6 +12,7 @@ export default function RunLog(props) {
 
     return (
         <div>
+            <h5>Run Log</h5>
             {error &&
                 <Alert variant="danger">{error}</Alert>
             }

@@ -1,7 +1,7 @@
 import { ApiClient } from '../lib/apiutils'
 import Alert from 'react-bootstrap/Table'
 
-import styles from './RunLog.module.css'
+import styles from './RequestInput.module.css'
 
 export default function RequestInput(props) {
     let path ='/api/requests/' + props.request + '/input'
@@ -12,11 +12,12 @@ export default function RequestInput(props) {
 
     return (
         <div>
+            <h5>Request Input</h5>
             {error &&
                 <Alert variant="danger">{error}</Alert>
             }
             {inputData &&
-                <textarea className={styles.requestinput} value={JSON.stringify(inputData)} disabled />
+                <textarea className={styles.requestinput} value={JSON.stringify(inputData, null, 4)} disabled />
             }
         </div>
     )
