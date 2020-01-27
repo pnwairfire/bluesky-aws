@@ -6,6 +6,7 @@ import getConfig from 'next/config'
 
 import Link from '../../../components/Link';
 import Layout from '../../../components/Layout'
+import RequestInput from '../../../components/RequestInput';
 import { ApiClient } from '../../../lib/apiutils'
 
 const { publicRuntimeConfig } = getConfig()
@@ -40,6 +41,7 @@ export default function Index() {
                 }
 
                 <RequestBlock request={request} status={status} />
+                <RequestInput request={request} />
             </div>
         </Layout>
     )
