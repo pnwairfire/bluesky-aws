@@ -2,8 +2,8 @@
 //   result in 500's.  This may get fixed in 9.2.1
 
 import { useRouter } from 'next/router'
-import { getRequests } from '../../../lib/status'
-import { ApiServerUtils } from '../../../lib/apiutils'
+import { getRequests } from '../../../../lib/status'
+import { ApiServerUtils } from '../../../../lib/apiutils'
 
 
 // This handler fails to run when defined as an async function,

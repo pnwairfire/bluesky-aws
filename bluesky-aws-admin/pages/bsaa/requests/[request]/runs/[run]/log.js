@@ -3,9 +3,9 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Alert from 'react-bootstrap/Table'
 import getConfig from 'next/config'
 
-import Layout from '../../../../../components/Layout'
-import { getRunLog } from '../../../../../lib/status'
-import { ApiClient } from '../../../../../lib/apiutils'
+import Layout from '../../../../../../components/Layout'
+import { getRunLog } from '../../../../../../lib/status'
+import { ApiClient } from '../../../../../../lib/apiutils'
 
 import styles from './log.module.css'
 
@@ -16,7 +16,7 @@ export default function Index() {
     const { request, run } = router.query
     console.log(request + ' - ' + run)
 
-    let path ='/api/requests/' + request + '/runs/' + run + '/log'
+    let path ='/bsaa/api/requests/' + request + '/runs/' + run + '/log'
     console.log(path)
     let {data, fetchError} = ApiClient.get(path);
 

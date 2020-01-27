@@ -4,9 +4,9 @@ import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
 
-import Link from '../components/Link';
-import Layout from '../components/Layout'
-import { ApiClient, fetcher } from '../lib/apiutils'
+import Link from '../../components/Link';
+import Layout from '../../components/Layout'
+import { ApiClient, fetcher } from '../../lib/apiutils'
 //import $ from 'jquery';
 
 
@@ -38,8 +38,8 @@ export class Index extends Component {
 
         console.log('query: ' + JSON.stringify(query));
 
-        //let {data, error} = ApiClient.get('api/requests', query);
-        ApiClient.getNoSwr('/api/requests/', query).then((data) => {
+        //let {data, error} = ApiClient.get('bsaa/api/requests', query);
+        ApiClient.getNoSwr('/bsaa/api/requests/', query).then((data) => {
             let error = null;
             if (data && data.requests) {
                 let nextTokens = this.state.nextTokens;
