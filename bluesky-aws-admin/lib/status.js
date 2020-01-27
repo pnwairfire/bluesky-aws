@@ -87,3 +87,10 @@ exports.getRequestStatus = async function (bucketName, requestId) {
 exports.getRunLog = async function (bucketName, requestId, runId) {
     return await getObject(bucketName, 'log/' + requestId + '/' + runId + '.log');
 }
+
+//export async function getRequestInput(bucketName, requestId) {
+exports.getRequestInput = async function (bucketName, requestId) {
+    let obj = await getObject(bucketName, 'requests/' + requestId + '.json');
+    return JSON.parse(obj);
+}
+
