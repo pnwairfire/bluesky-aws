@@ -3,13 +3,14 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
+import Spinner from 'react-bootstrap/Spinner'
 
 import Link from '../components/Link';
 import Layout from '../components/Layout'
 import { ApiClient, fetcher } from '../lib/apiutils'
 //import $ from 'jquery';
 
-
+import styles from './index.module.css'
 
 
 //const Index = props => {
@@ -25,7 +26,8 @@ export class Index extends Component {
             error: null,
             // continuation tokens for previous set, this set, and next
             nextTokens: [null],
-            nextTokensIdx: 0
+            nextTokensIdx: 0,
+            loading: true
         };
         // this.handlePreviousClick = this.handlePreviousClick.bind(this)
         // this.handleNextClick = this.handleNextClick.bind(this)
@@ -45,22 +47,24 @@ export class Index extends Component {
                 let nextTokens = this.state.nextTokens;
                 nextTokens[nextTokensIdx + 1] = data.next
 
-
                 this.setState({
                     requests: data && data.requests,
                     nextTokens: nextTokens,
                     nextTokensIdx: nextTokensIdx,
                     next: data && data.next,
-                    error: error || (data && data.error)
+                    error: error || (data && data.error),
+                    loading: false
                 })
             } else {
                 this.setState({
-                    error:"Failed to load requests"
+                    error:"Failed to load requests",
+                    loading: false
                 })
             }
         }).catch(error => {
                 this.setState({
-                    error:"Failed to load requests"
+                    error:"Failed to load requests",
+                    loading: false
                 })
 
         })
@@ -95,38 +99,48 @@ export class Index extends Component {
                         </Alert>
                     }
                     <h4>Requests {this.state.requests && '('+this.state.requests.length+')'}</h4>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Request Id</th>
-                                <th>Last Modified</th>
-                            </tr>
-                          </thead>
-                        <tbody>
-                            {this.state.requests && this.state.requests.map((request, idx) => (
-                                <tr key={idx}>
+                    {this.state.loading && (
+                        <div className={styles['loading-spinner']}>
+                            <Spinner animation="border" role="status" size="sm">
+                            </Spinner>
+                            <span>Loading...</span>
+                        </div>
+                    ) || (
+                        <div>
+                            <Table striped bordered hover>
+                                <thead>
+                                    <tr>
+                                        <th>Request Id</th>
+                                        <th>Last Modified</th>
+                                    </tr>
+                                  </thead>
+                                <tbody>
+                                    {this.state.requests && this.state.requests.map((request, idx) => (
+                                        <tr key={idx}>
 
-                                    <td>
-                                        <Link href="/requests/[id]"
-                                                as={`/requests/${request.requestId}`}>
-                                            <a>{request.requestId} </a>
-                                        </Link>
-                                    </td>
-                                    <td>
-                                        {request.ts}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                    <div>
-                        <Button variant="outline-dark" size="sm"
-                            onClick={this.handlePreviousClick}
-                            disabled={prevDisabled}>&lt;</Button>
-                        <Button variant="outline-dark" size="sm"
-                            onClick={this.handleNextClick}
-                            disabled={nextDisabled}>&gt;</Button>
-                    </div>
+                                            <td>
+                                                <Link href="/requests/[id]"
+                                                        as={`/requests/${request.requestId}`}>
+                                                    <a>{request.requestId} </a>
+                                                </Link>
+                                            </td>
+                                            <td>
+                                                {request.ts}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                            <div>
+                                <Button variant="outline-dark" size="sm"
+                                    onClick={this.handlePreviousClick}
+                                    disabled={prevDisabled}>&lt;</Button>
+                                <Button variant="outline-dark" size="sm"
+                                    onClick={this.handleNextClick}
+                                    disabled={nextDisabled}>&gt;</Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </Layout>
         )
