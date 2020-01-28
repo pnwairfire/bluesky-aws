@@ -1,22 +1,16 @@
 import { Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
-import Alert from 'react-bootstrap/Alert'
-import Table from 'react-bootstrap/Table'
-import Button from 'react-bootstrap/Button'
-import Spinner from 'react-bootstrap/Spinner'
 
-import Link from '../components/Link';
 import Layout from '../components/Layout'
+import RequestsTable from '../components/RequestsTable'
 import { ApiClient, fetcher } from '../lib/apiutils'
-//import $ from 'jquery';
-
 import styles from './index.module.css'
 
 
 //const Index = props => {
 //    let requests = props.requests;
 //    let error = props.error
-export class Index extends Component {
+export default class Index extends Component {
 
     constructor(props) {
         super(props);
@@ -89,62 +83,18 @@ export class Index extends Component {
         console.log(prevDisabled + '/' +nextDisabled);
         return (
             <Layout>
-                <div>
-                    <Breadcrumb>
-                        <Breadcrumb.Item active>Home</Breadcrumb.Item>
-                    </Breadcrumb>
-                    {this.state.error &&
-                        <Alert variant="danger">
-                            {this.state.error}
-                        </Alert>
-                    }
-                    <h4>Requests {this.state.requests && '('+this.state.requests.length+')'}</h4>
-                    {this.state.loading && (
-                        <div className={styles['loading-spinner']}>
-                            <Spinner animation="border" role="status" size="sm">
-                            </Spinner>
-                            <span>Loading...</span>
-                        </div>
-                    ) || (
-                        <div>
-                            <Table striped bordered hover>
-                                <thead>
-                                    <tr>
-                                        <th>Request Id</th>
-                                        <th>Last Modified</th>
-                                    </tr>
-                                  </thead>
-                                <tbody>
-                                    {this.state.requests && this.state.requests.map((request, idx) => (
-                                        <tr key={idx}>
-
-                                            <td>
-                                                <Link href="/requests/[id]"
-                                                        as={`/requests/${request.requestId}`}>
-                                                    <a>{request.requestId} </a>
-                                                </Link>
-                                            </td>
-                                            <td>
-                                                {request.ts}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                            <div>
-                                <Button variant="outline-dark" size="sm"
-                                    onClick={this.handlePreviousClick}
-                                    disabled={prevDisabled}>&lt;</Button>
-                                <Button variant="outline-dark" size="sm"
-                                    onClick={this.handleNextClick}
-                                    disabled={nextDisabled}>&gt;</Button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <Breadcrumb>
+                    <Breadcrumb.Item active>Home</Breadcrumb.Item>
+                </Breadcrumb>
+                <RequestsTable
+                    loading={this.state.loading}
+                    requests={this.state.requests}
+                    error={this.state.error}
+                    handleNextClick={this.handleNextClick}
+                    handlePreviousClick={this.handlePreviousClick}
+                    nextDisabled={nextDisabled}
+                    prevDisabled={prevDisabled} />
             </Layout>
         )
     }
 };
-
-export default Index;
