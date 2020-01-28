@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
-import Alert from 'react-bootstrap/Table'
+import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
 import getConfig from 'next/config'
 

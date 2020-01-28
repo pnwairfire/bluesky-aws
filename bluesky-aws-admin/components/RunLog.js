@@ -1,5 +1,5 @@
 import { ApiClient } from '../lib/apiutils'
-import Alert from 'react-bootstrap/Table'
+import Alert from 'react-bootstrap/Alert'
 
 import styles from './RunLog.module.css'
 
