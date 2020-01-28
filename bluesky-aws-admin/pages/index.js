@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
+import Button from 'react-bootstrap/Button'
 
 import Layout from '../components/Layout'
 import RequestsTable from '../components/RequestsTable'
@@ -97,13 +98,18 @@ export default class Index extends Component {
                 <RequestsTable
                     loading={this.state.loading}
                     requests={this.state.requests}
-                    error={this.state.error}
-                    handleNextClick={this.handleNextClick}
-                    handlePreviousClick={this.handlePreviousClick}
-                    handleReloadClick={this.handleReloadClick}
-                    nextDisabled={nextDisabled}
-                    prevDisabled={prevDisabled}
-                    reloadDisabled={this.loading} />
+                    error={this.state.error} />
+                <div>
+                    <Button variant="outline-dark" size="sm"
+                        onClick={this.handlePreviousClick}
+                        disabled={prevDisabled}>&lt;</Button>
+                    <Button variant="outline-dark" size="sm"
+                        onClick={this.handleNextClick}
+                        disabled={nextDisabled}>&gt;</Button>
+                    <Button variant="outline-dark" size="sm"
+                        onClick={this.handleReloadClick}
+                        disabled={this.state.loading}>reload</Button>
+                </div>
             </Layout>
         )
     }

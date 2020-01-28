@@ -1,6 +1,5 @@
 import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
-import Button from 'react-bootstrap/Button'
 import Spinner from 'react-bootstrap/Spinner'
 
 import Link from '../components/Link';
@@ -47,17 +46,6 @@ export default function RequestsTable(props) {
                             ))}
                         </tbody>
                     </Table>
-                    <div>
-                        <Button variant="outline-dark" size="sm"
-                            onClick={props.handlePreviousClick}
-                            disabled={props.prevDisabled}>&lt;</Button>
-                        <Button variant="outline-dark" size="sm"
-                            onClick={props.handleNextClick}
-                            disabled={props.nextDisabled}>&gt;</Button>
-                        <Button variant="outline-dark" size="sm"
-                            onClick={props.handleReloadClick}
-                            disabled={props.reloadDisabled}>reload</Button>
-                    </div>
                 </div>
             )}
         </div>
