@@ -4,11 +4,17 @@ import Alert from 'react-bootstrap/Alert'
 import styles from './RequestInput.module.css'
 
 export default function RequestInput(props) {
-    let path ='/api/requests/' + props.request + '/input'
-    let {data, fetchError} = ApiClient.get(path);
+    let inputData = null;
+    let error = null;
 
-    let inputData = data && data.input;
-    let error = fetchError || (data && data.error);
+    if (props && props.request) {
+        let path ='/api/requests/' + props.request + '/input'
+        let {data, fetchError} = ApiClient.get(path);
+
+        let inputData = data && data.input;
+        let error = fetchError || (data && data.error);
+    }
+
 
     return (
         <div>
