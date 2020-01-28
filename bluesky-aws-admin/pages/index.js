@@ -34,33 +34,37 @@ export default class Index extends Component {
 
         console.log('query: ' + JSON.stringify(query));
 
-        //let {data, error} = ApiClient.get('api/requests', query);
-        ApiClient.getNoSwr('/api/requests/', query).then((data) => {
-            let error = null;
-            if (data && data.requests) {
-                let nextTokens = this.state.nextTokens;
-                nextTokens[nextTokensIdx + 1] = data.next
+        this.setState({
+            loading: true
+        }, () => {
+            //let {data, error} = ApiClient.get('api/requests', query);
+            ApiClient.getNoSwr('/api/requests/', query).then((data) => {
+                let error = null;
+                if (data && data.requests) {
+                    let nextTokens = this.state.nextTokens;
+                    nextTokens[nextTokensIdx + 1] = data.next
 
-                this.setState({
-                    requests: data && data.requests,
-                    nextTokens: nextTokens,
-                    nextTokensIdx: nextTokensIdx,
-                    next: data && data.next,
-                    error: error || (data && data.error),
-                    loading: false
-                })
-            } else {
-                this.setState({
-                    error:"Failed to load requests",
-                    loading: false
-                })
-            }
-        }).catch(error => {
-                this.setState({
-                    error:"Failed to load requests",
-                    loading: false
-                })
+                    this.setState({
+                        requests: data && data.requests,
+                        nextTokens: nextTokens,
+                        nextTokensIdx: nextTokensIdx,
+                        next: data && data.next,
+                        error: error || (data && data.error),
+                        loading: false
+                    })
+                } else {
+                    this.setState({
+                        error:"Failed to load requests",
+                        loading: false
+                    })
+                }
+            }).catch(error => {
+                    this.setState({
+                        error:"Failed to load requests",
+                        loading: false
+                    })
 
+            })
         })
 
     }
@@ -75,6 +79,10 @@ export default class Index extends Component {
 
     handleNextClick = data => {
         this.loadRequests(this.state.nextTokensIdx + 1);
+    };
+
+    handleReloadClick = data => {
+        this.loadRequests(this.state.nextTokensIdx);
     };
 
     render() {
@@ -92,8 +100,10 @@ export default class Index extends Component {
                     error={this.state.error}
                     handleNextClick={this.handleNextClick}
                     handlePreviousClick={this.handlePreviousClick}
+                    handleReloadClick={this.handleReloadClick}
                     nextDisabled={nextDisabled}
-                    prevDisabled={prevDisabled} />
+                    prevDisabled={prevDisabled}
+                    reloadDisabled={this.loading} />
             </Layout>
         )
     }

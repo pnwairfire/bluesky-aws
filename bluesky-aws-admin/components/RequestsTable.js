@@ -54,6 +54,9 @@ export default function RequestsTable(props) {
                         <Button variant="outline-dark" size="sm"
                             onClick={props.handleNextClick}
                             disabled={props.nextDisabled}>&gt;</Button>
+                        <Button variant="outline-dark" size="sm"
+                            onClick={props.handleReloadClick}
+                            disabled={props.reloadDisabled}>reload</Button>
                     </div>
                 </div>
             )}
