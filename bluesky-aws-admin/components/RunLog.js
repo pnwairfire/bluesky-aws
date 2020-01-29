@@ -1,6 +1,7 @@
-import { ApiClient } from '../lib/apiutils'
 import Alert from 'react-bootstrap/Alert'
+import Spinner from 'react-bootstrap/Spinner'
 
+import { ApiClient } from '../lib/apiutils'
 import styles from './RunLog.module.css'
 
 export default function RunLog(props) {
@@ -13,6 +14,13 @@ export default function RunLog(props) {
     return (
         <div>
             <h5>Run Log</h5>
+            {!data &&
+                <div className={styles['loading-spinner']}>
+                    <Spinner animation="border" role="status" size="sm">
+                    </Spinner>
+                    <span>Loading...</span>
+                </div>
+            }
             {error &&
                 <Alert variant="danger">{error}</Alert>
             }
