@@ -15,7 +15,7 @@ export default function RequestInput(props) {
             <div className={styles['request-input']}>
                 <h5>Request Input</h5>
                 {!data &&
-                    <div className={styles['loading-spinner']}>
+                    <div className="loading-spinner">
                         <Spinner animation="border" role="status" size="sm">
                         </Spinner>
                         <span>Loading...</span>

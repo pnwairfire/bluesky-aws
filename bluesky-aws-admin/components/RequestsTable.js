@@ -3,7 +3,6 @@ import Table from 'react-bootstrap/Table'
 import Spinner from 'react-bootstrap/Spinner'
 
 import Link from '../components/Link';
-import styles from './RequestsTable.module.css'
 
 export default function RequestsTable(props) {
     return (
@@ -15,7 +14,7 @@ export default function RequestsTable(props) {
             }
             <h4>Requests {props.requests && '('+props.requests.length+')'}</h4>
             {props.loading && (
-                <div className={styles['loading-spinner']}>
+                <div className="loading-spinner">
                     <Spinner animation="border" role="status" size="sm">
                     </Spinner>
                     <span>Loading...</span>

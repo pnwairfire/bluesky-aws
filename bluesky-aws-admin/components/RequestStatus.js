@@ -3,7 +3,6 @@ import Spinner from 'react-bootstrap/Spinner'
 
 import styles from './RequestStatus.module.css'
 
-
 export default function RequestStatus(props) {
     let systemState = props.status && props.status.system_state;
     let systemError = !! props.status && props.status.system_error;
@@ -18,14 +17,14 @@ export default function RequestStatus(props) {
             }
             <h5><b>Request</b>: {props.request}</h5>
             {!props.status && (
-                <div className={styles['loading-spinner']}>
+                <div className="loading-spinner">
                     <Spinner animation="border" role="status" size="sm">
                     </Spinner>
                     <span>Loading...</span>
                 </div>
             ) || (
                 <div>
-                    <div className={styles['page-section']}>
+                    <div>
                         <div><b>System</b>: {systemState}</div>
                         {systemError && (
                             <Alert variant="danger">{systemError}</Alert>

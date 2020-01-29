@@ -3,14 +3,13 @@ import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
 
 import Link from './Link';
-
 import styles from './RunsTable.module.css'
 
 export default function RunsTable(props) {
     if (!props.runs) {
         return (
             <WrappedRunsTable>
-                <div className={styles['loading-spinner']}>
+                <div className="loading-spinner">
                     <Spinner animation="border" role="status" size="sm">
                     </Spinner>
                     <span>Loading...</span>

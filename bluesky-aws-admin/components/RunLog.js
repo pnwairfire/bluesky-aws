@@ -15,7 +15,7 @@ export default function RunLog(props) {
         <div>
             <h5>Run Log</h5>
             {!data &&
-                <div className={styles['loading-spinner']}>
+                <div className="loading-spinner">
                     <Spinner animation="border" role="status" size="sm">
                     </Spinner>
                     <span>Loading...</span>
