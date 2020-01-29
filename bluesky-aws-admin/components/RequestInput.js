@@ -1,5 +1,6 @@
 import { ApiClient } from '../lib/apiutils'
 import Alert from 'react-bootstrap/Alert'
+import Spinner from 'react-bootstrap/Spinner'
 
 import styles from './RequestInput.module.css'
 
@@ -13,6 +14,13 @@ export default function RequestInput(props) {
         return (
             <div className={styles['request-input']}>
                 <h5>Request Input</h5>
+                {!data &&
+                    <div className={styles['loading-spinner']}>
+                        <Spinner animation="border" role="status" size="sm">
+                        </Spinner>
+                        <span>Loading...</span>
+                    </div>
+                }
                 {error &&
                     <Alert variant="danger">{error}</Alert>
                 }

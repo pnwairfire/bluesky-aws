@@ -16,7 +16,8 @@ export default function RequestStatus(props) {
                     {props.error}
                 </Alert>
             }
-            {props.loading && (
+            <h5><b>Request</b>: {props.request}</h5>
+            {!props.status && (
                 <div className={styles['loading-spinner']}>
                     <Spinner animation="border" role="status" size="sm">
                     </Spinner>
@@ -25,7 +26,6 @@ export default function RequestStatus(props) {
             ) || (
                 <div>
                     <div className={styles['page-section']}>
-                        <div><b>Request</b>: {props.request}</div>
                         <div><b>System</b>: {systemState}</div>
                         {systemError && (
                             <Alert variant="danger">{systemError}</Alert>
