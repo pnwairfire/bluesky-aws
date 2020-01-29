@@ -35,9 +35,7 @@ export default class Index extends Component {
 
         console.log('query: ' + JSON.stringify(query));
 
-        this.setState({
-            loading: true
-        }, () => {
+        this.setState({loading: true}, () => {
             //let {data, error} = ApiClient.get('api/requests', query);
             ApiClient.getNoSwr('/api/requests/', query).then((data) => {
                 let error = null;
