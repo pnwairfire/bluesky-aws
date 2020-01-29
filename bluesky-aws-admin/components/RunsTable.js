@@ -1,7 +1,7 @@
 import Table from 'react-bootstrap/Table'
 import Alert from 'react-bootstrap/Alert'
-import Spinner from 'react-bootstrap/Spinner'
 
+import LoadingSpinner from './LoadingSpinner';
 import Link from './Link';
 import styles from './RunsTable.module.css'
 
@@ -9,11 +9,7 @@ export default function RunsTable(props) {
     if (!props.runs) {
         return (
             <WrappedRunsTable>
-                <div className="loading-spinner">
-                    <Spinner animation="border" role="status" size="sm">
-                    </Spinner>
-                    <span>Loading...</span>
-                </div>
+                <LoadingSpinner />
             </WrappedRunsTable>
         )
     } else if (Object.entries(props.runs).length === 0) {

@@ -1,6 +1,6 @@
 import Alert from 'react-bootstrap/Alert'
-import Spinner from 'react-bootstrap/Spinner'
 
+import LoadingSpinner from './LoadingSpinner';
 import styles from './RequestStatus.module.css'
 
 export default function RequestStatus(props) {
@@ -17,11 +17,7 @@ export default function RequestStatus(props) {
             }
             <h5><b>Request</b>: {props.request}</h5>
             {!props.status && (
-                <div className="loading-spinner">
-                    <Spinner animation="border" role="status" size="sm">
-                    </Spinner>
-                    <span>Loading...</span>
-                </div>
+                <LoadingSpinner />
             ) || (
                 <div>
                     <div>

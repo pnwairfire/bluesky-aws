@@ -1,7 +1,7 @@
 import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
-import Spinner from 'react-bootstrap/Spinner'
 
+import LoadingSpinner from './LoadingSpinner';
 import Link from '../components/Link';
 
 export default function RequestsTable(props) {
@@ -14,11 +14,7 @@ export default function RequestsTable(props) {
             }
             <h4>Requests {props.requests && '('+props.requests.length+')'}</h4>
             {props.loading && (
-                <div className="loading-spinner">
-                    <Spinner animation="border" role="status" size="sm">
-                    </Spinner>
-                    <span>Loading...</span>
-                </div>
+                <LoadingSpinner />
             ) || (
                 <div>
                     <Table striped bordered hover>
