@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { getRequestInput } from '../../../../lib/status'
+import { getRequestInput } from '../../../../lib/s3'
 import { ApiServerUtils } from '../../../../lib/apiutils'
 
 // This handler fails to run when defined as an async function,

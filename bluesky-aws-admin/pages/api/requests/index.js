@@ -2,7 +2,7 @@
 //   result in 500's.  This may get fixed in 9.2.1
 
 import { useRouter } from 'next/router'
-import { getRequests } from '../../../lib/status'
+import { getRequests } from '../../../lib/s3'
 import { ApiServerUtils } from '../../../lib/apiutils'
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env nodejs
 
 const commander = require('commander');
-const status = require('../lib/status')
+const s3 = require('../lib/s3')
 
 function parseArgs () {
     commander
@@ -15,7 +15,7 @@ function parseArgs () {
 
 //async function go(){
 function go() {
-    status.getRequests(commander.bucket, commander.limit, commander.next)
+    s3.getRequests(commander.bucket, commander.limit, commander.next)
         .then(data => {
             let requests = data.requests
             // TODO: find npm package to tabulate output
