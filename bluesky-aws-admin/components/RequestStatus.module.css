@@ -1,3 +1,11 @@
 .request-status {
     padding: 20px;
 }
+
+.loading-spinner {
+    padding: 20px 10px;
+}
+
+.loading-spinner span {
+    padding: 0 0 0 20px;
+}
