@@ -10,6 +10,7 @@ function parseArgs () {
         .requiredOption('-c, --file-cache-root-dir <bucket>', 'file cache root dir')
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
         .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
+        .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
         .parse(process.argv);
 }
 
@@ -18,7 +19,8 @@ function go() {
     s3.getRequestInput(commander.fileCacheRootDir,
             commander.bucket, commander.request)
         .then(input => {
-            console.log('input: \n' + JSON.stringify(input, null, 2));
+            console.log('input: \n' + JSON.stringify(input, null,
+                commander.jsonIndent));
         })
         .catch(err => {
             console.log(err.stack)

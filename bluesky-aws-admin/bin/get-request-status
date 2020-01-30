@@ -9,6 +9,7 @@ function parseArgs () {
         .usage('[OPTIONS]...')
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
         .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
+        .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
         .parse(process.argv);
 }
 
@@ -16,7 +17,8 @@ function parseArgs () {
 function go() {
     s3.getRequestStatus(commander.bucket, commander.request)
         .then(status => {
-            console.log('status: \n' + JSON.stringify(status, null, 2));
+            console.log('status: \n' + JSON.stringify(status, null,
+                commander.jsonIndent));
         })
         .catch(err => {
             console.log(err.stack)

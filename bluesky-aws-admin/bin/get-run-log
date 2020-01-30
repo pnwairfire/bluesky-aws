@@ -11,6 +11,7 @@ function parseArgs () {
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
         .requiredOption('-r, --request <requestId>', 'e.g. emissions-request-20200114')
         .requiredOption('--run <runId>', 'e.g. emissions-request-20200114-fire-abc123')
+        .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
         .parse(process.argv);
 }
 
@@ -19,7 +20,7 @@ function go() {
     s3.getRunLog(commander.fileCacheRootDir,
             commander.bucket, commander.request, commander.run)
         .then(log => {
-            console.log('log: \n' + JSON.stringify(log, null, 2));
+            console.log('log: \n' + JSON.stringify(log, null, commander.jsonIndent));
         })
         .catch(err => {
             console.log(err.stack)

@@ -12,6 +12,7 @@ function parseArgs () {
         .requiredOption('-r, --request <requestId>', 'e.g. emissions-request-20200114')
         .requiredOption('--run <runId>', 'e.g. emissions-request-20200114-fire-abc123')
         .requiredOption('-o, --output-path <runId>', 'e.g. output/')
+        .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
         .parse(process.argv);
 }
 
@@ -21,7 +22,7 @@ function go() {
             commander.bucket, commander.request,
             commander.run, commander.outputPath)
         .then(output => {
-            console.log('output: \n' + JSON.stringify(output, null, 2));
+            console.log('output: \n' + JSON.stringify(output, null, commander.jsonIndent));
         })
         .catch(err => {
             console.log(err.stack)
