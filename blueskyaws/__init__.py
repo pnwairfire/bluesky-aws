@@ -229,7 +229,8 @@ class BlueskySingleRunner(object):
                 fire_id=fire_id or '', request_id=self._request_id,
                 uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),
-                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
+                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"),
+                bluesky_today=self._bluesky_today.strftime("%Y%m%d"))
             self._run_id = self._utcnow.strftime(run_id)
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())

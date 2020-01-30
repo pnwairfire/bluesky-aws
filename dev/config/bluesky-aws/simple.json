@@ -1,6 +1,7 @@
 {
     "config": {
         "request_id_format": "{input_file_name}-{utc_today}",
+        "run_id_format": "{request_id}-{bluesky_today}-{fire_id}-{utc_now}",
         "ssh_key": "id_rsa",
         "aws": {
             "iam_instance_profile": {

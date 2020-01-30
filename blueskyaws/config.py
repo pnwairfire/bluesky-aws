@@ -98,9 +98,14 @@ CONFIG_SETTINGS = OrderedDict({
         " - '{fire_id}' - replaced with the id of the run's fire",
         " - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'",
         " - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'",
+        " - '{bluesky_today}' - replaced with bluesky's 'today' (defaulting to current ",
+        "         UTC date, if 'today' isn't specified), formatted '%Y%m%d'",
         "",
         "e.g. 'bluesky-aws-run-{fire_id}-{uuid}-{utc_today}' would translate",
-        "to something like 'bluesky-aws-run-fire123-dk38fj3d-20191210'"])
+        "to something like 'bluesky-aws-run-fire123-dk38fj3d-20191210'"
+        "",
+        "Note that standard strftime wildcards are also supported (e.g. '%Y-%m-%d'),",
+        "and are filled in with the current UTC timestamp"])
     ),
 
     # bluesky_version must be astring value matching one of the published
