@@ -6,6 +6,7 @@ const fs = require('fs').promises;
 const util = require('util');
 const path = require('path');
 const { exec } = require('child_process');
+const exists = util.promisify(require('fs').exists)
 
 // S3 Docs: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
 const S3 = require('aws-sdk/clients/s3');
@@ -16,10 +17,10 @@ const REQUEST_S3_PREFIX = 'requests/';
 const REQUEST_S3_PREFIX_STRIPPER = new RegExp('^'+REQUEST_S3_PREFIX);
 const JSON_EXT_STRIPPER = /.json/;
 
-async function writeFile(filename) {
+async function writeFile(filename, dataStr) {
     let dirName = path.dirname(filename)
     await fs.mkdir(dirName, {recursive: true})
-    return await fs.writeFile(filename)
+    return await fs.writeFile(filename, dataStr)
 }
 
 async function execute(cmd, args, options) {
@@ -67,13 +68,17 @@ exports.getRequests = async function(bucketName, limit, next) {
  *  Getting Objects
  */
 
+
+// TOOD: implement cache TTL
+
+
 async function getObject(bucketName, key, options) {
     options = options || {}
     let cachedFileName = (options.fileCacheRootDir
         && path.join(options.fileCacheRootDir, bucketName, key))
 
-    if (options.fileCacheRootDir && await fs.exists(cachedFileName)) {
-        return await readFile(cachedFileName).toString();
+    if (options.fileCacheRootDir && await exists(cachedFileName)) {
+        return (await fs.readFile(cachedFileName)).toString();
     }
 
     let params = {
