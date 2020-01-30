@@ -157,6 +157,6 @@ exports.getRunOutput = async function (fileCacheRootDir, bucketName, requestId, 
     }
 
     outputFile = path.join(unpackedRootDir, 'output.json')
-    let outputStr =(await fs.readFile(outputFile)).toString();
+    let outputStr = (await fs.readFile(outputFile)).toString();
     return JSON.parse(outputStr)
 }
