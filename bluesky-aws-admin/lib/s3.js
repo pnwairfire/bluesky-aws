@@ -5,7 +5,7 @@
 const fs = require('fs').promises;
 const util = require('util');
 const path = require('path');
-const { exec } = require('child_process');
+const exec = util.promisify(require('child_process').exec);
 const exists = util.promisify(require('fs').exists)
 
 // S3 Docs: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
@@ -23,9 +23,6 @@ async function writeFile(filename, dataStr) {
     return await fs.writeFile(filename, dataStr)
 }
 
-async function execute(cmd, args, options) {
-    return await util.promisify(exec)(cmd, args, options);
-}
 
 /*
  *  Listing Objects
@@ -78,7 +75,9 @@ async function getObject(bucketName, key, options) {
         && path.join(options.fileCacheRootDir, bucketName, key))
 
     if (options.fileCacheRootDir && await exists(cachedFileName)) {
-        return (await fs.readFile(cachedFileName)).toString();
+        let contents = await fs.readFile(cachedFileName)
+        if (options.convertToString) contents = contents.toString();
+        return contents
     }
 
     let params = {
@@ -90,17 +89,19 @@ async function getObject(bucketName, key, options) {
     try {
         // Note: util.promisify(s3.getObject) doesn't work with s3 sdk,
         // but s3.getObject.promise is supported
-        let data = await s3.getObject(params).promise();
-        let dataStr =  data.Body.toString();
+        let data = (await s3.getObject(params).promise());
+        debugger
+        data = data.Body
+        if (options.convertToString) data = data.toString();
         if (options.fileCacheRootDir) {
             try {
                 // TODO: don't block, since fialure to write to cache is ok
-                await writeFile(cachedFileName, dataStr)
+                await writeFile(cachedFileName, data)
             } catch(err) {
                 console.log('Failed to write ' + key + ' to cache')
             }
         }
-        return dataStr
+        return data;
     }
     catch (err) {
         console.log('ERROR:', err);
@@ -116,7 +117,7 @@ async function getObject(bucketName, key, options) {
 exports.getRequestStatus = async function (bucketName, requestId) {
     // Note: we don't cache request status
     let key = path.join('status',requestId + '-status.json');
-    let objStr = await getObject(bucketName, key);
+    let objStr = await getObject(bucketName, key, {convertToString: true});
     return JSON.parse(objStr);
 }
 
@@ -125,14 +126,14 @@ exports.getRequestStatus = async function (bucketName, requestId) {
 exports.getRequestInput = async function (fileCacheRootDir, bucketName, requestId) {
     let key = path.join('requests', requestId + '.json');
     let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir});
+        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     return JSON.parse(objStr);
 }
 
 exports.getRunLog = async function (fileCacheRootDir, bucketName, requestId, runId) {
     let key = path.join('log', requestId, runId + '.log');
     return await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir});
+        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
 }
 
 const S3_URL_METHOD_AND_HOSTNAME_STRIPPER = new RegExp('^https?://[^/]*');
@@ -140,14 +141,17 @@ const S3_URL_METHOD_AND_HOSTNAME_STRIPPER = new RegExp('^https?://[^/]*');
 exports.getRunOutput = async function (fileCacheRootDir, bucketName, requestId, runId, outputPath) {
     let keyBase = path.join(outputPath, requestId, runId);
     let key = keyBase + '.tar.gz';
-    // we'll ignore objStr
+    // we'll ignore objStr (unless we switch to a npm tar package
+    // and untar/zip in memory)
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir});
-    if (!await exists(keyBase)) {
-        let cwd = path.join(fileCacheRootDir, outputPath, requestId)
-        await execute('tar', ['xzf', runId+'.tar.gz'], {cwd: cwd})
+    let unpackedRootDir = path.join(fileCacheRootDir, bucketName, keyBase)
+    if (!await exists(unpackedRootDir)) {
+        // TODO: use fs-tar, tar-stream, or tar npm packages ???
+        let cwd = path.join(fileCacheRootDir, bucketName, outputPath, requestId);
+        let cmd = 'tar xzf ' + runId + '.tar.gz'
+        await exec(cmd, {cwd: cwd});
     }
-    let unpackedRootDir = path.join(fileCacheRootDir, keyBase)
     if (!await exists(unpackedRootDir)) {
         throw "Failed to fetch output file " + key
     }
