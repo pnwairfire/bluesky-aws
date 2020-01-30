@@ -18,7 +18,7 @@ export default function Index() {
                     <Breadcrumb.Item href={publicRuntimeConfig.basePath + '/'}>Home</Breadcrumb.Item>
                     <Breadcrumb.Item href={publicRuntimeConfig.basePath + '/requests/'+ request}>{request}</Breadcrumb.Item>
                     <Breadcrumb.Item active>{run}</Breadcrumb.Item>
-                    <Breadcrumb.Item active>Log</Breadcrumb.Item>
+                    <Breadcrumb.Item active>Output</Breadcrumb.Item>
                 </Breadcrumb>
 
                 <RunOutput request={request} run={run} />
