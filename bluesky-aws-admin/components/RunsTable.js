@@ -39,13 +39,13 @@ export default function RunsTable(props) {
                                 <td>{props.runs[runId].status}</td>
                                 <td>
                                     <Link href="/requests/[request]/runs/[run]/log"
-                                            as={`/requests/${props.request}/runs/${runId}/log`}>
+                                            as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/log`}>
                                         <a>log</a>
                                     </Link>
                                 </td>
                                 <td>
                                     <Link href="/requests/[request]/runs/[run]/output"
-                                            as={`/requests/${props.request}/runs/${runId}/output`}>
+                                            as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output`}>
                                         <a>output</a>
                                     </Link>
                                 </td>

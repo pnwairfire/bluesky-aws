@@ -9,7 +9,8 @@ import styles from './RunOutput.module.css'
 export default function RequestInput(props) {
 
     if (props && props.request && props.run) {
-        let path ='/api/requests/' + props.request + '/runs/' + props.run + '/output'
+        let path ='/api/requests/' + encodeURIComponent(props.request)
+            + '/runs/' + encodeURIComponent(props.run) + '/output'
         let {data, fetchError} = ApiClient.get(path);
 
         let outputData = data && data.output;

@@ -23,7 +23,8 @@ export default function Index() {
 
     let {data, fetchError} = {data:null, fetchError:null}
     if (request) {
-        let res = ApiClient.get('/api/requests/' + request + '/status');
+        let res = ApiClient.get('/api/requests/'
+            + encodeURIComponent(request) + '/status');
         data = res.data;
         fetchError = res.fetchError;
     }

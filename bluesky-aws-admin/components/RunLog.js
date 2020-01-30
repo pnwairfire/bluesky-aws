@@ -6,7 +6,8 @@ import styles from './RunLog.module.css'
 
 export default function RunLog(props) {
     if (props && props.request && props.run) {
-        let path ='/api/requests/' + props.request + '/runs/' + props.run + '/log'
+        let path ='/api/requests/' + encodeURIComponent(props.request)
+        + '/runs/' + encodeURIComponent(props.run) + '/log'
         let {data, fetchError} = ApiClient.get(path);
 
         let log = data && data.log;

@@ -8,7 +8,7 @@ import styles from './RequestInput.module.css'
 
 export default function RequestInput(props) {
     if (props && props.request) {
-        let path ='/api/requests/' + props.request + '/input'
+        let path ='/api/requests/' + encodeURIComponent(props.request) + '/input'
         let {data, fetchError} = ApiClient.get(path);
 
         let inputData = data && data.input;

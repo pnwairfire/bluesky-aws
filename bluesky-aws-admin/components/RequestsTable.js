@@ -30,7 +30,7 @@ export default function RequestsTable(props) {
 
                                     <td>
                                         <Link href="/requests/[id]"
-                                                as={`/requests/${request.requestId}`}>
+                                                as={`/requests/${encodeURIComponent(request.requestId)}`}>
                                             <a>{request.requestId} </a>
                                         </Link>
                                     </td>
