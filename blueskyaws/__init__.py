@@ -169,9 +169,10 @@ class BlueskySingleRunner(object):
         self._request_id = request_id
         self._status_tracker = status_tracker
         # Default bluesky's '--today' to the requests's 'now', so that all
-        # bsp runs are executed with the same value.  But, also created
-        # a run-specific 'now' for use in formating the 'run_id'
-        self._bluesky_today = config('bluesky', 'today') or request_utcnow.date()
+        # bsp runs are executed with the same value.  But, also create
+        # a run-specific 'now' for use in formating the 'run_id'.
+        self._bluesky_today_str = (config('bluesky', 'today')
+            or request_utcnow.strftime('%Y-%m-%d'))
         self._utcnow = datetime.datetime.utcnow()
         self._set_run_id()
 
@@ -228,7 +229,7 @@ class BlueskySingleRunner(object):
                 uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),
                 utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"),
-                bluesky_today=self._bluesky_today.strftime("%Y%m%d"))
+                bluesky_today=self._bluesky_today_str.replace('-',''))
             self._run_id = self._utcnow.strftime(run_id)
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
@@ -309,7 +310,7 @@ class BlueskySingleRunner(object):
             ).format(
                 version=self._config('bluesky_version'),
                 run_id=self._run_id,
-                today=self._bluesky_today,
+                today=self._bluesky_today_str,
                 modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
 
