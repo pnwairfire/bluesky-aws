@@ -9,8 +9,8 @@ function parseArgs () {
         .usage('[OPTIONS]...')
         .requiredOption('-c, --file-cache-root-dir <bucket>', 'file cache root dir')
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
-        .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
-        .requiredOption('--run <runId>', 'emissions-request-20200114-fire-abc123')
+        .requiredOption('-r, --request <requestId>', 'e.g. emissions-request-20200114')
+        .requiredOption('--run <runId>', 'e.g. emissions-request-20200114-fire-abc123')
         .parse(process.argv);
 }
 

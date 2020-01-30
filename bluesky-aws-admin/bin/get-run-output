@@ -9,15 +9,17 @@ function parseArgs () {
         .usage('[OPTIONS]...')
         .requiredOption('-c, --file-cache-root-dir <bucket>', 'file cache root dir')
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
-        .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
-        .requiredOption('--run <runId>', 'emissions-request-20200114-fire-abc123')
+        .requiredOption('-r, --request <requestId>', 'e.g. emissions-request-20200114')
+        .requiredOption('--run <runId>', 'e.g. emissions-request-20200114-fire-abc123')
+        .requiredOption('-o, --output-path <runId>', 'e.g. output/')
         .parse(process.argv);
 }
 
 //async function go(){
 function go() {
     s3.getRunOutput(commander.fileCacheRootDir,
-            commander.bucket, commander.request, commander.run)
+            commander.bucket, commander.request,
+            commander.run, commander.outputPath)
         .then(output => {
             console.log('output: \n' + JSON.stringify(output, null, 2));
         })
