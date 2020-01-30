@@ -5,7 +5,6 @@ import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
 import RunLog from '../../../../../components/RunLog'
-import { getRunLog } from '../../../../../lib/s3'
 import { ApiClient } from '../../../../../lib/apiutils'
 
 const { publicRuntimeConfig } = getConfig()
