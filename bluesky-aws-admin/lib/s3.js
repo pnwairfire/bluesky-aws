@@ -129,3 +129,17 @@ exports.getRunLog = async function (fileCacheRootDir, bucketName, requestId, run
     return await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir});
 }
+
+const S3_URL_METHOD_AND_HOSTNAME_STRIPPER = new RegExp('^https?://[^/]*');
+
+exports.getRunOutput = async function (fileCacheRootDir, bucketName, requestId, runId, outputPath) {
+    let cacheDir = path.join(outputPath, requestId);
+    let keyBase = path.join(cacheDir, runId);
+    let key = keyBase + '.tar.gz';
+    // we'll ignore objStr
+    let objStr = await getObject(bucketName, key,
+        {fileCacheRootDir: fileCacheRootDir});
+    if (!fs.exists(keyBase)) {
+        execute('tar', ['xzf', runId+'.tar.gz'], {cwd: cacheDir})
+    }
+}
