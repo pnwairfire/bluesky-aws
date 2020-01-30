@@ -162,13 +162,16 @@ class BlueskySingleRunner(object):
 
     def __init__(self, input_data, instance, config, bluesky_config,
             request_id, status_tracker, utcnow=None):
-        self._utcnow = utcnow or datetime.datetime.utcnow()
         self._input_data = input_data
         self._instance = instance
         self._config = config
         self._bluesky_config = bluesky_config
         self._request_id = request_id
         self._status_tracker = status_tracker
+        self._utcnow = utcnow or datetime.datetime.utcnow()
+        # TODO: make sure we should be using bluesky_config('today')
+        #   and not config('bluesky', 'today')
+        self._bluesky_today = bluesky_config('today') or self._utcnow.date()
         self._set_run_id()
 
     ## Public Interface
@@ -299,14 +302,14 @@ class BlueskySingleRunner(object):
             " -i /data/bluesky/input.json"
             " -o /data/bluesky/output.json"
             " --log-file /data/bluesky/output.log"
+            " --today {today}"
             " {modules}"
             ).format(
                 version=self._config('bluesky_version'),
                 run_id=self._run_id,
+                today=self._bluesky_today,
                 modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
-        if self._config('bluesky', 'today'):
-            cmd += " --today {}".format(self._config('bluesky', 'today'))
 
         return cmd
 
