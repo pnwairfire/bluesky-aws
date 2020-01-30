@@ -44,7 +44,10 @@ export default function RunsTable(props) {
                                     </Link>
                                 </td>
                                 <td>
-                                    <a target="_blank" href={props.runs[runId].output_url}>Output</a>
+                                    <Link href="/requests/[request]/runs/[run]/output"
+                                            as={`/requests/${props.request}/runs/${runId}/output`}>
+                                        <a>output</a>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

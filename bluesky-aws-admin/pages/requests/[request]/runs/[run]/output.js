@@ -3,7 +3,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
-import RunLog from '../../../../../components/RunLog'
+import RunOutput from '../../../../../components/RunOutput'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -21,7 +21,7 @@ export default function Index() {
                     <Breadcrumb.Item active>Log</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <RunLog request={request} run={run} />
+                <RunOutput request={request} run={run} />
 
             </div>
         </Layout>
