@@ -9,11 +9,8 @@ export default (req, res) => {
         query: { request },
     } = req
 
-    // let status = await getRequestInput(
-    //     process.env.s3.bucketName, req.query.request);
-    // ApiServerUtils.writeReponse(req.query.request, status);
-
-    getRequestInput(process.env.s3.bucketName, request)
+    getRequestInput(process.env.fileCache.rootDir,
+            process.env.s3.bucketName, request)
         .then(input => {
             ApiServerUtils.writeReponse(res, {request, input});
         })

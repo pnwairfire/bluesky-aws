@@ -5,25 +5,22 @@ const s3 = require('../lib/s3')
 
 function parseArgs () {
     commander
-      .version('0.0.1', '-v, --version')
-      .usage('[OPTIONS]...')
-      .requiredOption('-b, --bucket <bucket>', 's3 bucket')
-      .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
-      .parse(process.argv);
+        .version('0.0.1', '-v, --version')
+        .usage('[OPTIONS]...')
+        .requiredOption('-b, --bucket <bucket>', 's3 bucket')
+        .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
+        .parse(process.argv);
 }
 
 //async function go(){
 function go() {
-    // let s = await s3.getRequestStatus(
-    //     commander.bucket, commander.request);
-    // console.log(s)
-    s3.getRequestStatus(
-        commander.bucket, commander.request)
+    s3.getRequestStatus(commander.bucket, commander.request)
         .then(status => {
             console.log('status: \n' + JSON.stringify(status, null, 2));
         })
         .catch(err => {
-            console.log('Failed to get status: ' + err);
+            console.log(err.stack)
+            console.log('Failed to get request status: ' + err);
         });
 }
 

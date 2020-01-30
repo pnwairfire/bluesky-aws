@@ -9,11 +9,8 @@ export default (req, res) => {
         query: { request, run },
     } = req
 
-    // let status = await getRequestStatus(
-    //     process.env.s3.bucketName, req.query.request);
-    // ApiServerUtils.writeReponse(req.query.request, status);
-
-    getRunLog(process.env.s3.bucketName, req.query.request, run)
+    getRunLog(process.env.fileCache.rootDir,
+            process.env.s3.bucketName, req.query.request, run)
         .then(log => {
             ApiServerUtils.writeReponse(res, {request, run, log});
         })

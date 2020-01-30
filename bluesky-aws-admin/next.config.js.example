@@ -6,6 +6,10 @@ module.exports = {
         basePath: basePath
     },
     env: {
+        fileCache: {
+            rootDir: '/tmp/bluesky-aws-admin-cache/',
+            ttlSeconds: 60 * 15
+        },
         s3: {
             bucketName: 'bluesky-aws',
             outputPath: 'output'

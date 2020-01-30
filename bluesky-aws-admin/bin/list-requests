@@ -5,12 +5,12 @@ const s3 = require('../lib/s3')
 
 function parseArgs () {
     commander
-      .version('0.0.1', '-v, --version')
-      .usage('[OPTIONS]...')
-      .requiredOption('-b, --bucket <bucket>', 's3 bucket')
-      .option('-l, --limit <number>', 'max numver of requests')
-      .option('-n, --next <next continuation token>', 'where previous request left off')
-      .parse(process.argv);
+        .version('0.0.1', '-v, --version')
+        .usage('[OPTIONS]...')
+        .requiredOption('-b, --bucket <bucket>', 's3 bucket')
+        .option('-l, --limit <number>', 'max numver of requests')
+        .option('-n, --next <next continuation token>', 'where previous request left off')
+        .parse(process.argv);
 }
 
 //async function go(){
@@ -29,6 +29,7 @@ function go() {
             console.log('\nNext: ' + data.next + '\n');
         })
         .catch(err => {
+            console.log(err.stack)
             console.log('Failed to get request ids: ' + err);
         });
 }
