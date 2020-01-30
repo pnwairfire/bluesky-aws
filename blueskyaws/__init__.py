@@ -171,9 +171,7 @@ class BlueskySingleRunner(object):
         # Default bluesky's '--today' to the requests's 'now', so that all
         # bsp runs are executed with the same value.  But, also created
         # a run-specific 'now' for use in formating the 'run_id'
-        # TODO: make sure we should be using bluesky_config('today')
-        #   and not config('bluesky', 'today')
-        self._bluesky_today = bluesky_config('today') or request_utcnow.date()
+        self._bluesky_today = config('bluesky', 'today') or request_utcnow.date()
         self._utcnow = datetime.datetime.utcnow()
         self._set_run_id()
 
