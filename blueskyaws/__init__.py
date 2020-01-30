@@ -138,7 +138,7 @@ class BlueskyParallelRunner(object):
             runners = [
                 BlueskySingleRunner({'fires': [fire]}, instance, self._config,
                     self._bluesky_config, self._request_id,
-                    self._status_tracker)
+                    self._status_tracker, self._utcnow)
                 for fire, instance in runs
             ]
 
@@ -161,17 +161,20 @@ class BlueskyParallelRunner(object):
 class BlueskySingleRunner(object):
 
     def __init__(self, input_data, instance, config, bluesky_config,
-            request_id, status_tracker, utcnow=None):
+            request_id, status_tracker, request_utcnow):
         self._input_data = input_data
         self._instance = instance
         self._config = config
         self._bluesky_config = bluesky_config
         self._request_id = request_id
         self._status_tracker = status_tracker
-        self._utcnow = utcnow or datetime.datetime.utcnow()
+        # Default bluesky's '--today' to the requests's 'now', so that all
+        # bsp runs are executed with the same value.  But, also created
+        # a run-specific 'now' for use in formating the 'run_id'
         # TODO: make sure we should be using bluesky_config('today')
         #   and not config('bluesky', 'today')
-        self._bluesky_today = bluesky_config('today') or self._utcnow.date()
+        self._bluesky_today = bluesky_config('today') or request_utcnow.date()
+        self._utcnow = datetime.datetime.utcnow()
         self._set_run_id()
 
     ## Public Interface
