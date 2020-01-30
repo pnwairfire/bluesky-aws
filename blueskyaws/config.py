@@ -75,10 +75,12 @@ class ConfigSetting(object):
 
 CONFIG_SETTINGS = OrderedDict({
     "request_id_format": ConfigSetting(None, help_string='\n'.join([
-        "request_id_format is used in input, log, status, and output file names",
-        "defaults to input file name with `.json` removed",
+        "request_id_format is used in the status and request JSON file names,",
+        "and in the bluesky log and output tarball file names as well.",
+        "It defaults to the input file name with `.json` removed",
         "",
         "Supports the following wildcards:",
+        " - '{input_file_name}' - replaced with input file name, with `.json` removed",
         " - '{uuid}' - replaced with an 8 character guid",
         " - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'",
         " - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'",

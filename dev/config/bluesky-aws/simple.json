@@ -1,5 +1,6 @@
 {
     "config": {
+        "request_id_format": "{input_file_name}-{utc_today}",
         "ssh_key": "id_rsa",
         "aws": {
             "iam_instance_profile": {

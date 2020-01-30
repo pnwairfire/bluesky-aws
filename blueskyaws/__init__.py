@@ -59,14 +59,16 @@ class BlueskyParallelRunner(object):
     JSON_EXT_STRIPPER = re.compile('\.json$')
 
     def _set_request_id(self, input_file_name):
+        input_file_basename = self.JSON_EXT_STRIPPER.sub('',
+                os.path.basename(input_file_name))
         if self._config('request_id_format'):
             self._request_id = substitude_config_wildcards(self._config,
                 'request_id_format', uuid=str(uuid.uuid4()).split('-')[0],
                 utc_today=self._utcnow.strftime("%Y%m%d"),
-                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"))
+                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"),
+                input_file_name=input_file_basename)
         else:
-            self._request_id = self.JSON_EXT_STRIPPER.sub('',
-                os.path.basename(input_file_name))
+            self._request_id = input_file_basename
 
     async def _set_status_tracker(self):
         self._status_tracker = StatusTracker(
