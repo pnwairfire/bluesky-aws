@@ -2,7 +2,6 @@
     padding: 20px;
 }
 
-.request-input textarea {
-    width: 100%;
-    height: calc(100vh - 200px);
+.request-input .json-viewer {
+    padding: 30px;
 }

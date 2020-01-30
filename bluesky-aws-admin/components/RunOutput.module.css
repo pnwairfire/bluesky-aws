@@ -2,7 +2,6 @@
     padding: 20px;
 }
 
-.run-output textarea {
-    width: 100%;
-    height: calc(100vh - 200px);
+.run-output .json-viewer {
+    padding: 30px;
 }

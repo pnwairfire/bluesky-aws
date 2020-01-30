@@ -1,7 +1,8 @@
-import { ApiClient } from '../lib/apiutils'
 import Alert from 'react-bootstrap/Alert'
-//import ReactJson from 'react-json-view'
+import dynamic from 'next/dynamic';
+const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 
+import { ApiClient } from '../lib/apiutils'
 import LoadingSpinner from './LoadingSpinner';
 import styles from './RunOutput.module.css'
 
@@ -24,7 +25,9 @@ export default function RequestInput(props) {
                     <Alert variant="danger">{error}</Alert>
                 }
                 {outputData &&
-                    <textarea value={JSON.stringify(outputData, null, 4)} disabled />
+                    <div className={styles['json-viewer']}>
+                        <ReactJson src={outputData} theme="monokai" />
+                    </div>
                 }
             </div>
         )
