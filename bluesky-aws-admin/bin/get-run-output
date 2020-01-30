@@ -17,7 +17,7 @@ function parseArgs () {
 //async function go(){
 function go() {
     s3.getRunOutput(commander.fileCacheRootDir,
-            commander.bucket, commander.request)
+            commander.bucket, commander.request, commander.run)
         .then(output => {
             console.log('output: \n' + JSON.stringify(output, null, 2));
         })
