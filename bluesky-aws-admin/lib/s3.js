@@ -138,13 +138,21 @@ exports.getRunLog = async function (fileCacheRootDir, bucketName, requestId, run
 const S3_URL_METHOD_AND_HOSTNAME_STRIPPER = new RegExp('^https?://[^/]*');
 
 exports.getRunOutput = async function (fileCacheRootDir, bucketName, requestId, runId, outputPath) {
-    let cacheDir = path.join(outputPath, requestId);
-    let keyBase = path.join(cacheDir, runId);
+    let keyBase = path.join(outputPath, requestId, runId);
     let key = keyBase + '.tar.gz';
     // we'll ignore objStr
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir});
-    if (!fs.exists(keyBase)) {
-        execute('tar', ['xzf', runId+'.tar.gz'], {cwd: cacheDir})
+    if (!await exists(keyBase)) {
+        let cwd = path.join(fileCacheRootDir, outputPath, requestId)
+        await execute('tar', ['xzf', runId+'.tar.gz'], {cwd: cwd})
     }
+    let unpackedRootDir = path.join(fileCacheRootDir, keyBase)
+    if (!await exists(unpackedRootDir)) {
+        throw "Failed to fetch output file " + key
+    }
+
+    outputFile = path.join(unpackedRootDir, 'output.json')
+    let outputStr =(await fs.readFile(outputFile)).toString();
+    return JSON.parse(outputStr)
 }
