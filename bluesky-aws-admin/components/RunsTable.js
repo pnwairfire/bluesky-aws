@@ -21,6 +21,11 @@ export default function RunsTable(props) {
             </WrappedRunsTable>
         )
     } else {
+        // Note that the links to the log and output *pages* will only
+        // be displayed if log_url and output_url, respectively, are defined,
+        // even though it's not the urls are not directly used on this page.
+        // The python code that sets the log and output urls only does so
+        // after checking s3 for the existence of the keys.
         return (
             <WrappedRunsTable>
                 <Table striped bordered hover>
@@ -38,16 +43,24 @@ export default function RunsTable(props) {
                                 <td>{runId}</td>
                                 <td>{props.runs[runId].status}</td>
                                 <td>
-                                    <Link href="/requests/[request]/runs/[run]/log"
-                                            as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/log`}>
-                                        <a>log</a>
-                                    </Link>
+                                    {props.runs[runId].log_url && (
+                                        <Link href="/requests/[request]/runs/[run]/log"
+                                                as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/log`}>
+                                            <a>log</a>
+                                        </Link>
+                                    ) || (
+                                        <div><i>(n/a)</i></div>
+                                    )}
                                 </td>
                                 <td>
-                                    <Link href="/requests/[request]/runs/[run]/output"
-                                            as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output`}>
-                                        <a>output</a>
-                                    </Link>
+                                    {props.runs[runId].output_url && (
+                                        <Link href="/requests/[request]/runs/[run]/output"
+                                                as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output`}>
+                                            <a>output</a>
+                                        </Link>
+                                    ) || (
+                                        <div><i>(n/a)</i></div>
+                                    )}
                                 </td>
                             </tr>
                         ))}
