@@ -2,14 +2,14 @@
     padding: 20px;
 }
 
-.run-output-files .json-viewer {
-    padding: 30px;
+.run-output-files .run-output-files-list {
+    padding-top: 30px;
 }
 
-.run-output-files .dir {
+/*.run-output-files .dir {
     padding-left: 30px;
-}
+}*/
 
-.run-output-files .contents {
+.run-output-files .dir .contents {
     padding-left: 30px;
 }

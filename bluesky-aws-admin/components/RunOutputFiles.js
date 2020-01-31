@@ -1,5 +1,7 @@
+import path from 'path'
 import Alert from 'react-bootstrap/Alert'
 
+import Link from './Link';
 import { ApiClient } from '../lib/apiutils'
 import LoadingSpinner from './LoadingSpinner';
 import styles from './RunOutputFiles.module.css'
@@ -24,8 +26,11 @@ export default function RunOutputFiles(props) {
                     <Alert variant="danger">{error}</Alert>
                 }
                 {outputFiles &&
-                    <div>
-                        <DirContents files={outputFiles.files}
+                    <div className={styles['run-output-files-list']}>
+                        <DirContents
+                            request={props.request}
+                            run={props.run}
+                            files={outputFiles.files}
                             dirs={outputFiles.dirs}
                             name={outputFiles.name} />
                     </div>
@@ -42,10 +47,18 @@ function DirContents(props) {
     if (props.files || props.dirs) {
         return (
             <div className={styles['dir']}>
-                <div>{(props.name || '') + '/'}</div>
+                <div>{(props.name) ? (props.name + '/') : ('')}</div>
                 <div className={styles['contents']}>
-                    {props.files && props.files.map((fileName) =>{
-                        return <div>{fileName}</div>
+                    {props.files && props.files.map((filename) =>{
+                        return (
+                            <div>
+                                <Link href="/requests/[request]/runs/[run]/output-files/view"
+                                        as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.run)}/output-files/view`}
+                                        query={{file: encodeURIComponent(path.join(props.dirPath||'', filename))}}>
+                                    <a>{filename}</a>
+                                </Link>
+                            </div>
+                        )
                     })}
                     {props.dirs && props.dirs.map((data) =>{
                         return (
