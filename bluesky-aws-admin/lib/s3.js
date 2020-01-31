@@ -11,6 +11,8 @@ const exists = util.promisify(require('fs').exists)
 // S3 Docs: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
 const S3 = require('aws-sdk/clients/s3');
 
+const fileutils = require('./fileutils')
+
 const s3 = new S3();
 
 const REQUEST_S3_PREFIX = 'requests/';
@@ -136,9 +138,8 @@ exports.getRunLog = async function (fileCacheRootDir, bucketName, requestId, run
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
 }
 
-const S3_URL_METHOD_AND_HOSTNAME_STRIPPER = new RegExp('^https?://[^/]*');
-
-exports.getRunOutput = async function (fileCacheRootDir, bucketName, requestId, runId, outputPath) {
+async function downloadOutput(
+        fileCacheRootDir, bucketName, requestId, runId, outputPath) {
     let keyBase = path.join(outputPath, requestId, runId);
     let key = keyBase + '.tar.gz';
     // we'll ignore objStr (unless we switch to a npm tar package
@@ -156,7 +157,23 @@ exports.getRunOutput = async function (fileCacheRootDir, bucketName, requestId, 
         throw "Failed to fetch output file " + key
     }
 
+    return unpackedRootDir;
+}
+
+exports.getRunOutput = async function (
+        fileCacheRootDir, bucketName, requestId, runId, outputPath) {
+    unpackedRootDir = await downloadOutput(fileCacheRootDir,
+        bucketName, requestId, runId, outputPath);
+
     outputFile = path.join(unpackedRootDir, 'output.json')
     let outputStr = (await fs.readFile(outputFile)).toString();
     return JSON.parse(outputStr)
+}
+
+exports.getRunOutputFiles = async function (
+        fileCacheRootDir, bucketName, requestId, runId, outputPath) {
+    unpackedRootDir = await downloadOutput(fileCacheRootDir,
+        bucketName, requestId, runId, outputPath);
+
+    return fileutils.listFiles(unpackedRootDir);
 }
