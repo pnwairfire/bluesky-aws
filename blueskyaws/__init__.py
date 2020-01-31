@@ -249,12 +249,17 @@ class BlueskySingleRunner(object):
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
 
-    async def _execute(self, cmd):
+    async def _execute(self, cmd, ignore_errors=False):
         stdin, stdout, stderr = await self._ssh_client.execute(cmd)
         stderr = stderr.read().decode().strip()
         stdout = stdout.read().decode().strip()
         if stderr:
-            raise RuntimeError("Error running command {}:  {}".format(cmd, stderr))
+            msg = "Error running command {}:  {}".format(cmd, stderr)
+            if ignore_errors:
+                # just log error
+                logging.error(msg, exc_info=True)
+            else:
+                raise RuntimeError(msg)
 
         return stdout
 
@@ -267,7 +272,7 @@ class BlueskySingleRunner(object):
         await self._execute("mkdir -p {}".format(self._host_data_dir))
         # clear out any old output, if there is any
         await self._execute("rm -r {}".format(
-            os.path.join(self._host_data_dir, '*')))
+            os.path.join(self._host_data_dir, '*')), ignore_errors=True)
 
     async def _write_remote_files(self):
         await self._write_remote_json_file(self._bluesky_config,
