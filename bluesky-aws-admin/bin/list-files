@@ -1,0 +1,28 @@
+#!/usr/bin/env nodejs
+
+const commander = require('commander');
+const fileutils = require('../lib/fileutils');
+
+function parseArgs () {
+    commander
+        .version('0.0.1', '-v, --version')
+        .usage('[OPTIONS]...')
+        .requiredOption('-r, --root-dir <rootDir>', 'e.g. /tmp/')
+        .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
+        .parse(process.argv);
+}
+
+//async function go(){
+function go() {
+    fileutils.listFiles(commander.rootDir)
+        .then(data => {
+            console.log('\n' + JSON.stringify(data, null, commander.jsonIndent) + '\n');
+        })
+        .catch(err => {
+            console.log(err.stack)
+            console.log('Failed to list files: ' + err);
+        });
+}
+
+parseArgs()
+go()
