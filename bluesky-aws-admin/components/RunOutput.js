@@ -6,7 +6,7 @@ import { ApiClient } from '../lib/apiutils'
 import LoadingSpinner from './LoadingSpinner';
 import styles from './RunOutput.module.css'
 
-export default function RequestInput(props) {
+export default function RunOutput(props) {
 
     if (props && props.request && props.run) {
         let path ='/api/requests/' + encodeURIComponent(props.request)
