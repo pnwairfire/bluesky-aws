@@ -2,3 +2,6 @@
     padding: 20px;
 }
 
+.runs-table td.run-output a {
+    padding: 10px;
+}

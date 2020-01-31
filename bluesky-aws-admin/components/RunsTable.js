@@ -52,12 +52,19 @@ export default function RunsTable(props) {
                                         <div><i>(n/a)</i></div>
                                     )}
                                 </td>
-                                <td>
+                                <td className={styles['run-output']}>
                                     {props.runs[runId].output_url && (
-                                        <Link href="/requests/[request]/runs/[run]/output"
-                                                as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output`}>
-                                            <a>output</a>
-                                        </Link>
+                                        <div>
+                                            <Link href="/requests/[request]/runs/[run]/output"
+                                                    as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output`}>
+                                                <a>output</a>
+                                            </Link>
+                                            /
+                                            <Link href="/requests/[request]/runs/[run]/output-files"
+                                                    as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output-files`}>
+                                                <a>output files</a>
+                                            </Link>
+                                        </div>
                                     ) || (
                                         <div><i>(n/a)</i></div>
                                     )}

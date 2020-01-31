@@ -1,0 +1,15 @@
+.run-output-files {
+    padding: 20px;
+}
+
+.run-output-files .json-viewer {
+    padding: 30px;
+}
+
+.run-output-files .dir {
+    padding-left: 30px;
+}
+
+.run-output-files .contents {
+    padding-left: 30px;
+}
