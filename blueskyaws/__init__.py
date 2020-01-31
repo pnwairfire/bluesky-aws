@@ -177,6 +177,8 @@ class BlueskySingleRunner(object):
             or request_utcnow.strftime('%Y-%m-%d'))
         self._utcnow = datetime.datetime.utcnow()
         self._set_run_id()
+        self._output_url = None
+        self._log_url = None
 
     ## Public Interface
 
@@ -187,24 +189,35 @@ class BlueskySingleRunner(object):
 
         try:
             with SshClient(self._config('ssh_key'), ip) as ssh_client:
-                self._ssh_client = ssh_client
-                await self._create_remote_dirs()
-                await self._write_remote_files()
-                await self._install_bluesky_and_dependencies()
-                # TODO: check for met and wait until it arrives,
-                #   setting system status to WAITING until is available
-                await self._run_bluesky()
-                await self._tarball()
-                await self._upload_aws_credentials()
-                await self._publish()
-                await self._cleanup()
-            # TODO: check return value of bluesky and/or look in bluesky
-            #   output for error, and determine status from that
-            await self._status_tracker.set_run_status(self, Status.SUCCESS,
-                output_url=self._s3_url(self._config('aws', 's3', 'output_path'), 'tar.gz'),
-                log_url=self._s3_url('log', 'log'))
+                try:
+                    self._ssh_client = ssh_client
+                    await self._create_remote_dirs()
+                    await self._write_remote_files()
+                    await self._install_bluesky_and_dependencies()
+                    # TODO: check for met and wait until it arrives,
+                    #   setting system status to WAITING until is available
+                    await self._run_bluesky()
+                    await self._tarball()
+                    await self._upload_aws_credentials()
+                    await self._publish_output()
+                    await self._publish_log()
+                    await self._cleanup()
+
+                except Exception as e:
+                    logging.error(str(e), exc_info=True)
+                    await self._status_tracker.set_run_status(self,
+                        Status.UNKNOWN, message=str(e),
+                        output_url=self._output_url, log_url=self._log_url)
+
+                else:
+                    # TODO: check return value of bluesky and/or look in bluesky
+                    #   output for error, and determine status from that
+                    await self._status_tracker.set_run_status(self,
+                        Status.SUCCESS, output_url=self._output_url,
+                        log_url=self._log_url)
 
         except Exception as e:
+            logging.error(str(e), exc_info=True)
             # TODO: determine error, if possible
             await self._status_tracker.set_run_status(self, Status.UNKNOWN,
                 message=str(e))
@@ -237,11 +250,11 @@ class BlueskySingleRunner(object):
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
 
     async def _execute(self, cmd):
-        stdin, stdout, stderr = await self._ssh_client .execute(cmd)
+        stdin, stdout, stderr = await self._ssh_client.execute(cmd)
         stderr = stderr.read().decode().strip()
         stdout = stdout.read().decode().strip()
         if stderr:
-            logging.error("Error running command %s:  %s", cmd, stderr)
+            raise RuntimeError("Error running command {}:  {}".format(cmd, stderr))
 
         return stdout
 
@@ -331,23 +344,29 @@ class BlueskySingleRunner(object):
             # TODO: if recursive put fails, update put/get to support it
             await self._ssh_client.put(local_aws_dir, remote_aws_dir)
 
-    async def _publish(self):
-        # Pushes output bundle from remote ec2 instance to s3
-        cmd = ("aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz "
-            "s3://{bucket}/{output_path}/{request_id}/{run_id}.tar.gz").format(
-                host_data_dir=self._host_data_dir, run_id=self._run_id,
-                bucket=self._config('aws', 's3', 'bucket_name'),
-                output_path=self._config('aws', 's3', 'output_path').strip('/'),
-                request_id=self._request_id)
+    async def _publish_output(self):
+        await self._publish(self._config('aws', 's3', 'output_path'),
+            'tar.gz', '_output_url')
+
+    async def _publish_log(self):
+        await self._publish('log', 'log', '_log_url')
+
+    async def _publish(self, path, ext, attr):
+        s3_url = ("s3://{bucket}/{path}/{request_id}/{run_id}.{ext}").format(
+            bucket=self._config('aws', 's3', 'bucket_name'),
+            path=path.strip('/'), request_id=self._request_id,
+            run_id=self._run_id, ext=ext)
+        cmd = "aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz {url}".format(
+            host_data_dir=self._host_data_dir, run_id=self._run_id, url=s3_url)
         await self._execute(cmd)
 
-        # Pushes log file from remote ec2 instance to s3
-        cmd = ("aws s3 cp {host_data_dir}/output.log "
-            "s3://{bucket}/log/{request_id}/{run_id}.log").format(
-                host_data_dir=self._host_data_dir, run_id=self._run_id,
-                bucket=self._config('aws', 's3', 'bucket_name'),
-                request_id=self._request_id)
-        await self._execute(cmd)
+        try:
+            await self._execute("aws s3 ls {}".format(s3_url))
+            setattr(self, attr, self._s3_url(path, ext))
+        except:
+            # else attr remains None
+            pass
+
 
     async def _cleanup(self):
         if self._config('cleanup_output'):
