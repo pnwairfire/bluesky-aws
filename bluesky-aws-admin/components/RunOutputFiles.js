@@ -50,11 +50,13 @@ function DirContents(props) {
                 <div>{(props.name) ? (props.name + '/') : ('')}</div>
                 <div className={styles['contents']}>
                     {props.files && props.files.map((filename) =>{
+                        let query = {file: encodeURIComponent(path.join(props.dirPath||'', filename))};
+                        let hrefPath = "/requests/[request]/runs/[run]/output-files/view";
+                        let asPath = `/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.run)}/output-files/view`
                         return (
                             <div>
-                                <Link href="/requests/[request]/runs/[run]/output-files/view"
-                                        as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.run)}/output-files/view`}
-                                        query={{file: encodeURIComponent(path.join(props.dirPath||'', filename))}}>
+                                <Link href={{ pathname: hrefPath, query: query }}
+                                        as={asPath}>
                                     <a>{filename}</a>
                                 </Link>
                             </div>
