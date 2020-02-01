@@ -33,8 +33,9 @@ export class ApiClient {
 }
 
 export class ApiServerUtils {
-    static writeReponse(res, body) {
-        res.statusCode = 200;
+    static writeReponse(res, body, statusCode) {
+        statusCode = statusCode || 200;
+        res.statusCode = statusCode;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(body));
     }

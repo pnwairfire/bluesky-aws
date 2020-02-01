@@ -16,6 +16,6 @@ export default (req, res) => {
         })
        .catch(error => {
             console.log("Failed to load status:" + error);
-            ApiServerUtils.writeReponse(res, {request, error});
+            ApiServerUtils.writeReponse(res, {request, error}, 500);
         });
 }
