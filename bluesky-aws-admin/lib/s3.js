@@ -116,7 +116,7 @@ async function getObject(bucketName, key, options) {
 }
 
 //export async function getRequestStatus(bucketName, requestId) {
-exports.getRequestStatus = async function (bucketName, requestId) {
+exports.getRequestStatus = async function(bucketName, requestId) {
     // Note: we don't cache request status
     let key = path.join('status',requestId + '-status.json');
     let objStr = await getObject(bucketName, key, {convertToString: true});
@@ -125,14 +125,14 @@ exports.getRequestStatus = async function (bucketName, requestId) {
 
 // TODO: write decorator to add file caching?
 
-exports.getRequestInput = async function (fileCacheRootDir, bucketName, requestId) {
+exports.getRequestInput = async function(fileCacheRootDir, bucketName, requestId) {
     let key = path.join('requests', requestId + '.json');
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     return JSON.parse(objStr);
 }
 
-exports.getRunLog = async function (fileCacheRootDir, bucketName, requestId, runId) {
+exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runId) {
     let key = path.join('log', requestId, runId + '.log');
     return await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
@@ -160,8 +160,8 @@ async function downloadOutput(
     return unpackedRootDir;
 }
 
-exports.getRunOutput = async function (
-        fileCacheRootDir, bucketName, requestId, runId, outputPath) {
+exports.getRunOutput = async function(fileCacheRootDir,
+        bucketName, requestId, runId, outputPath) {
     unpackedRootDir = await downloadOutput(fileCacheRootDir,
         bucketName, requestId, runId, outputPath);
 
