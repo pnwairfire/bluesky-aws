@@ -2,8 +2,8 @@ import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
-import Layout from '../../../../../components/Layout'
-import RunOutputFiles from '../../../../../components/RunOutputFiles'
+import Layout from '../../../../../../components/Layout'
+import RunOutputFiles from '../../../../../../components/RunOutputFiles'
 
 const { publicRuntimeConfig } = getConfig()
 
