@@ -2,7 +2,7 @@
 // having to use babel-node, this code uses `require` instead of
 // `import`, `exports` instead of `export`, etc.
 
-const fs = require('fs');//.promise;
+const fs = require('fs');
 const path = require('path');
 
 exports.listFiles = async function(root) {
@@ -37,4 +37,11 @@ exports.listFiles = async function(root) {
         return fileList;
     }
     return await _(root);
+}
+
+exports.getFile = async function(filepath) {
+    return {
+        name: path.basename(filepath),
+        contents: (await fs.promises.readFile(filepath)).toString()
+    }
 }

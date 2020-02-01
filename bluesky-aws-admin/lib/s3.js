@@ -170,10 +170,19 @@ exports.getRunOutput = async function(fileCacheRootDir,
     return JSON.parse(outputStr)
 }
 
-exports.getRunOutputFiles = async function (
-        fileCacheRootDir, bucketName, requestId, runId, outputPath) {
+exports.getRunOutputFiles = async function(fileCacheRootDir,
+        bucketName, requestId, runId, outputPath) {
     unpackedRootDir = await downloadOutput(fileCacheRootDir,
         bucketName, requestId, runId, outputPath);
 
     return fileutils.listFiles(unpackedRootDir);
+}
+
+exports.getRunOutputFile = async function(fileCacheRootDir,
+        bucketName, requestId, runId, filepath, outputPath) {
+    unpackedRootDir = await downloadOutput(fileCacheRootDir,
+        bucketName, requestId, runId, outputPath);
+
+    filepath = path.join(unpackedRootDir, filepath)
+    return await fileutils.getFile(filepath);
 }
