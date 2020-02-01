@@ -1,3 +1,8 @@
+
+
+// TODO: remove this API and use output-files/view.js instead
+
+
 import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'

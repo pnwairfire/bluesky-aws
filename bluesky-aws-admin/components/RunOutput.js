@@ -1,3 +1,9 @@
+
+
+// TODO: remove this compoenent once FileViewer is used isntead
+//   (when output is just viewed like any other file in the output tarball)
+
+
 import Alert from 'react-bootstrap/Alert'
 import dynamic from 'next/dynamic';
 const ReactJson=dynamic(import ('react-json-view'),{ssr:false});

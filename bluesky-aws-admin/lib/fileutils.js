@@ -40,6 +40,8 @@ exports.listFiles = async function(root) {
 }
 
 exports.getFile = async function(filepath) {
+    // TODO: include other information about file - if it's binary, etc.
+    // TODO: don't call toString if binary data ?
     return {
         name: path.basename(filepath),
         contents: (await fs.promises.readFile(filepath)).toString()
