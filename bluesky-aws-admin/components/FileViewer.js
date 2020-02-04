@@ -42,7 +42,7 @@ export default function FileViewer(props) {
 
         return (
             <div>
-                <h5>Run Log</h5>
+                <h5>{props.name}</h5>
                 {!data &&
                     <LoadingSpinner />
                 }
