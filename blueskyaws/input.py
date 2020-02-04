@@ -81,7 +81,7 @@ class InputLoader(object):
         @wait_to_retry(self._config, urllib.request.HTTPError,
             self._status_tracker, lambda e: getattr(e, 'code', None) == 404)
         async def _():
-            logging.info("Downloading remote_input_file_name")
+            logging.info("Downloading %s", remote_input_file_name)
             await run_in_loop_executor(urllib.request.urlretrieve,
                 remote_input_file_name, self._local_input_file_name)
             return
