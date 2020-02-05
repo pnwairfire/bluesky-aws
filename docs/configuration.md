@@ -152,10 +152,12 @@ list of bluesky modules to run
 
 ***default***: None
 
-request_id_format is used in input, log, status, and output file names
-defaults to input file name with `.json` removed
+request_id_format is used in the status and request JSON file names,
+and in the bluesky log and output tarball file names as well.
+It defaults to the input file name with `.json` removed
 
 Supports the following wildcards:
+ - '{input_file_name}' - replaced with input file name, with `.json` removed
  - '{uuid}' - replaced with an 8 character guid
  - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'
  - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'
@@ -177,9 +179,13 @@ Supports the following wildcards:
  - '{fire_id}' - replaced with the id of the run's fire
  - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'
  - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'
+ - '{bluesky_today}' - replaced with bluesky's 'today' (defaulting to current 
+         UTC date, if 'today' isn't specified), formatted '%Y%m%d'
 
 e.g. 'bluesky-aws-run-{fire_id}-{uuid}-{utc_today}' would translate
 to something like 'bluesky-aws-run-fire123-dk38fj3d-20191210'
+Note that standard strftime wildcards are also supported (e.g. '%Y-%m-%d'),
+and are filled in with the current UTC timestamp
 
 ---
 
