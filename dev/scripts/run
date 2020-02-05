@@ -18,10 +18,10 @@ Examples:
    $ {script} -c ./dev-private/config/bluesky-aws/emissions.json -d 2019-12-03
 
    $ {script} -c ./dev-private/config/bluesky-aws/emissions.json \\
-      -i ./dev/data/1-fire.json --instance bluesky-v4.1.31-test
+      -i ./dev/data/1-fire.json --instance bluesky-v4.1.33-test
 
    $ {script} -c ./dev-private/config/bluesky-aws/emissions.json \\
-      -n 3 -d 2019-12-03  --instance bluesky-v4.1.31-test
+      -n 3 -d 2019-12-03  --instance bluesky-v4.1.33-test
 
  """.format(script=sys.argv[0])
 

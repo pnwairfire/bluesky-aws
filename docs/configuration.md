@@ -56,7 +56,7 @@ can not be set to `null` or something like `foo`
 
 #### bluesky_version
 
-***default***: v4.1.31
+***default***: v4.1.33
 
 a string value matching one of the published bluesky docker image tags
 listed on https://hub.docker.com/r/pnwairfire/bluesky/tags

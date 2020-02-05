@@ -24,8 +24,8 @@ ssh ubuntu@IP_ADDRESS -i ~.ssh/ID_FILE
 ```
  - pull bluesky image, verify that it works, and logout
 ```
-docker pull pnwairfire/bluesky:v4.1.31
-docker run --rm pnwairfire/bluesky:v4.1.31
+docker pull pnwairfire/bluesky:v4.1.33
+docker run --rm pnwairfire/bluesky:v4.1.33
 exit
 ```
  - Install NFS client

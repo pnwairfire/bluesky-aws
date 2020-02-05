@@ -111,7 +111,7 @@ CONFIG_SETTINGS = OrderedDict({
     # bluesky_version must be astring value matching one of the published
     # bluesky docker image tags listed on
     # https://hub.docker.com/r/pnwairfire/bluesky/tags
-    "bluesky_version": ConfigSetting("v4.1.31", help_string='\n'.join([
+    "bluesky_version": ConfigSetting("v4.1.33", help_string='\n'.join([
         "a string value matching one of the published bluesky docker image tags",
         "listed on https://hub.docker.com/r/pnwairfire/bluesky/tags"]),
         required=True),
