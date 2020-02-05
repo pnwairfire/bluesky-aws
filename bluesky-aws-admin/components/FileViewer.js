@@ -27,12 +27,6 @@ export default function FileViewer(props) {
         let error = fetchError || (data && data.error);
 
 
-
-        // TODO: use ReactJson instead of textarea for json data files
-        // import dynamic from 'next/dynamic';
-        // const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
-
-
         // TODO: download & copy to clipboard
         //   - implement download button, generating download from api
         //     response, not a direct download from server
