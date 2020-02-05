@@ -6,6 +6,10 @@
     padding: 30px;
 }
 
+.file-viewer .content-wrapper .buttons-wrapper button {
+    margin: 0 5px 15px 0;
+}
+
 .file-viewer .content-wrapper textarea {
     width: 100%;
     height: calc(100vh - 200px);

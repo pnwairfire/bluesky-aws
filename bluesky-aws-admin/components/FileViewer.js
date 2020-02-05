@@ -47,7 +47,7 @@ export default function FileViewer(props) {
                 }
                 {contents &&
                     <div className={styles['content-wrapper']}>
-                        <div>
+                        <div className={styles['buttons-wrapper']}>
                             <DownloadButton contents={contents} filename={props.name} />
                             <Button variant="outline-dark" size="sm"
                                 onClick={()=>{alert("Not Implemented")}}>Copy to Clipboard</Button>
