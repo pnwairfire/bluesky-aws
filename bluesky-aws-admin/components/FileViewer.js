@@ -5,7 +5,7 @@ const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 
 import LoadingSpinner from './LoadingSpinner';
 import { ApiClient } from '../lib/apiutils'
-import styles from './RunLog.module.css'
+import styles from './FileViewer.module.css'
 
 
 
@@ -35,7 +35,7 @@ export default function FileViewer(props) {
         //   - stylbe buttons - padding, etc.
 
         return (
-            <div>
+            <div className={styles['file-viewer']}>
                 <h5>{props.name}</h5>
                 {!data &&
                     <LoadingSpinner />
@@ -44,7 +44,7 @@ export default function FileViewer(props) {
                     <Alert variant="danger">{error}</Alert>
                 }
                 {contents &&
-                    <div>
+                    <div className={styles['content-wrapper']}>
                         <div>
                             <Button variant="outline-dark" size="sm"
                                 onClick={()=>{alert("Not Implemented")}}>Download</Button>
@@ -80,6 +80,6 @@ function ContentsWrapper(props) {
      // default (and fallback, in case json contents fail to parse) is to
      // display contents in tedtarea
     return (
-        <textarea className={styles.logtext} value={props.contents} disabled />
+        <textarea value={props.contents} disabled />
     )
 }

@@ -1,7 +1,12 @@
-.run-output {
+.file-viewer {
     padding: 20px;
 }
 
-.run-output .json-viewer {
+.file-viewer .content-wrapper {
     padding: 30px;
+}
+
+.file-viewer .content-wrapper textarea {
+    width: 100%;
+    height: calc(100vh - 200px);
 }
