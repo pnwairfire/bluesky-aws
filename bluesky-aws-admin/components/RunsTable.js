@@ -39,37 +39,7 @@ export default function RunsTable(props) {
                     </thead>
                     <tbody>
                         {Object.keys(props.runs).map((runId, idx) => (
-                            <tr key={idx}>
-                                <td>{runId}</td>
-                                <td>{props.runs[runId].status}</td>
-                                <td>
-                                    {props.runs[runId].log_url && (
-                                        <Link href="/requests/[request]/runs/[run]/log"
-                                                as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/log`}>
-                                            <a>log</a>
-                                        </Link>
-                                    ) || (
-                                        <div><i>(n/a)</i></div>
-                                    )}
-                                </td>
-                                <td className={styles['run-output']}>
-                                    {props.runs[runId].output_url && (
-                                        <div>
-                                            <Link href="/requests/[request]/runs/[run]/output"
-                                                    as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output`}>
-                                                <a>output</a>
-                                            </Link>
-                                            /
-                                            <Link href="/requests/[request]/runs/[run]/output-files"
-                                                    as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(runId)}/output-files`}>
-                                                <a>output files</a>
-                                            </Link>
-                                        </div>
-                                    ) || (
-                                        <div><i>(n/a)</i></div>
-                                    )}
-                                </td>
-                            </tr>
+                            <RunRow request={props.request} idx={idx} runId={runId} run={props.runs[runId]} />
                         ))}
                     </tbody>
                 </Table>
@@ -78,11 +48,56 @@ export default function RunsTable(props) {
     }
 }
 
-function WrappedRunsTable(props){
+function WrappedRunsTable(props) {
     return (
         <div className={styles['runs-table']}>
             <h5>Runs</h5>
             {props.children}
         </div>
+    )
+}
+
+
+function RunRow(props) {
+    let outputHrefUrlObj = {
+        pathname: "/requests/[request]/runs/[run]/output-files/view",
+        query: {name: 'output.json'}
+    }
+    let outputAsUrlObj = {
+        pathname: `/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}/output-files/view`,
+        query: {name: 'output.json'}
+    }
+
+    return (
+        <tr key={props.idx}>
+            <td>{props.runId}</td>
+            <td>{props.run.status}</td>
+            <td>
+                {props.run.log_url && (
+                    <Link href="/requests/[request]/runs/[run]/log"
+                            as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}/log`}>
+                        <a>log</a>
+                    </Link>
+                ) || (
+                    <div><i>(n/a)</i></div>
+                )}
+            </td>
+            <td className={styles['run-output']}>
+                {props.run.output_url && (
+                    <div>
+                        <Link href={outputHrefUrlObj} as={outputAsUrlObj}>
+                            <a>output</a>
+                        </Link>
+                        /
+                        <Link href="/requests/[request]/runs/[run]/output-files"
+                                as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}/output-files`}>
+                            <a>output files</a>
+                        </Link>
+                    </div>
+                ) || (
+                    <div><i>(n/a)</i></div>
+                )}
+            </td>
+        </tr>
     )
 }
