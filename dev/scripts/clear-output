@@ -8,6 +8,7 @@ fi
 show_help=false
 bucket=false
 instance=false
+request=false
 
 while [ -n "$1" ]; do # while loop starts
     case "$1" in
@@ -17,6 +18,8 @@ while [ -n "$1" ]; do # while loop starts
     --bucket) bucket="$2" && shift && shift ;;
     -i) instance="$2" && shift && shift ;;
     --instance) instance="$2" && shift && shift ;;
+    -r) request="$2" && shift && shift ;;
+    --request) request="$2" && shift && shift ;;
     *) echo "Option $1 not recognized" && exit 1 ;;
     esac
 done
@@ -27,6 +30,7 @@ if [ "$show_help" = true ] ; then
     echo "   -h/--help      - show this help message"
     echo "   -b/--bucket    - bucket to empty"
     echo "   -i/--instance  - instance to delete output on"
+    echo "   -r/--request   - only delete output for specific request"
     echo ""
     echo "Usage:"
     echo "   $0 --bucket foo-bar"
@@ -44,19 +48,38 @@ if [ "$bucket" = false ] ; then
     exit 1
 fi
 
-echo  "This will delete all data in the bucket '$bucket'"
-read -p "Are you sure you want to proceed [yN]? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    echo "Aborting."
-    exit 1
-fi
 
-echo "Clearing $bucket bucket"
-aws s3 rm --recursive s3://$bucket/
+if [ "$request" = false ] ; then
+    echo  "This will delete all data in the bucket '$bucket'"
+    read -p "Are you sure you want to proceed [yN]? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ ! $REPLY =~ ^[Yy]$ ]]
+    then
+        echo "Aborting."
+        exit 1
+    fi
 
-if [ ! "$instance" = false ] ; then
-    echo "Deleting output on $instance"
-    ssh $instance rm -r /home/ubuntu/data/bluesky/*
+    echo "Clearing $bucket bucket"
+    aws s3 rm --recursive s3://$bucket/
+
+    if [ ! "$instance" = false ] ; then
+        echo "Deleting output on $instance"
+        ssh $instance rm -r /home/ubuntu/data/bluesky/*
+    fi
+else
+    if [ "$request" = '' ] ; then
+        echo "Invalid request. Aborting."
+        exit 1
+    fi
+    echo "Clearing request output from $bucket bucket"
+    aws s3 rm s3://$bucket/requests/$request.json
+    aws s3 rm s3://$bucket/status/$request-status.json
+    aws s3 rm --recursive s3://$bucket/log/$request/
+    aws s3 rm --recursive s3://$bucket/output/$request/
+    aws s3 rm --recursive s3://$bucket/dispersion/$request/
+
+    if [ ! "$instance" = false ] ; then
+        echo "Deleting output on $instance"
+        ssh $instance rm -r /home/ubuntu/data/bluesky/$request/*
+    fi
 fi
