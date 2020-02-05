@@ -1,3 +1,5 @@
+import { Component } from 'react';
+
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import dynamic from 'next/dynamic';
@@ -46,8 +48,7 @@ export default function FileViewer(props) {
                 {contents &&
                     <div className={styles['content-wrapper']}>
                         <div>
-                            <Button variant="outline-dark" size="sm"
-                                onClick={()=>{alert("Not Implemented")}}>Download</Button>
+                            <DownloadButton contents={contents} filename={props.name} />
                             <Button variant="outline-dark" size="sm"
                                 onClick={()=>{alert("Not Implemented")}}>Copy to Clipboard</Button>
                         </div>
@@ -82,4 +83,34 @@ function ContentsWrapper(props) {
     return (
         <textarea value={props.contents} disabled />
     )
+}
+
+class DownloadButton extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {};
+    }
+
+
+    handleClick = data => {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,'
+            + encodeURIComponent(this.props.contents));
+        element.setAttribute('download', this.props.filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    render() {
+        return (
+            <Button variant="outline-dark" size="sm"
+                onClick={this.handleClick}>Download</Button>
+        )
+    }
 }
