@@ -92,7 +92,6 @@ async function getObject(bucketName, key, options) {
         // Note: util.promisify(s3.getObject) doesn't work with s3 sdk,
         // but s3.getObject.promise is supported
         let data = (await s3.getObject(params).promise());
-        debugger
         data = data.Body
         if (options.convertToString) data = data.toString();
         if (options.fileCacheRootDir) {
