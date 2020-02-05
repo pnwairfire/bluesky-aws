@@ -160,16 +160,6 @@ async function downloadOutput(
     return unpackedRootDir;
 }
 
-exports.getRunOutput = async function(fileCacheRootDir,
-        bucketName, requestId, runId, outputPath) {
-    unpackedRootDir = await downloadOutput(fileCacheRootDir,
-        bucketName, requestId, runId, outputPath);
-
-    outputFile = path.join(unpackedRootDir, 'output.json')
-    let outputStr = (await fs.readFile(outputFile)).toString();
-    return JSON.parse(outputStr)
-}
-
 exports.getRunOutputFiles = async function(fileCacheRootDir,
         bucketName, requestId, runId, outputPath) {
     unpackedRootDir = await downloadOutput(fileCacheRootDir,
