@@ -23,7 +23,14 @@ function go() {
             commander.bucket, commander.request, commander.run,
             commander.filename, commander.outputPath)
         .then(output => {
-            console.log('output: \n' + JSON.stringify(output, null, commander.jsonIndent));
+            let contents = output.contents
+            if (commander.filename.endsWith('.json')) {
+                try{
+                    contents = JSON.stringify(
+                        JSON.parse(contents), null, commander.jsonIndent);
+                } catch(err){}
+            }
+            console.log('output: \n' + contents);
         })
         .catch(err => {
             console.log(err.stack)
