@@ -11,9 +11,9 @@ const { publicRuntimeConfig } = getConfig()
 //   publicRuntimeConfig.basePath and props.href/as
 
 export default ({ children, ...props }) => {
-    console.log('basePath:  ' + publicRuntimeConfig.basePath);
-    console.log('href: ' +  props.href)
-    console.log('as: ' +  props.as)
+    // console.log('basePath:  ' + publicRuntimeConfig.basePath);
+    // console.log('href: ' +  props.href)
+    // console.log('as: ' +  props.as)
     return (
       <NextLink
         {...props}
