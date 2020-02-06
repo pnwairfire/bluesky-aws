@@ -33,8 +33,9 @@ if [ "$show_help" = true ] ; then
     echo "   -r/--request   - only delete output for specific request"
     echo ""
     echo "Usage:"
-    echo "   $0 --bucket foo-bar"
-    echo "   $0 --bucket foo-bar --instance 123.23.23.123"
+    echo "   $0 -b foo-bar"
+    echo "   $0 -b foo-bar -i 123.23.23.123"
+    echo "   $0 -b foo-bar -i 123.23.23.123 -r req-123abc"
     echo ""
     exit 0
 fi
@@ -79,7 +80,6 @@ else
     aws s3 rm --recursive s3://$bucket/dispersion/$request/
 
     if [ ! "$instance" = false ] ; then
-        echo "Deleting output on $instance"
-        ssh $instance rm -r /home/ubuntu/data/bluesky/$request/*
+        echo "Can't delete output on $instance without knowing blusky run id"
     fi
 fi
