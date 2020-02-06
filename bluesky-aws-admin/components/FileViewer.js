@@ -24,6 +24,7 @@ export default function FileViewer(props) {
         let path ='/api/requests/' + encodeURIComponent(props.request)
             + '/runs/' + encodeURIComponent(props.run) + '/output-files/file'
         let query = { name: encodeURIComponent(props.name)}
+        console.log('Querying file to view: ' + path + '?name='+query.name);
         let {data, fetchError} = ApiClient.get(path, query);
         let contents = data && data.file && data.file.contents;
         let error = fetchError || (data && data.error);
