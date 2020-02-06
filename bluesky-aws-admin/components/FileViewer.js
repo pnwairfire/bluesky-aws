@@ -63,6 +63,8 @@ export default function FileViewer(props) {
     }
 };
 
+const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
+
 function ContentsWrapper(props) {
     if (props.name.endsWith('.json')) {
         try {
@@ -76,6 +78,11 @@ function ContentsWrapper(props) {
             // fall back to using textarea, below
             console.log("Failed to parse and display json contents of " + props.name)
         }
+    }
+    else if (EXT_SKIP_MATCHER.test(props.name)) {
+        return (
+            <div>(No Preview)</div>
+        )
     }
 
      // default (and fallback, in case json contents fail to parse) is to
