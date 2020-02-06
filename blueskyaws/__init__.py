@@ -350,28 +350,36 @@ class BlueskySingleRunner(object):
             await self._ssh_client.put(local_aws_dir, remote_aws_dir)
 
     async def _publish_output(self):
-        await self._publish(self._config('aws', 's3', 'output_path'),
-            'tar.gz', '_output_url')
+        filename = "{}.tar.gz".format(self._run_id)
+        s3_path = self._config('aws', 's3', 'output_path')
+        await self._publish(filename, s3_path, '_output_url', 'exports/')
 
     async def _publish_log(self):
-        await self._publish('log', 'log', '_log_url')
+        await self._publish('output.log', 'log', '_log_url', '')
 
-    async def _publish(self, path, ext, attr):
-        s3_url = ("s3://{bucket}/{path}/{request_id}/{run_id}.{ext}").format(
-            bucket=self._config('aws', 's3', 'bucket_name'),
-            path=path.strip('/'), request_id=self._request_id,
-            run_id=self._run_id, ext=ext)
-        cmd = "aws s3 cp {host_data_dir}/exports/{run_id}.tar.gz {url}".format(
-            host_data_dir=self._host_data_dir, run_id=self._run_id, url=s3_url)
+    EXT_EXTRACTOR = re.compile('^[^.]*\.')
+
+    async def _publish(self, filename, s3_path, attr, local_path):
+        # os.path.joins handle's empty string local_path
+        local_pathname = os.path.join(
+            self._host_data_dir, local_path, filename)
+
+        s3_path = s3_path.strip('/')
+        bucket = self._config('aws', 's3', 'bucket_name')
+
+        s3_filename = self._run_id + self.EXT_EXTRACTOR.sub('.', filename)
+        s3_url = "s3://" + os.path.join(
+            bucket, s3_path, self._request_id, s3_filename)
+
+        cmd = "aws s3 cp {} {}".format(local_pathname, s3_url)
         await self._execute(cmd)
 
         try:
             await self._execute("aws s3 ls {}".format(s3_url))
-            setattr(self, attr, self._s3_url(path, ext))
+            setattr(self, attr, self._s3_url(s3_path, filename))
         except:
             # else attr remains None
             pass
-
 
     async def _cleanup(self):
         if self._config('cleanup_output'):
@@ -381,10 +389,9 @@ class BlueskySingleRunner(object):
 
     REGION = "us-west-2" # TODO: don't hard code this
 
-    def _s3_url(self, path, extension):
+    def _s3_url(self, path, filename):
          return ("https://{bucket}.s3-{region}.amazonaws.com/{path}/"
-            "{request_id}/{run_id}.{ext}").format(
+            "{request_id}/{filename}").format(
                 bucket=self._config('aws', 's3', 'bucket_name'),
                 region=self.REGION, path=path.strip('/'),
-                request_id=self._request_id, run_id=self._run_id,
-                ext=extension)
+                request_id=self._request_id, filename=filename)
