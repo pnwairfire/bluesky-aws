@@ -307,7 +307,11 @@ class BlueskySingleRunner(object):
 
     async def _run_bluesky(self):
         cmd = self._form_bsp_command()
-        await self._execute(cmd)
+        # Note: Running bsp through hysplit dispersion results in output
+        #   to stderr even if run succeeds, e.g.
+        #     'Warning 1: No UNIDATA NC_GLOBAL:Conventions attribute'
+        #   So, ignore stderr
+        await self._execute(cmd, ignore_errors=True)
         await self._execute('sudo chown -R $USER:$USER {}'.format(
             self._host_data_dir))
 
