@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+if ! which aws >/dev/null; then
+    echo "*** Install awscli"
+    exit 1
+fi
+
+show_help=false
+bucket=false
+instance=false
+request=false
+
+while [ -n "$1" ]; do # while loop starts
+    case "$1" in
+    -h) show_help=true && shift ;;
+    --help) show_help=true && shift ;;
+    -b) bucket="$2" && shift && shift ;;
+    --bucket) bucket="$2" && shift && shift ;;
+    -i) instance="$2" && shift && shift ;;
+    --instance) instance="$2" && shift && shift ;;
+    -r) request="$2" && shift && shift ;;
+    --request) request="$2" && shift && shift ;;
+    *) echo "Option $1 not recognized" && exit 1 ;;
+    esac
+done
+
+if [ "$show_help" = true ] ; then
+    echo ""
+    echo "Options:"
+    echo "   -h/--help      - show this help message"
+    echo "   -b/--bucket    - bucket to empty"
+    echo "   -r/--request   - only delete output for specific request"
+    echo ""
+    echo "Usage:"
+    echo "   $0 -b foo-bar"
+    echo "   $0 -b foo-bar -r req-123abc"
+    echo ""
+    exit 0
+fi
+
+if [ "$bucket" = false ] ; then
+    echo "**"
+    echo "** ERROR:   Specify -b / --bucket"
+    echo "**"
+    echo "**   Run '$0 -h' for usage"
+    echo "**"
+    exit 1
+fi
+
+if [ "$request" = false ] ; then
+    aws s3 ls --recursive s3://$bucket/
+
+else
+    if [ "$request" = '' ] ; then
+        echo "Invalid request. Aborting."
+        exit 1
+    fi
+
+    aws s3 ls --recursive s3://$bucket/ |grep "/$request"
+    # aws s3 ls s3://$bucket/requests/$request.json
+    # aws s3 ls s3://$bucket/status/$request-status.json
+    # aws s3 ls s3://$bucket/log/$request/
+    # aws s3 ls s3://$bucket/output/$request/
+    # aws s3 ls s3://$bucket/dispersion/$request/
+fi
