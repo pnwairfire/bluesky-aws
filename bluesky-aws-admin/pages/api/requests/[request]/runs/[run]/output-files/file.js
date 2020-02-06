@@ -13,9 +13,10 @@ export default (req, res) => {
         ApiServerUtils.writeReponse(res,
             {request, run, error: "Specify 'name'"}, 400);
     }
+    let decodedName = decodeURIComponent(name)
 
     getRunOutputFile(process.env.fileCache.rootDir, process.env.s3.bucketName,
-            req.query.request, run, name, process.env.s3.outputPath)
+            req.query.request, run, decodedName, process.env.s3.outputPath)
         .then(file => {
             ApiServerUtils.writeReponse(res, {request, run, file});
         })
