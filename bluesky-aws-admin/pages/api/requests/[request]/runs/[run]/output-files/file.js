@@ -11,7 +11,7 @@ export default (req, res) => {
 
     if (!name){
         ApiServerUtils.writeReponse(res,
-            {request, run, error: "Specify 'name'"}, 400);
+            {request, run, error: "Specify 'name'"}, {statusCode: 400});
     }
     let decodedName = decodeURIComponent(name)
 
@@ -22,6 +22,7 @@ export default (req, res) => {
         })
        .catch(error => {
             console.log("Failed to load status:" + error);
-            ApiServerUtils.writeReponse(res, {request, run, error}, 500);
+            ApiServerUtils.writeReponse(
+                res, {request, run, error}, {statusCode: 500});
         });
 }
