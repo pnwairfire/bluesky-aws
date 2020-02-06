@@ -7,9 +7,9 @@ const path = require('path');
 
 exports.listFiles = async function(root) {
     async function _ (root){
-        // TODO: make sure root exists and is a dir, or just
-        //    let fs.readdir throw exception
-        console.log("lising " + root)
+        // TODO: make sure root exists and is a dir, or keep
+        //    letting fs.readdir throw exception
+        //console.log("listing " + root)
 
         if (!root || typeof(root) !== 'string') {
             throw "Invalid root dir: " + root;
