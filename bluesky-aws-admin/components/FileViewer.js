@@ -63,7 +63,7 @@ export default function FileViewer(props) {
     }
 };
 
-const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
+const EXT_SKIP_MATCHER = /\.(nc|con|kmz|png)$/
 
 function ContentsWrapper(props) {
     if (props.name.endsWith('.json')) {
@@ -86,6 +86,7 @@ function ContentsWrapper(props) {
     //    - need to implement conversion to base 64
     //   Otherwise, When I hard code base64 image data, the following
     //   code does work
+    //   If we get this working, remove 'png' from EXT_SKIP_MATCHER
     // else if (props.name.endsWith('.png')) {
     //     // TODO: convert props.contents to base64 string
     //     let base64img = ''
