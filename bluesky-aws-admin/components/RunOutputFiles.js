@@ -85,6 +85,7 @@ function FileLinks(props) {
     };
     let hrefPath = "/requests/[request]/runs/[run]/output-files/view";
     let asPath = `/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.run)}/output-files/view`
+
     return (
         <div>
             <Link href={{ pathname: hrefPath, query: query }}

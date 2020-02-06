@@ -79,6 +79,22 @@ function ContentsWrapper(props) {
             console.log("Failed to parse and display json contents of " + props.name)
         }
     }
+
+    // TODO: getting rendering of in-memory image data working.
+    //   Current issues:
+    //    - image data in props.contents seems to be corrupted
+    //    - need to implement conversion to base 64
+    //   Otherwise, When I hard code base64 image data, the following
+    //   code does work
+    // else if (props.name.endsWith('.png')) {
+    //     // TODO: convert props.contents to base64 string
+    //     let base64img = ''
+    //     let data = 'data:image/png;base64,' + base64img;
+    //     return (
+    //         <img src={data} />
+    //     )
+    // }
+
     else if (EXT_SKIP_MATCHER.test(props.name)) {
         return (
             <div>(No Preview)</div>
