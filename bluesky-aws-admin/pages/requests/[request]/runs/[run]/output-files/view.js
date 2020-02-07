@@ -8,7 +8,7 @@ import FileViewer from '../../../../../../components/FileViewer'
 
 const { publicRuntimeConfig } = getConfig()
 
-export default function Index() {
+export default function View() {
     const router = useRouter();
     const { request, run, name } = router.query;
 
@@ -18,11 +18,7 @@ export default function Index() {
     if (request && run && name) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
-
-        requestPageUrl + '/runs/' + encodeURIComponent(run);
-
         runPageUrl = path.join(requestPageUrl, 'runs', run)
-
         outputFilesPageUrl = path.join(runPageUrl, 'output-files')
     }
     // else it's not the final rendering, so just leave urls as null

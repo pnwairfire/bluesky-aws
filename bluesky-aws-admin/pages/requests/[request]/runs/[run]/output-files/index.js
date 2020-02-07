@@ -15,10 +15,9 @@ export default function Index() {
     let requestPageUrl = null;
     let runPageUrl = null;
     if (request && run) {
-        let requestPageUrl = publicRuntimeConfig.basePath
+        requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
-
-        let runPageUrl = path.join(requestPageUrl, 'runs', run)
+        runPageUrl = path.join(requestPageUrl, 'runs', run)
     }
 
     return (

@@ -8,14 +8,17 @@ import RunLog from '../../../../../components/RunLog'
 
 const { publicRuntimeConfig } = getConfig()
 
-export default function Index() {
+export default function Log() {
     const router = useRouter();
     const { request, run } = router.query;
 
-    let requestPageUrl = publicRuntimeConfig.basePath
-        + '/requests/' + encodeURIComponent(request);
-
-    let runPageUrl = path.join(requestPageUrl, 'runs', run)
+    let requestPageUrl = null;
+    let runPageUrl = null;
+    if (request && run) {
+        requestPageUrl = publicRuntimeConfig.basePath
+            + '/requests/' + encodeURIComponent(request);
+        runPageUrl = path.join(requestPageUrl, 'runs', run)
+    }
 
     return (
         <Layout>
