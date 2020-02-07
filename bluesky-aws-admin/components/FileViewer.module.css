@@ -10,6 +10,10 @@
     margin: 0 5px 15px 0;
 }
 
+.file-viewer .content-wrapper .image-viewer img {
+    border: solid 1px #dddddd;
+}
+
 .file-viewer .content-wrapper textarea {
     width: 100%;
     height: calc(100vh - 200px);
