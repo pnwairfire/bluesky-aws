@@ -69,7 +69,7 @@ const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
 function ContentsWrapper(props) {
     if (props.name.endsWith('.json')) {
         try {
-            let jsonData = JSON.parse(props.contents)
+            let jsonData = JSON.parse(atob(props.contents))
             return (
                 <div className={styles['json-viewer']}>
                     <ReactJson src={jsonData} theme="monokai" />
@@ -77,7 +77,8 @@ function ContentsWrapper(props) {
             )
         } catch(err) {
             // fall back to using textarea, below
-            console.log("Failed to parse and display json contents of " + props.name)
+            console.log("Failed to parse and display json contents of "
+                + props.name + ": " + err)
         }
     }
 
