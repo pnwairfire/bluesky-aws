@@ -106,7 +106,7 @@ function ContentsWrapper(props) {
      // default (and fallback, in case json contents fail to parse) is to
      // display contents in tedtarea
     return (
-        <textarea value={props.contents} disabled />
+        <textarea value={atob(props.contents)} disabled />
     )
 }
 
@@ -118,18 +118,8 @@ class DownloadButton extends Component {
         this.state = {};
     }
 
-
     handleClick = data => {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,'
-            + encodeURIComponent(this.props.contents));
-        element.setAttribute('download', this.props.filename);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
+        saveByteArray(this.props.contents, this.props.filename)
     }
 
     render() {
@@ -138,4 +128,31 @@ class DownloadButton extends Component {
                 onClick={this.handleClick}>Download</Button>
         )
     }
+}
+
+// base64ToArrayBuffer and saveByteArray were copied from
+// http://jsfiddle.net/VB59f/2  and modified appropriately
+
+function base64ToArrayBuffer(base64) {
+    var binaryString = atob(base64);
+    var binaryLen = binaryString.length;
+    var bytes = new Uint8Array(binaryLen);
+    for (var i = 0; i < binaryLen; i++)        {
+        var ascii = binaryString.charCodeAt(i);
+        bytes[i] = ascii;
+    }
+    return bytes;
+}
+
+function saveByteArray(data, name) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    let buffer = [base64ToArrayBuffer(data)];
+    let blob = new Blob(buffer, {type: "octet/stream"});
+    let url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = name;
+    a.click();
+    document.body.removeChild(a);
 }
