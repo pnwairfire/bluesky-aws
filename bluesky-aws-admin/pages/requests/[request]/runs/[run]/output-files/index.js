@@ -12,10 +12,14 @@ export default function Index() {
     const router = useRouter()
     const { request, run } = router.query
 
-    let requestPageUrl = publicRuntimeConfig.basePath
-        + '/requests/' + encodeURIComponent(request);
+    let requestPageUrl = null;
+    let runPageUrl = null;
+    if (request && run) {
+        let requestPageUrl = publicRuntimeConfig.basePath
+            + '/requests/' + encodeURIComponent(request);
 
-    let runPageUrl = path.join(requestPageUrl, 'runs', run)
+        let runPageUrl = path.join(requestPageUrl, 'runs', run)
+    }
 
     return (
         <Layout>
