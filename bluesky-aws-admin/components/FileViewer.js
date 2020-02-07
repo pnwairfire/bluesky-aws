@@ -81,13 +81,6 @@ function ContentsWrapper(props) {
         }
     }
 
-    // TODO: getting rendering of in-memory image data working.
-    //   Current issues:
-    //    - image data in props.contents seems to be corrupted
-    //    - need to implement conversion to base 64
-    //   Otherwise, When I hard code base64 image data, the following
-    //   code does work
-    //   If we get this working, remove 'png' from EXT_SKIP_MATCHER
     else if (props.name.endsWith('.png')) {
         let data = 'data:image/png;base64,' + props.contents;
         return (
