@@ -34,6 +34,8 @@ def parse_args():
     parser.add_argument('-c', '--config-file', required=True,
         help="bluesky-aws config file")
     parser.add_argument('-i', '--input', help="input data file or url")
+    parser.add_argument('--log-file', help="log file name")
+    parser.add_argument('--log-level', help="logging level", default="INFO")
     parser.add_argument('-d', help=("date used to generate input data, "
         "if file isn't specified; e.g. '2019-12-01"))
     parser.add_argument('-n', default=1, type=int,
@@ -141,10 +143,13 @@ def get_command(input_file, args):
     cmd.extend([
         "bluesky-aws",
         "./bin/run-bluesky",
-        "--log-level", "INFO",
+        "--log-level",args.log_level,
         "-i", input_file,
         "-c", args.config_file
     ])
+
+    if args.log_file:
+        cmd.extend(['--log-file', args.log_file])
 
     if args.instance:
         cmd.extend(['--instance', args.instance])
