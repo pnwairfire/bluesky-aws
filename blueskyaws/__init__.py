@@ -356,14 +356,14 @@ class BlueskySingleRunner(object):
     async def _publish_output(self):
         filename = "{}.tar.gz".format(self._run_id)
         s3_path = self._config('aws', 's3', 'output_path')
-        await self._publish(filename, s3_path, '_output_url', 'exports/')
+        await self._publish(filename, s3_path, '_output_url', 'exports/', '.tar.gz')
 
     async def _publish_log(self):
-        await self._publish('output.log', 'log', '_log_url', '')
+        await self._publish('output.log', 'log', '_log_url', '', '.log')
 
-    EXT_EXTRACTOR = re.compile('^[^.]*\.')
+    EXT_EXTRACTOR = re.compile('\.([^.]+)')
 
-    async def _publish(self, filename, s3_path, attr, local_path):
+    async def _publish(self, filename, s3_path, attr, local_path, ext):
         # os.path.joins handle's empty string local_path
         local_pathname = os.path.join(
             self._host_data_dir, local_path, filename)
@@ -371,7 +371,7 @@ class BlueskySingleRunner(object):
         s3_path = s3_path.strip('/')
         bucket = self._config('aws', 's3', 'bucket_name')
 
-        s3_filename = self._run_id + self.EXT_EXTRACTOR.sub('.', filename)
+        s3_filename = self._run_id + ext
         s3_url = "s3://" + os.path.join(
             bucket, s3_path, self._request_id, s3_filename)
 
