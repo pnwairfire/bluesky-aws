@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from afaws.config import Config as AwsConfig
@@ -37,6 +38,15 @@ class Ec2InstancesManager(object):
         # number of existing is more than are needed
         return (self._existing_instances + self._new_instances)[:self._num_total]
 
+    async def terminate_instance(self, instance):
+        if instance in self._new_instances:
+            logging.info("Terminating new instance %s",
+                instance.classic_address.public_ip)
+            shutdowner = Ec2Shutdown()
+            await shutdowner.shutdown([instance], terminate=True)
+
+    ## Helpers
+
     async def _launch(self):
         num_new = self._num_total - len(self._existing_instances)
         if num_new > 0:
@@ -61,16 +71,16 @@ class Ec2InstancesManager(object):
 
             self._new_instances = await launcher.launch(new_instance_names)
 
-    ## Helpers
-
     async def _initialize(self):
         if self._new_instances:
             initializer = InstanceInitializerSsh(self._config('ssh_key'),
                 self._afaws_config)
             await initializer.initialize(self._new_instances)
 
-
     async def _terminate(self):
         if self._new_instances:
+            # TODO: only include instances that haven't already been shut down
+            logging.info("Terminating %s new instances",
+                len(self._new_instances))
             shutdowner = Ec2Shutdown()
             await shutdowner.shutdown(self._new_instances, terminate=True)

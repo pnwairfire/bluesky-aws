@@ -138,9 +138,9 @@ class BlueskyParallelRunner(object):
             #            c) single run
             runs = zip(self._input_loader.fires, ec2_instance_manager.instances)
             runners = [
-                BlueskySingleRunner({'fires': [fire]}, instance, self._config,
-                    self._bluesky_config, self._request_id,
-                    self._status_tracker, self._utcnow)
+                BlueskySingleRunner({'fires': [fire]}, ec2_instance_manager,
+                    instance, self._config, self._bluesky_config,
+                    self._request_id, self._status_tracker, self._utcnow)
                 for fire, instance in runs
             ]
 
@@ -162,9 +162,10 @@ class BlueskyParallelRunner(object):
 
 class BlueskySingleRunner(object):
 
-    def __init__(self, input_data, instance, config, bluesky_config,
-            request_id, status_tracker, request_utcnow):
+    def __init__(self, input_data, ec2_instance_manager, instance, config,
+            bluesky_config, request_id, status_tracker, request_utcnow):
         self._input_data = input_data
+        self._ec2_instance_manager = ec2_instance_manager
         self._instance = instance
         self._config = config
         self._bluesky_config = bluesky_config
@@ -221,6 +222,10 @@ class BlueskySingleRunner(object):
             # TODO: determine error, if possible
             await self._status_tracker.set_run_status(self, Status.UNKNOWN,
                 message=str(e))
+
+        finally:
+            await self._ec2_instance_manager.terminate_instance(self._instance)
+
 
     @property
     def run_id(self):
