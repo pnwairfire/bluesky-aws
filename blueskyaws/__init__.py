@@ -297,8 +297,6 @@ class BlueskySingleRunner(object):
         logging.info("Installing bluesky and dependencies on %s", self._ip)
         # Note: it's advised to have these pre-installed on the
         #    ec2 instance, but this is just in case they're not
-        await self._execute("docker pull pnwairfire/bluesky:{}".format(
-            self._config('bluesky_version')))
 
         # Note: these installation commands are ubuntu/debian specific
         if not (await self._execute("which aws")):
@@ -313,6 +311,8 @@ class BlueskySingleRunner(object):
             await self._execute('apt-cache policy docker-ce')
             await self._execute('sudo apt install -y docker-ce')
 
+        await self._execute("docker pull pnwairfire/bluesky:{}".format(
+            self._config('bluesky_version')))
 
     async def _run_bluesky(self):
         logging.info("Running bluesky on %s", self._ip)
