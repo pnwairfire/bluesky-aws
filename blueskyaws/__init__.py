@@ -167,6 +167,7 @@ class BlueskySingleRunner(object):
         self._input_data = input_data
         self._ec2_instance_manager = ec2_instance_manager
         self._instance = instance
+        self._ip = self._instance.classic_address.public_ip
         self._config = config
         self._bluesky_config = bluesky_config
         self._request_id = request_id
@@ -185,11 +186,10 @@ class BlueskySingleRunner(object):
 
     async def run(self):
         await self._status_tracker.set_run_status(self, Status.RUNNING)
-        ip = self._instance.classic_address.public_ip
-        logging.info("Running bluesky on %s", ip)
+        logging.info("Running BlueskySingleRunner.run on %s", self._ip)
 
         try:
-            with SshClient(self._config('ssh_key'), ip) as ssh_client:
+            with SshClient(self._config('ssh_key'), self._ip) as ssh_client:
                 try:
                     self._ssh_client = ssh_client
                     await self._create_remote_dirs()
@@ -269,6 +269,7 @@ class BlueskySingleRunner(object):
         return stdout
 
     async def _create_remote_dirs(self):
+        logging.info("Creating remote dirs on %s", self._ip)
         self._remote_home_dir = await self._execute('echo $HOME')
         # TODO: handle self._remote_home_dir == None
         # create dir, in case it doesn't already exist
@@ -280,6 +281,7 @@ class BlueskySingleRunner(object):
             os.path.join(self._host_data_dir, '*')), ignore_errors=True)
 
     async def _write_remote_files(self):
+        logging.info("Writing remote files on %s", self._ip)
         await self._write_remote_json_file(self._bluesky_config,
             os.path.join(self._host_data_dir, 'config.json'))
         await self._write_remote_json_file(self._input_data,
@@ -292,6 +294,7 @@ class BlueskySingleRunner(object):
             await self._ssh_client.put(f.name, remote_file_path)
 
     async def _install_bluesky_and_dependencies(self):
+        logging.info("Installing bluesky and dependencies on %s", self._ip)
         # Note: it's advised to have these pre-installed on the
         #    ec2 instance, but this is just in case they're not
         await self._execute("docker pull pnwairfire/bluesky:{}".format(
@@ -310,7 +313,9 @@ class BlueskySingleRunner(object):
             await self._execute('apt-cache policy docker-ce')
             await self._execute('sudo apt install -y docker-ce')
 
+
     async def _run_bluesky(self):
+        logging.info("Running bluesky on %s", self._ip)
         cmd = self._form_bsp_command()
         # Note: Running bsp through hysplit dispersion results in output
         #   to stderr even if run succeeds, e.g.
@@ -346,11 +351,13 @@ class BlueskySingleRunner(object):
         return cmd
 
     async def _tarball(self):
+        logging.info("Creating tarball on %s", self._ip)
         await self._execute(("cd {host_data_dir}/exports/; tar czf "
             " {run_id}.tar.gz {run_id}").format(
             host_data_dir=self._host_data_dir, run_id=self._run_id))
 
     async def _upload_aws_credentials(self):
+        logging.info("Uploading AWS credentials to %s", self._ip)
         # Credentials are uploaded in order to push to s3
         remote_aws_dir = os.path.join(self._remote_home_dir, ".aws")
         if not await self._execute('ls {}'.format(remote_aws_dir)):
@@ -359,11 +366,13 @@ class BlueskySingleRunner(object):
             await self._ssh_client.put(local_aws_dir, remote_aws_dir)
 
     async def _publish_output(self):
+        logging.info("Publishing output from %s", self._ip)
         filename = "{}.tar.gz".format(self._run_id)
         s3_path = self._config('aws', 's3', 'output_path')
         await self._publish(filename, s3_path, '_output_url', 'exports/', '.tar.gz')
 
     async def _publish_log(self):
+        logging.info("Publishing bluesky log file from %s", self._ip)
         await self._publish('output.log', 'log', '_log_url', '', '.log')
 
     EXT_EXTRACTOR = re.compile('\.([^.]+)')
@@ -392,6 +401,7 @@ class BlueskySingleRunner(object):
 
     async def _cleanup(self):
         if self._config('cleanup_output'):
+            logging.info("Cleaning up output on %s", self._ip)
             # delete the entire output dir
             await self._execute("rm -r {}".format(self._host_data_dir))
 

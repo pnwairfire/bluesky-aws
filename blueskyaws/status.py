@@ -53,6 +53,7 @@ class StatusTracker(object):
         self._status = None
 
     async def _save_status(self):
+        logging.info("Saving status %s", self._status)
         await run_in_loop_executor(self._s3_client.put_object,
             Body=json.dumps(self._status),
             Bucket=self._config('aws', 's3', 'bucket_name'),
