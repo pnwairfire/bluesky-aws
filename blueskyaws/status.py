@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from collections import defaultdict
 
@@ -67,6 +68,7 @@ class StatusTracker(object):
         }
 
     async def initialize(self):
+        logging.info("Initializing status tracker for %s", self._request_id)
         self._status = {
             "system_state": Status.RUNNING,
             "system_error": None,
@@ -83,6 +85,7 @@ class StatusTracker(object):
         await self._save_status()
 
     async def set_run_status(self, run, status, **kwargs):
+        logging.info("Setting run status for %s", run.run_id)
         if self._status is None:
             await self.initialize()
 
