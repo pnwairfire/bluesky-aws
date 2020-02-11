@@ -79,8 +79,14 @@ class Ec2InstancesManager(object):
 
     async def _terminate(self):
         if self._new_instances:
-            # TODO: only include instances that haven't already been shut down
-            logging.info("Terminating %s new instances",
-                len(self._new_instances))
-            shutdowner = Ec2Shutdown()
-            await shutdowner.shutdown(self._new_instances, terminate=True)
+            for i in self._new_instances:
+                i.reload()
+            running_instances = [i for i in self._new_instances
+                if i.state['Name'] == 'running']
+            if running_instances:
+                # TODO: only include instances that haven't already been shut down
+                logging.info("Terminating %s new instances",
+                    len(running_instances))
+                await Ec2Shutdown().shutdown(running_instances, terminate=True)
+            else:
+                logging.info("None of the new instances are still running")
