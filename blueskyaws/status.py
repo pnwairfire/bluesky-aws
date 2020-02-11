@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -51,6 +52,7 @@ class StatusTracker(object):
         self._request_id = request_id
         self._config = config
         self._status = None
+        self._lock = asyncio.Lock()
 
     async def _save_status(self):
         logging.info("Saving status %s", self._status)
@@ -87,16 +89,18 @@ class StatusTracker(object):
 
     async def set_run_status(self, run, status, **kwargs):
         logging.info("Setting run status for %s", run.run_id)
-        if self._status is None:
-            await self.initialize()
+        async with self._lock:
+            logging.info("Lock acquired to set run status for %s", run.run_id)
+            if self._status is None:
+                await self.initialize()
 
-        # Update run's status
-        self._status["runs"][run.run_id]["status"] = status
-        self._status["runs"][run.run_id].update(**kwargs)
+            # Update run's status
+            self._status["runs"][run.run_id]["status"] = status
+            self._status["runs"][run.run_id].update(**kwargs)
 
-        # update counts
-        self._initialize_counts()
-        for r in self._status["runs"].values():
-            self._status["counts"][r['status']] += 1
+            # update counts
+            self._initialize_counts()
+            for r in self._status["runs"].values():
+                self._status["counts"][r['status']] += 1
 
-        await self._save_status()
+            await self._save_status()

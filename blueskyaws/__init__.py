@@ -181,6 +181,7 @@ class BlueskySingleRunner(object):
         self._set_run_id()
         self._output_url = None
         self._log_url = None
+        logging.info("Run %s will be executed on %s", self._run_id, self._ip)
 
     ## Public Interface
 
