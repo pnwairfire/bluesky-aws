@@ -27,7 +27,7 @@ export default function RunsTable(props) {
         // The python code that sets the log and output urls only does so
         // after checking s3 for the existence of the keys.
         return (
-            <WrappedRunsTable numRuns={Object.entries(props.runs).length}>
+            <WrappedRunsTable numRuns={props.showRunsCount && Object.entries(props.runs).length}>
                 <Table striped bordered hover>
                     <thead>
                         <tr>

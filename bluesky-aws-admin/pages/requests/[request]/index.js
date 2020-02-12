@@ -47,7 +47,7 @@ export default function Index() {
                 }
 
                 <RequestStatus request={request} status={status} />
-                <RunsTable request={request} runs={runs} />
+                <RunsTable showRunsCount={true} request={request} runs={runs} />
                 <RequestInput request={request} />
             </div>
         </Layout>

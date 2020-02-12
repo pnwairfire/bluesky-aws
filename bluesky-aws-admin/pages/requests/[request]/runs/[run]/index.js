@@ -39,7 +39,7 @@ export default function Index() {
                     <Alert variant="danger">{error}</Alert>
                 }
 
-                <RunsTable request={request} runs={runs} />
+                <RunsTable showRunsCount={false} request={request} runs={runs} />
             </div>
         </Layout>
     )
