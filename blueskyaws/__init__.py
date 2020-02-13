@@ -257,8 +257,9 @@ class BlueskySingleRunner(object):
 
     async def _execute(self, cmd, ignore_errors=False):
         stdin, stdout, stderr = await self._ssh_client.execute(cmd)
-        stderr = stderr.read().decode().strip()
-        stdout = stdout.read().decode().strip()
+        logging.info("Just executed %s", cmd)
+        stderr = self._read_output(stderr)
+        stdout = self._read_output(stdout)
         if stderr:
             msg = "Error running command {}:  {}".format(cmd, stderr)
             if ignore_errors:
@@ -268,6 +269,19 @@ class BlueskySingleRunner(object):
                 raise RuntimeError(msg)
 
         return stdout
+
+    def _read_output(self, output):
+        """Work around to bug in paramiko.
+
+        Copied from: https://stackoverflow.com/questions/35266753/
+        """
+        lines = []
+        while True:
+            lines.append(output.readline())
+            if output.channel.exit_status_ready():
+                break
+
+        return ''.join([l for l in lines if l]).strip()
 
     async def _create_remote_dirs(self):
         logging.info("Creating remote dirs on %s", self._ip)
