@@ -320,19 +320,29 @@ class BlueskySingleRunner(object):
             self._config('bluesky_version')))
 
     async def _run_bluesky(self):
+        """Runs bluesky
+
+        Due to a bug in paramiko which causes it to hang on longer
+        running processes, we run bsp in the background and then
+        poll until it finishes.
+        """
         logging.info("Running bluesky on %s", self._ip)
         cmd = self._form_bsp_command()
+        # TODO: verify that ignore_errors=True is no longer needed now
+        #   that we're running bsp in the background, and
         # Note: Running bsp through hysplit dispersion results in output
         #   to stderr even if run succeeds, e.g.
         #     'Warning 1: No UNIDATA NC_GLOBAL:Conventions attribute'
         #   So, ignore stderr
         await self._execute(cmd, ignore_errors=True)
+        await self._wait_for_bsp_to_complete()
         await self._execute('sudo chown -R $USER:$USER {}'.format(
             self._host_data_dir))
 
     def _form_bsp_command(self):
-        cmd = "docker run --rm -v {host_data_dir}:/data/bluesky/".format(
-            host_data_dir=self._host_data_dir)
+        cmd = "docker run --name {name} -d --rm -v {host_data_dir}:/data/bluesky/".format(
+            name=self._request_id, host_data_dir=self._host_data_dir)
+
 
         for v in self._config('aws', 'ec2', 'efs_volumes'):
             cmd += " -v {d}:{d}".format(d=v[1])
@@ -354,6 +364,23 @@ class BlueskySingleRunner(object):
             )
 
         return cmd
+
+    # TODO: make this configurable?
+    BSP_POLL_WAIT = 30 # seconds
+
+    async def _wait_for_bsp_to_complete(self):
+        ps_cmd = 'docker ps -f name={} |grep -v CONTAINER'.format(self._request_id)
+        while True:
+            logging.info("Waiting %s before checking if bsp completed",
+                self.BSP_POLL_WAIT)
+            await asyncio.sleep(self.BSP_POLL_WAIT)
+            try:
+                await self._execute(ps_cmd)
+            except Exception as e:
+                # bsp must no longer be running
+                # TODO: check output.log to make sure it completed?
+                break
+        logging.info("bsp run complete")
 
     async def _tarball(self):
         logging.info("Creating tarball on %s", self._ip)
