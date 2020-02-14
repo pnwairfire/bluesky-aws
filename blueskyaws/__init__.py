@@ -256,32 +256,22 @@ class BlueskySingleRunner(object):
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
 
     async def _execute(self, cmd, ignore_errors=False):
-        stdin, stdout, stderr = await self._ssh_client.execute(cmd)
+        # need to pass ignore_errors into self._ssh_client.execute to ignore
+        # non-zero return codes, and then use it below to ignore stderr
+        result = await self._ssh_client.execute(cmd, ignore_errors=ignore_errors)
         logging.info("Just executed %s", cmd)
-        stderr = self._read_output(stderr)
-        stdout = self._read_output(stdout)
-        if stderr:
-            msg = "Error running command {}:  {}".format(cmd, stderr)
+
+        # TODO: check result.return_code in addition to or instead of result.stderr
+        if result.stderr:
+            msg = "Error running command {}:  {}".format(cmd, result.stderr)
             if ignore_errors:
                 # just log error
                 logging.error(msg, exc_info=True)
             else:
                 raise RuntimeError(msg)
 
-        return stdout
-
-    def _read_output(self, output):
-        """Work around to bug in paramiko.
-
-        Copied from: https://stackoverflow.com/questions/35266753/
-        """
-        lines = []
-        while True:
-            lines.append(output.readline())
-            if output.channel.exit_status_ready():
-                break
-
-        return ''.join([l for l in lines if l]).strip()
+        # TODO: remove the .rstrip('\n') if afaws is updated to do so
+        return result.stdout.rstrip('\n')
 
     async def _create_remote_dirs(self):
         logging.info("Creating remote dirs on %s", self._ip)
