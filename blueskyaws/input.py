@@ -4,7 +4,6 @@ import math
 import os
 import rfc3987
 import tempfile
-import time
 import urllib
 
 from afaws.asyncutils import run_in_loop_executor
@@ -122,7 +121,7 @@ def wait_to_retry(config, exc_class, status_tracker, check_func=lambda e: True):
                         attempts += 1
                         logging.warn(("Waiting %s seconds before retrying "
                             "input load"), wait_time)
-                        time.sleep(wait_time)
+                        await asyncio.sleep(wait_time)
 
                         if wait_strategy == 'backoff':
                             # first wait will be the configured wait time,
