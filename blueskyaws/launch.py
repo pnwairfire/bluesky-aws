@@ -82,7 +82,7 @@ class Ec2InstancesManager(object):
             for i in self._new_instances:
                 i.reload()
             running_instances = [i for i in self._new_instances
-                if i.state['Name'] == 'running']
+                if i and i.state and i.state['Name'] == 'running']
             if running_instances:
                 # TODO: only include instances that haven't already been shut down
                 logging.info("Terminating %s new instances",
