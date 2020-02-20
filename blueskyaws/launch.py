@@ -23,6 +23,7 @@ class Ec2InstancesManager(object):
         self._request_id = request_id
         self._existing_instances = existing
         self._new_instances = []
+        self._launched = False
 
     async def __aenter__(self):
         self._set_signal_handlers()
@@ -36,14 +37,34 @@ class Ec2InstancesManager(object):
 
     SIGNAMES = ('SIGINT', 'SIGTERM')
 
+    WAIT_FOR_LAUNCH_TIME = 5
+
     def _set_signal_handlers(self, reset=False):
         self._old_signal_handlers = {
             s: signal.getsignal(getattr(signal, s)) for s in self.SIGNAMES
         }
 
         async def handler(signame):
-            logging.info("Receieved signal %s. Terminating "
-                "instances and then aborting", signame)
+            logging.info("Receieved signal %s. Instances will be "
+                "terminated and run will be aborted", signame)
+            # If SIGINT or SIGTERM occur when any instances are still in the
+            # 'pending' state, calling '_terminate' will miss them, since they
+            # aren't added to self._new_instances until they're running.
+            #
+            # Options:
+            #   1) update afaws package to split up launch into a) instance
+            #     creation and b) waiting for running, so that instances are
+            #     referenced immediatly after creation and can be terminated
+            #     while in the 'pending' state.
+            #   2) update handler to simply wait until launch has completed
+            #     and returned.
+            #
+            # For now, at least, we're going with options 2)
+            while not self._launched:
+                logging.info("Launch in progress. Waiting %s seconds before"
+                    " terminating.", self.WAIT_FOR_LAUNCH_TIME)
+                await asyncio.sleep(self.WAIT_FOR_LAUNCH_TIME)
+
             await self._terminate()
             raise RuntimeError("Aborting execution")
 
@@ -99,6 +120,10 @@ class Ec2InstancesManager(object):
 
             self._new_instances = await launcher.launch(new_instance_names)
 
+        # whether or not any instances were launched, self._launched
+        # is used in signal handlers
+        self._launched = True
+
     async def _initialize(self):
         if self._new_instances:
             initializer = InstanceInitializerSsh(self._config('ssh_key'),
@@ -110,7 +135,7 @@ class Ec2InstancesManager(object):
             for i in self._new_instances:
                 i.reload()
             running_instances = [i for i in self._new_instances
-                if i and i.state and i.state['Name'] == 'running']
+                if i and i.state and i.state['Name'] in ('pending', 'running')]
             if running_instances:
                 # TODO: only include instances that haven't already been shut down
                 logging.info("Terminating %s new instances",
