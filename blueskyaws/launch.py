@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import signal
 import uuid
 
 from afaws.config import Config as AwsConfig
@@ -23,12 +25,38 @@ class Ec2InstancesManager(object):
         self._new_instances = []
 
     async def __aenter__(self):
+        self._set_signal_handlers()
         await self._launch()
         await self._initialize()
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self._terminate()
+        self._reset_signal_handlers(reset=True)
+
+    SIGNAMES = ('SIGINT', 'SIGTERM')
+
+    def _set_signal_handlers(self, reset=False):
+        self._old_signal_handlers = {
+            s: signal.getsignal(getattr(signal, s)) for s in self.SIGNAMES
+        }
+
+        async def handler(signame):
+            logging.info("Receieved signal %s. Terminating "
+                "instances and then aborting", signame)
+            await self._terminate()
+            raise RuntimeError("Aborting execution")
+
+        loop = asyncio.get_event_loop()
+        for signame in ('SIGINT', 'SIGTERM'):
+            loop.add_signal_handler(getattr(signal, signame),
+                lambda: asyncio.ensure_future(handler(signame)))
+
+    def _reset_signal_handlers(self):
+        loop = asyncio.get_event_loop()
+        for signame in self.SIGNAMES:
+            loop.add_signal_handler(getattr(signal, signame),
+                self._old_signal_handlers[signame])
 
     ## Public Interface
 
