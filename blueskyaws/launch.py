@@ -45,7 +45,7 @@ class Ec2InstancesManager(object):
         }
 
         async def handler(signame):
-            logging.info("Receieved signal %s. Instances will be "
+            logging.warn("Receieved signal %s. Instances will be "
                 "terminated and run will be aborted", signame)
             # If SIGINT or SIGTERM occur when any instances are still in the
             # 'pending' state, calling '_terminate' will miss them, since they
@@ -61,7 +61,7 @@ class Ec2InstancesManager(object):
             #
             # For now, at least, we're going with options 2)
             while not self._launched:
-                logging.info("Launch in progress. Waiting %s seconds before"
+                logging.warn("Launch in progress. Waiting %s seconds before"
                     " terminating.", self.WAIT_FOR_LAUNCH_TIME)
                 await asyncio.sleep(self.WAIT_FOR_LAUNCH_TIME)
 
