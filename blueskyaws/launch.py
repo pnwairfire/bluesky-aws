@@ -11,6 +11,9 @@ from afaws.ec2.shutdown import Ec2Shutdown
 
 from .config import substitude_config_wildcards
 
+class AbortRun(RuntimeError):
+    pass
+
 class Ec2InstancesManager(object):
 
     def __init__(self, config, num_total, request_id, existing=None):
@@ -66,7 +69,7 @@ class Ec2InstancesManager(object):
                 await asyncio.sleep(self.WAIT_FOR_LAUNCH_TIME)
 
             await self._terminate()
-            raise RuntimeError("Aborting execution")
+            raise AbortRun("Aborting execution")
 
         loop = asyncio.get_event_loop()
         for signame in ('SIGINT', 'SIGTERM'):
