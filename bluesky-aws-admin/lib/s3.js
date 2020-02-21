@@ -162,6 +162,13 @@ exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runI
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
 }
 
+exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, runId) {
+    let key = path.join('input', requestId, runId + '-input.json');
+    objStr = await getObject(bucketName, key,
+        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+    return JSON.parse(objStr);
+}
+
 async function downloadOutput(
         fileCacheRootDir, bucketName, requestId, runId, outputPath) {
     let keyBase = path.join(outputPath, requestId, runId);
