@@ -11,7 +11,7 @@ import Layout from '../../../components/Layout'
 import RequestStatus from '../../../components/RequestStatus';
 import RunsTable from '../../../components/RunsTable';
 import RequestInput from '../../../components/RequestInput';
-import RequestConfig from '../../../components/RequestConfig';
+import ConfigViewer from '../../../components/ConfigViewer';
 import { ApiClient } from '../../../lib/apiutils'
 
 import styles from './index.module.css'
@@ -66,7 +66,7 @@ export default function Index() {
                             <RequestInput showFullPageLink={true} request={request} />
                         </Col>
                         <Col>
-                            <RequestConfig showFullPageLink={true} request={request} />
+                            <ConfigViewer showFullPageLink={true} request={request} />
                         </Col>
                     </Row>
                     </Container>

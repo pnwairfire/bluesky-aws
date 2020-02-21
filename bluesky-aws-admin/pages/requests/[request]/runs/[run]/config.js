@@ -1,35 +1,36 @@
+import path from 'path'
 import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
-import Layout from '../../../components/Layout'
-import ConfigViewer from '../../../components/ConfigViewer';
+import Layout from '../../../../../components/Layout'
+import ConfigViewer from '../../../../../components/ConfigViewer';
 
 const { publicRuntimeConfig } = getConfig()
 
-//const Index = props => {
-//    let requests = props.requests;
-//    let error = props.error
-export default function Index() {
-    const router = useRouter()
-    const { request } = router.query
-
+export default function Log() {
+    const router = useRouter();
+    const { request, run } = router.query;
 
     let requestPageUrl = null;
-    if (request) {
+    let runPageUrl = null;
+    if (request && run) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
+        runPageUrl = path.join(requestPageUrl, 'runs', run)
     }
+
     return (
         <Layout>
             <div>
                 <Breadcrumb>
                     <Breadcrumb.Item href={publicRuntimeConfig.basePath + '/'}>Home</Breadcrumb.Item>
                     <Breadcrumb.Item href={requestPageUrl}>{request}</Breadcrumb.Item>
-                    <Breadcrumb.Item active>Request Config</Breadcrumb.Item>
-
+                    <Breadcrumb.Item href={runPageUrl}>{run}</Breadcrumb.Item>
+                    <Breadcrumb.Item active>Run Config</Breadcrumb.Item>
                 </Breadcrumb>
-                <ConfigViewer request={request} />
+
+                <ConfigViewer showRunConfig={true} request={request} />
             </div>
         </Layout>
     )

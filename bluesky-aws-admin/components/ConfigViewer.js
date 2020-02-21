@@ -5,18 +5,19 @@ const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 import { ApiClient } from '../lib/apiutils'
 import LoadingSpinner from './LoadingSpinner';
 import Link from './Link';
-import styles from './RequestConfig.module.css'
+import styles from './ConfigViewer.module.css'
 
-export default function RequestConfig(props) {
+export default function ConfigViewer(props) {
     if (props && props.request) {
-        let path ='/api/requests/' + encodeURIComponent(props.request) + '/bluesky-aws-config'
+        let path ='/api/requests/' + encodeURIComponent(props.request) +
+        '/bluesky' + (props.showRunConfig ? '' : '-aws') + '-config'
         let {data, fetchError} = ApiClient.get(path);
 
-        let requestConfig = data && data.blueskyAwsConfig;
+        let configData = data && (props.showRunConfig ? data.blueskyConfig : data.blueskyAwsConfig);
         let error = fetchError || (data && data.error);
         return (
-            <div className={styles['request-config']}>
-                <h5>Request Config</h5>
+            <div className={styles['config-viewer']}>
+                <h5>{props.showRunConfig ? 'Run' : 'Request'} Config</h5>
                 {props.showFullPageLink &&
                     <Link href="/requests/[request]/config"
                             as={`/requests/${encodeURIComponent(props.request)}/config`}>
@@ -29,9 +30,9 @@ export default function RequestConfig(props) {
                 {error &&
                     <Alert variant="danger">{error}</Alert>
                 }
-                {requestConfig &&
+                {configData &&
                     <div className={styles['json-viewer']}>
-                        <ReactJson src={requestConfig} theme="monokai" />
+                        <ReactJson src={configData} theme="monokai" />
                     </div>
                 }
             </div>
