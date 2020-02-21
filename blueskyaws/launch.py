@@ -36,13 +36,13 @@ class Ec2InstancesManager(object):
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self._terminate()
-        self._reset_signal_handlers(reset=True)
+        self._reset_signal_handlers()
 
     SIGNAMES = ('SIGINT', 'SIGTERM')
 
     WAIT_FOR_LAUNCH_TIME = 5
 
-    def _set_signal_handlers(self, reset=False):
+    def _set_signal_handlers(self):
         self._old_signal_handlers = {
             s: signal.getsignal(getattr(signal, s)) for s in self.SIGNAMES
         }
