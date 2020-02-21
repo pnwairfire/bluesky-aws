@@ -34,6 +34,7 @@ export default function RunsTable(props) {
                             <th>Run Id</th>
                             <th>Status</th>
                             <th>Config</th>
+                            <th>Input</th>
                             <th>Log File</th>
                             <th>Output</th>
                         </tr>
@@ -77,6 +78,12 @@ function RunRow(props) {
                 <Link href="/requests/[request]/runs/[run]/config"
                         as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}/config`}>
                     <a>config</a>
+                </Link>
+            </td>
+            <td>
+                <Link href="/requests/[request]/runs/[run]/input"
+                        as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}/input`}>
+                    <a>input</a>
                 </Link>
             </td>
             <td>
