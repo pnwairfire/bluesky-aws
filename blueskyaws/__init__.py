@@ -198,6 +198,7 @@ class BlueskySingleRunner(object):
     ## Public Interface
 
     async def run(self):
+        await self._record_input()
         await self._status_tracker.set_run_status(self, Status.RUNNING)
         logging.info("Running BlueskySingleRunner.run on %s", self._ip)
 
@@ -266,6 +267,13 @@ class BlueskySingleRunner(object):
             self._run_id = self._utcnow.strftime(run_id)
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
+
+    async def _record_input(self):
+        await run_in_loop_executor(boto3.client('s3').put_object,
+            Body=json.dumps(self._input_data),
+            Bucket=self._config('aws', 's3', 'bucket_name'),
+            Key=os.path.join('input', self._request_id,
+                self._run_id + '-input.json'))
 
     async def _execute(self, cmd, ignore_errors=False):
         # need to pass ignore_errors into self._ssh_client.execute to ignore

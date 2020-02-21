@@ -78,6 +78,7 @@ else
     aws s3 rm s3://$bucket/config/$request-config-bluesky-aws.json
     aws s3 rm s3://$bucket/config/$request-config-bluesky.json
     aws s3 rm --recursive s3://$bucket/log/$request/
+    aws s3 rm --recursive s3://$bucket/input/$request/
     aws s3 rm --recursive s3://$bucket/output/$request/
     aws s3 rm --recursive s3://$bucket/dispersion/$request/
 
