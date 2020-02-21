@@ -75,6 +75,8 @@ else
     echo "Clearing request output from $bucket bucket"
     aws s3 rm s3://$bucket/requests/$request.json
     aws s3 rm s3://$bucket/status/$request-status.json
+    aws s3 rm s3://$bucket/config/$request-config-bluesky-aws.json
+    aws s3 rm s3://$bucket/config/$request-config-bluesky.json
     aws s3 rm --recursive s3://$bucket/log/$request/
     aws s3 rm --recursive s3://$bucket/output/$request/
     aws s3 rm --recursive s3://$bucket/dispersion/$request/
