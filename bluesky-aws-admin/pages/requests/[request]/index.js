@@ -2,12 +2,16 @@ import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Alert from 'react-bootstrap/Alert'
 import Table from 'react-bootstrap/Table'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import getConfig from 'next/config'
 
 import Layout from '../../../components/Layout'
 import RequestStatus from '../../../components/RequestStatus';
 import RunsTable from '../../../components/RunsTable';
 import RequestInput from '../../../components/RequestInput';
+import RequestConfig from '../../../components/RequestConfig';
 import { ApiClient } from '../../../lib/apiutils'
 
 import styles from './index.module.css'
@@ -46,9 +50,26 @@ export default function Index() {
                     <Alert variant="danger">{error}</Alert>
                 }
 
-                <RequestStatus request={request} status={status} />
-                <RunsTable showRunsCount={true} request={request} runs={runs} />
-                <RequestInput request={request} />
+                <Container fluid={true}>
+                    <Row>
+                        <Col>
+                            <RequestStatus request={request} status={status} />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <RunsTable showRunsCount={true} request={request} runs={runs} />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <RequestInput request={request} />
+                        </Col>
+                        <Col>
+                            <RequestConfig request={request} />
+                        </Col>
+                    </Row>
+                    </Container>
             </div>
         </Layout>
     )
