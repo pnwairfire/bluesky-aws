@@ -4,6 +4,7 @@ const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 
 import { ApiClient } from '../lib/apiutils'
 import LoadingSpinner from './LoadingSpinner';
+import Link from './Link';
 import styles from './RequestInput.module.css'
 
 export default function RequestInput(props) {
@@ -16,6 +17,12 @@ export default function RequestInput(props) {
         return (
             <div className={styles['request-input']}>
                 <h5>Request Input</h5>
+                {props.showFullPageLink &&
+                    <Link href="/requests/[request]/input"
+                            as={`/requests/${encodeURIComponent(props.request)}/input`}>
+                        <a>view full page</a>
+                    </Link>
+                }
                 {!data &&
                     <LoadingSpinner />
                 }

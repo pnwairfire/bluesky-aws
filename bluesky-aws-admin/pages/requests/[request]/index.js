@@ -63,10 +63,10 @@ export default function Index() {
                     </Row>
                     <Row>
                         <Col>
-                            <RequestInput request={request} />
+                            <RequestInput showFullPageLink={true} request={request} />
                         </Col>
                         <Col>
-                            <RequestConfig request={request} />
+                            <RequestConfig showFullPageLink={true} request={request} />
                         </Col>
                     </Row>
                     </Container>

@@ -4,6 +4,7 @@ const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 
 import { ApiClient } from '../lib/apiutils'
 import LoadingSpinner from './LoadingSpinner';
+import Link from './Link';
 import styles from './RequestConfig.module.css'
 
 export default function RequestConfig(props) {
@@ -16,6 +17,12 @@ export default function RequestConfig(props) {
         return (
             <div className={styles['request-config']}>
                 <h5>Request Config</h5>
+                {props.showFullPageLink &&
+                    <Link href="/requests/[request]/config"
+                            as={`/requests/${encodeURIComponent(props.request)}/config`}>
+                        <a>view full page</a>
+                    </Link>
+                }
                 {!data &&
                     <LoadingSpinner />
                 }
