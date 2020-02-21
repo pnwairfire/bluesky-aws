@@ -51,6 +51,8 @@ class BlueskyParallelRunner(object):
             self._set_instances_needed()
             await self._load_bluesky_config()
             await self._record_input()
+            await self._record_config(self._config, 'bluesky-aws')
+            await self._record_config(self._bluesky_config, 'bluesky')
             await self._run_all()
             await self._notify()
 
@@ -118,6 +120,16 @@ class BlueskyParallelRunner(object):
             self._input_loader.local_input_file_name,
             self._config('aws', 's3', 'bucket_name'),
             os.path.join('requests', self._request_id + '.json'))
+
+    async def _record_config(self, config, config_type):
+        if hasattr(config, 'to_dict'):
+            config = config.to_dict()
+
+        await run_in_loop_executor(self._s3_client.put_object,
+            Body=json.dumps(config),
+            Bucket=self._config('aws', 's3', 'bucket_name'),
+            Key=os.path.join('config', self._request_id + '-config-'
+                + config_type + '.json'))
 
     async def _run_all(self):
         ec2_instance_manager = Ec2InstancesManager(self._config,

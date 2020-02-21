@@ -350,6 +350,8 @@ class Config(object):
         return self._get_config_value(args)
     get = __call__
 
+    def to_dict(self):
+        return copy.deepcopy(self._config)
 
 BLUESKY_EXPORT_CONFIG = {
     "export": {
