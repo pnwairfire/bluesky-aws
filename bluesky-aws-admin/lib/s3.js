@@ -131,6 +131,31 @@ exports.getRequestInput = async function(fileCacheRootDir, bucketName, requestId
     return JSON.parse(objStr);
 }
 
+exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, requestId) {
+    let key = path.join('config', requestId + '-config-bluesky-aws.json');
+    let objStr = await getObject(bucketName, key,
+        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+    let obj = JSON.parse(objStr);
+    obj.aws.iam_instance_profile.Arn = 'xxx'
+    obj.aws.iam_instance_profile.Name = 'xxx'
+    obj.ssh_key = 'xxx'
+    obj.aws.ec2.key_pair_name = 'xxx'
+    if (obj.notifications.email.username) {
+        obj.notifications.email.username = 'xxx'
+    }
+    if (obj.notifications.email.password) {
+        obj.notifications.email.password = 'xxx'
+    }
+    return obj;
+}
+
+exports.getBlueskyConfig = async function(fileCacheRootDir, bucketName, requestId) {
+    let key = path.join('config', requestId + '-config-bluesky.json');
+    let objStr = await getObject(bucketName, key,
+        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+    return JSON.parse(objStr);
+}
+
 exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runId) {
     let key = path.join('log', requestId, runId + '.log');
     return await getObject(bucketName, key,
