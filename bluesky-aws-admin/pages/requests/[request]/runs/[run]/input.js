@@ -34,8 +34,8 @@ export default function Log() {
                     <Breadcrumb.Item active>Run Input</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <FileViewer request={request} run={run} apiPath={apiPath}
-                    fileName={fileName} header="Run Input" />
+                <FileViewer apiPath={apiPath} fileName={fileName}
+                    header="Run Input" />
             </div>
         </Layout>
     )

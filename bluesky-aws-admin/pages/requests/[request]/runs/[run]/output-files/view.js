@@ -37,8 +37,7 @@ export default function View() {
                     <Breadcrumb.Item active>{name}</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <FileViewer request={request} run={run} apiPath={apiPath}
-                    fileName={name} />
+                <FileViewer apiPath={apiPath} fileName={name} />
             </div>
         </Layout>
     )

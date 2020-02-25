@@ -11,8 +11,8 @@ export default (req, res) => {
 
     getRequestInput(process.env.fileCache.rootDir,
             process.env.s3.bucketName, request)
-        .then(input => {
-            ApiServerUtils.writeReponse(res, {request, input});
+        .then(file => {
+            ApiServerUtils.writeReponse(res, {request, file});
         })
        .catch(error => {
             console.log("Failed to load status:" + error);

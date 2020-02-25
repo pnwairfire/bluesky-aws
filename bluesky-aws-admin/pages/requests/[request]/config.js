@@ -3,7 +3,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
 import Layout from '../../../components/Layout'
-import ConfigViewer from '../../../components/ConfigViewer';
+import FileViewer from '../../../components/FileViewer'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -14,11 +14,13 @@ export default function Index() {
     const router = useRouter()
     const { request } = router.query
 
-
     let requestPageUrl = null;
+    let apiPath = null
     if (request) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
+        apiPath = '/api/requests/'
+            + encodeURIComponent(request) + '/bluesky-aws-config';
     }
     return (
         <Layout>
@@ -29,7 +31,7 @@ export default function Index() {
                     <Breadcrumb.Item active>Request Config</Breadcrumb.Item>
 
                 </Breadcrumb>
-                <ConfigViewer request={request} />
+                <FileViewer apiPath={apiPath} header="Request Config" />
             </div>
         </Layout>
     )

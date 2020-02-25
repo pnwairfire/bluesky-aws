@@ -19,10 +19,10 @@ const REQUEST_S3_PREFIX = 'requests/';
 const REQUEST_S3_PREFIX_STRIPPER = new RegExp('^'+REQUEST_S3_PREFIX);
 const JSON_EXT_STRIPPER = /.json/;
 
-async function writeFile(filename, dataStr) {
-    let dirName = path.dirname(filename)
+async function writeFile(fileName, dataStr) {
+    let dirName = path.dirname(fileName)
     await fs.mkdir(dirName, {recursive: true})
-    return await fs.writeFile(filename, dataStr)
+    return await fs.writeFile(fileName, dataStr)
 }
 
 
@@ -125,14 +125,19 @@ exports.getRequestStatus = async function(bucketName, requestId) {
 // TODO: write decorator to add file caching?
 
 exports.getRequestInput = async function(fileCacheRootDir, bucketName, requestId) {
-    let key = path.join('requests', requestId + '.json');
+    let fileName = requestId + '.json'
+    let key = path.join('requests', fileName);
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
-    return JSON.parse(objStr);
+    return {
+        name: fileName,
+        contents: JSON.parse(objStr)
+    };
 }
 
 exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, requestId) {
-    let key = path.join('config', requestId + '-config-bluesky-aws.json');
+    let fileName = requestId + '-config-bluesky-aws.json'
+    let key = path.join('config', fileName);
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     let obj = JSON.parse(objStr);
@@ -146,32 +151,41 @@ exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, reque
     if (obj.notifications.email.password) {
         obj.notifications.email.password = 'xxx'
     }
-    return obj;
+    return {
+        name: fileName,
+        contents: obj
+    };
 }
 
 exports.getBlueskyConfig = async function(fileCacheRootDir, bucketName, requestId) {
-    let key = path.join('config', requestId + '-config-bluesky.json');
-    let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
-    return JSON.parse(objStr);
-}
-
-exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runId) {
-    let key = path.join('log', requestId, runId + '.log');
+    let fileName = requestId + '-config-bluesky.json';
+    let key = path.join('config', fileName);
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     return {
-        name: runId + '.log',
+        name: fileName,
+        contents: JSON.parse(objStr)
+    };
+}
+
+exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runId) {
+    let fileName = runId + '.log';
+    let key = path.join('log', requestId, fileName);
+    let objStr = await getObject(bucketName, key,
+        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+    return {
+        name: fileName,
         contents: objStr
     };
 }
 
 exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, runId) {
-    let key = path.join('input', requestId, runId + '-input.json');
+    let fileName = runId + '-input.json'
+    let key = path.join('input', requestId, fileName);
     let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     return {
-        name: runId + '-input.json',
+        name: fileName,
         contents: JSON.parse(objStr)
     };
 }

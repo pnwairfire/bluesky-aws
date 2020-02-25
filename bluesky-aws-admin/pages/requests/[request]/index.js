@@ -10,8 +10,7 @@ import getConfig from 'next/config'
 import Layout from '../../../components/Layout'
 import RequestStatus from '../../../components/RequestStatus';
 import RunsTable from '../../../components/RunsTable';
-import RequestInput from '../../../components/RequestInput';
-import ConfigViewer from '../../../components/ConfigViewer';
+import FileViewer from '../../../components/FileViewer'
 import { ApiClient } from '../../../lib/apiutils'
 
 import styles from './index.module.css'
@@ -26,11 +25,27 @@ export default function Index() {
     const { request } = router.query
 
     let {data, fetchError} = {data:null, fetchError:null}
+    let inputApiPath = null
+    let inputFullPageLink = null
+    let configApiPath = null
+    let configFullPageLink = null
     if (request) {
         let res = ApiClient.get('/api/requests/'
             + encodeURIComponent(request) + '/status');
         data = res.data;
         fetchError = res.fetchError;
+        inputApiPath = '/api/requests/' + encodeURIComponent(request) + '/input';
+        inputFullPageLink = {
+            hrefPath: "/requests/[request]/input",
+            asPath: `/requests/${encodeURIComponent(request)}/input`
+        }
+        configApiPath = '/api/requests/'
+            + encodeURIComponent(request) + '/bluesky-aws-config';
+
+        configFullPageLink = {
+            hrefPath: "/requests/[request]/config",
+            asPath: `/requests/${encodeURIComponent(request)}/config`
+        }
     }
 
     let status = data && data.status;
@@ -63,10 +78,14 @@ export default function Index() {
                     </Row>
                     <Row>
                         <Col>
-                            <RequestInput showFullPageLink={true} request={request} />
+                            <FileViewer apiPath={inputApiPath}
+                                fullPageLink={inputFullPageLink}
+                                header="Request Input" />
                         </Col>
                         <Col>
-                            <ConfigViewer showFullPageLink={true} request={request} />
+                            <FileViewer apiPath={configApiPath}
+                                fullPageLink={configFullPageLink}
+                                header="Request Config" />
                         </Col>
                     </Row>
                     </Container>

@@ -9,6 +9,7 @@ const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 import LoadingSpinner from './LoadingSpinner';
 import { ApiClient } from '../lib/apiutils'
 import styles from './FileViewer.module.css'
+import Link from './Link';
 
 
 
@@ -20,7 +21,7 @@ import styles from './FileViewer.module.css'
 
 
 export default function FileViewer(props) {
-    if (props && props.request && props.run && props.apiPath && props.fileName) {
+    if (props && props.apiPath) {
 
         console.log('Querying file to view: ' + props.apiPath +
              ' ' + props.fileName);
@@ -41,6 +42,12 @@ export default function FileViewer(props) {
         return (
             <div className={styles['file-viewer']}>
                 <h5>{props.header || fileName}</h5>
+                {props.fullPageLink &&
+                    <Link href={props.fullPageLink.hrefPath}
+                            as={props.fullPageLink.asPath}>
+                        <a>view full page</a>
+                    </Link>
+                }
                 {!data &&
                     <LoadingSpinner />
                 }
@@ -117,7 +124,11 @@ class DownloadButton extends Component {
     }
 
     handleClick = data => {
-        saveByteArray(this.props.contents, this.props.filename)
+        let contents = (! typeof this.props.contents === 'string'
+                 && ! (this.props.contents instanceof String)) ?
+            this.props.contents : JSON.stringify(this.props.contents);
+
+        saveByteArray(contents, this.props.filename)
     }
 
     render() {

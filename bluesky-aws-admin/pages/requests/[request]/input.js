@@ -3,7 +3,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
 import Layout from '../../../components/Layout'
-import RequestInput from '../../../components/RequestInput';
+import FileViewer from '../../../components/FileViewer'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -16,9 +16,11 @@ export default function Index() {
 
 
     let requestPageUrl = null;
+    let apiPath = null
     if (request) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
+        apiPath = '/api/requests/' + encodeURIComponent(request) + '/input';
     }
     return (
         <Layout>
@@ -29,7 +31,7 @@ export default function Index() {
                     <Breadcrumb.Item active>Input</Breadcrumb.Item>
 
                 </Breadcrumb>
-                <RequestInput request={request} />
+                <FileViewer apiPath={apiPath} header="Request Input" />
             </div>
         </Layout>
     )

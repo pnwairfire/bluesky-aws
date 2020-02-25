@@ -4,7 +4,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
-import ConfigViewer from '../../../../../components/ConfigViewer';
+import FileViewer from '../../../../../components/FileViewer'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -14,10 +14,13 @@ export default function Log() {
 
     let requestPageUrl = null;
     let runPageUrl = null;
+    let apiPath = null
     if (request && run) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
         runPageUrl = path.join(requestPageUrl, 'runs', run)
+        apiPath = '/api/requests/'
+            + encodeURIComponent(request) + '/bluesky-config';
     }
 
     return (
@@ -30,7 +33,7 @@ export default function Log() {
                     <Breadcrumb.Item active>Run Config</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <ConfigViewer showRunConfig={true} request={request} />
+                <FileViewer apiPath={apiPath} header="Run Config" />
             </div>
         </Layout>
     )

@@ -11,8 +11,8 @@ export default (req, res) => {
 
     getBlueskyAwsConfig(process.env.fileCache.rootDir,
             process.env.s3.bucketName, request)
-        .then(blueskyAwsConfig => {
-            ApiServerUtils.writeReponse(res, {request, blueskyAwsConfig});
+        .then(file => {
+            ApiServerUtils.writeReponse(res, {request, file});
         })
        .catch(error => {
             console.log("Failed to load status:" + error);
