@@ -70,7 +70,10 @@ const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
 function ContentsWrapper(props) {
     if (props.fileName.endsWith('.json')) {
         try {
-            let jsonData = JSON.parse(props.contents)
+            let jsonData = (typeof props.contents === 'string'
+                    || props.contents instanceof String) ?
+                JSON.parse(props.contents) : props.contents;
+
             return (
                 <div className={styles['json-viewer']}>
                     <ReactJson src={jsonData} theme="monokai" />
