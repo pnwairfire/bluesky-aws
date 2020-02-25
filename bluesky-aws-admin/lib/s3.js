@@ -172,7 +172,7 @@ exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, ru
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     return {
         name: runId + '-input.json',
-        contents: objStr
+        contents: JSON.parse(objStr)
     };
 }
 
