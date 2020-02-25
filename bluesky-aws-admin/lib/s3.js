@@ -166,7 +166,10 @@ exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, ru
     let key = path.join('input', requestId, runId + '-input.json');
     objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
-    return objStr;
+    return {
+        name: runId + '-input.json',
+        contents: objStr
+    };
 }
 
 async function downloadOutput(

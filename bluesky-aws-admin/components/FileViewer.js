@@ -27,6 +27,7 @@ export default function FileViewer(props) {
         let {data, fetchError} = ApiClient.get(props.apiPath,
             {name: encodeURIComponent(props.fileName)});
         let contents = data && data.file && data.file.contents;
+        let fileName = (data && data.file && data.file.name) || props.fileName;
         let error = fetchError || (data && data.error);
 
 
@@ -39,7 +40,7 @@ export default function FileViewer(props) {
 
         return (
             <div className={styles['file-viewer']}>
-                <h5>{props.header || props.fileName}</h5>
+                <h5>{props.header || fileName}</h5>
                 {!data &&
                     <LoadingSpinner />
                 }
@@ -49,11 +50,11 @@ export default function FileViewer(props) {
                 {contents &&
                     <div className={styles['content-wrapper']}>
                         <div className={styles['buttons-wrapper']}>
-                            <DownloadButton contents={contents} filename={props.fileName} />
+                            <DownloadButton contents={contents} filename={fileName} />
                             <Button variant="outline-dark" size="sm"
                                 onClick={()=>{alert("Not Implemented")}}>Copy to Clipboard</Button>
                         </div>
-                        <ContentsWrapper contents={contents} fileName={props.fileName} />
+                        <ContentsWrapper contents={contents} fileName={fileName} />
                     </div>
                 }
             </div>
