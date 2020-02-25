@@ -11,8 +11,7 @@ export default (req, res) => {
 
     getRunLog(process.env.fileCache.rootDir,
             process.env.s3.bucketName, req.query.request, run)
-        .then(log => {
-            let file = {contents: log}
+        .then(file => {
             ApiServerUtils.writeReponse(res, {request, run, file});
         })
        .catch(error => {

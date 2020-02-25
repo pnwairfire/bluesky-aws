@@ -158,13 +158,17 @@ exports.getBlueskyConfig = async function(fileCacheRootDir, bucketName, requestI
 
 exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runId) {
     let key = path.join('log', requestId, runId + '.log');
-    return await getObject(bucketName, key,
+    let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+    return {
+        name: runId + '.log',
+        contents: objStr
+    };
 }
 
 exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, runId) {
     let key = path.join('input', requestId, runId + '-input.json');
-    objStr = await getObject(bucketName, key,
+    let objStr = await getObject(bucketName, key,
         {fileCacheRootDir: fileCacheRootDir, convertToString: true});
     return {
         name: runId + '-input.json',
