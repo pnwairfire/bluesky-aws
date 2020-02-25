@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import path from 'path';
 
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
@@ -145,7 +146,7 @@ function saveByteArray(data, name) {
     let blob = new Blob(buffer, {type: "octet/stream"});
     let url = window.URL.createObjectURL(blob);
     a.href = url;
-    a.download = name;
+    a.download = path.basename(name);
     a.click();
     document.body.removeChild(a);
 }
