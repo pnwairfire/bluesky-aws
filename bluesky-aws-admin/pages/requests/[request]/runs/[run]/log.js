@@ -36,7 +36,7 @@ export default function Log() {
                 </Breadcrumb>
 
                 <FileViewer request={request} run={run} apiPath={apiPath}
-                    fileName={fileName} />
+                    fileName={fileName} header="Run Log" />
 
             </div>
         </Layout>

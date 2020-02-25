@@ -38,7 +38,7 @@ export default function FileViewer(props) {
 
         return (
             <div className={styles['file-viewer']}>
-                <h5>{props.fileName}</h5>
+                <h5>{props.header || props.fileName}</h5>
                 {!data &&
                     <LoadingSpinner />
                 }
@@ -68,7 +68,7 @@ const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
 function ContentsWrapper(props) {
     if (props.fileName.endsWith('.json')) {
         try {
-            let jsonData = JSON.parse(atob(props.contents))
+            let jsonData = JSON.parse(props.contents)
             return (
                 <div className={styles['json-viewer']}>
                     <ReactJson src={jsonData} theme="monokai" />
@@ -99,7 +99,7 @@ function ContentsWrapper(props) {
      // default (and fallback, in case json contents fail to parse) is to
      // display contents in tedtarea
     return (
-        <textarea value={atob(props.contents)} disabled />
+        <textarea value={props.contents} disabled />
     )
 }
 
@@ -127,7 +127,7 @@ class DownloadButton extends Component {
 // http://jsfiddle.net/VB59f/2  and modified appropriately
 
 function base64ToArrayBuffer(base64) {
-    var binaryString = atob(base64);
+    var binaryString = base64;
     var binaryLen = binaryString.length;
     var bytes = new Uint8Array(binaryLen);
     for (var i = 0; i < binaryLen; i++)        {

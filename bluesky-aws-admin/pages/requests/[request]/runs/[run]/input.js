@@ -4,7 +4,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
-import RunInput from '../../../../../components/RunInput';
+import FileViewer from '../../../../../components/FileViewer'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -14,10 +14,14 @@ export default function Log() {
 
     let requestPageUrl = null;
     let runPageUrl = null;
+    let apiPath = null;
+    let fileName = "input.json";
     if (request && run) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
         runPageUrl = path.join(requestPageUrl, 'runs', run)
+        apiPath = '/api/requests/' + encodeURIComponent(request)
+            + '/runs/' + encodeURIComponent(run) + '/input'
     }
 
     return (
@@ -30,7 +34,8 @@ export default function Log() {
                     <Breadcrumb.Item active>Run Input</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <RunInput request={request} run={run} />
+                <FileViewer request={request} run={run} apiPath={apiPath}
+                    fileName={fileName} header="Run Input" />
             </div>
         </Layout>
     )
