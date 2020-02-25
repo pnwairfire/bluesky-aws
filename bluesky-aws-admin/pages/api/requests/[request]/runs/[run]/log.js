@@ -12,7 +12,8 @@ export default (req, res) => {
     getRunLog(process.env.fileCache.rootDir,
             process.env.s3.bucketName, req.query.request, run)
         .then(log => {
-            ApiServerUtils.writeReponse(res, {request, run, log});
+            let file = {contents: log}
+            ApiServerUtils.writeReponse(res, {request, run, file});
         })
        .catch(error => {
             console.log("Failed to load status:" + error);

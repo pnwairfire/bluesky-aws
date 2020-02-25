@@ -2,6 +2,7 @@
 // having to use babel-node, this code uses `require` instead of
 // `import`, `exports` instead of `export`, etc.
 
+const btoa = require('btoa');
 const fs = require('fs').promises;
 const util = require('util');
 const path = require('path');
@@ -158,8 +159,8 @@ exports.getBlueskyConfig = async function(fileCacheRootDir, bucketName, requestI
 
 exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runId) {
     let key = path.join('log', requestId, runId + '.log');
-    return await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+    return btoa(await getObject(bucketName, key,
+        {fileCacheRootDir: fileCacheRootDir}));
 }
 
 exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, runId) {

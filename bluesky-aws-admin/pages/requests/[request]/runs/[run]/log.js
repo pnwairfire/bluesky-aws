@@ -4,7 +4,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
-import RunLog from '../../../../../components/RunLog'
+import FileViewer from '../../../../../components/FileViewer'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -14,11 +14,16 @@ export default function Log() {
 
     let requestPageUrl = null;
     let runPageUrl = null;
+    let apiPath = null;
+    let fileName = "output.log";
     if (request && run) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
-        runPageUrl = path.join(requestPageUrl, 'runs', run)
+        runPageUrl = path.join(requestPageUrl, 'runs', run);
+        apiPath = '/api/requests/' + encodeURIComponent(request)
+            + '/runs/' + encodeURIComponent(run) + '/log';
     }
+    // else it's not the final rendering, so just leave urls and api path as null
 
     return (
         <Layout>
@@ -30,7 +35,8 @@ export default function Log() {
                     <Breadcrumb.Item active>Log</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <RunLog request={request} run={run} />
+                <FileViewer request={request} run={run} apiPath={apiPath}
+                    fileName={fileName} />
 
             </div>
         </Layout>

@@ -15,13 +15,16 @@ export default function View() {
     let requestPageUrl = null;
     let runPageUrl = null;
     let outputFilesPageUrl = null;
+    let apiPath = null;
     if (request && run && name) {
         requestPageUrl = publicRuntimeConfig.basePath
             + '/requests/' + encodeURIComponent(request);
-        runPageUrl = path.join(requestPageUrl, 'runs', run)
-        outputFilesPageUrl = path.join(runPageUrl, 'output-files')
+        runPageUrl = path.join(requestPageUrl, 'runs', run);
+        outputFilesPageUrl = path.join(runPageUrl, 'output-files');
+        apiPath ='/api/requests/' + encodeURIComponent(request)
+            + '/runs/' + encodeURIComponent(run) + '/output-files/file';
     }
-    // else it's not the final rendering, so just leave urls as null
+    // else it's not the final rendering, so just leave urls and api path as null
 
     return (
         <Layout>
@@ -34,7 +37,8 @@ export default function View() {
                     <Breadcrumb.Item active>{name}</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <FileViewer request={request} run={run} name={name} />
+                <FileViewer request={request} run={run} apiPath={apiPath}
+                    fileName={name} />
             </div>
         </Layout>
     )

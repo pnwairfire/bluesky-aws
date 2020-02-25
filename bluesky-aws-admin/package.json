@@ -5,6 +5,7 @@
   "homepage": "./",
   "dependencies": {
     "aws-sdk": "^2.604.0",
+    "btoa": "^1.2.1",
     "isomorphic-unfetch": "^3.0.0",
     "next": "^9.2.1",
     "react": "^16.12.0",

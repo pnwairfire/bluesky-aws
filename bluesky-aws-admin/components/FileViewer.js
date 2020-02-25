@@ -19,13 +19,12 @@ import styles from './FileViewer.module.css'
 
 
 export default function FileViewer(props) {
-    if (props && props.request && props.run) {
+    if (props && props.request && props.run && props.apiPath && props.fileName) {
 
-        let path ='/api/requests/' + encodeURIComponent(props.request)
-            + '/runs/' + encodeURIComponent(props.run) + '/output-files/file'
-        let query = { name: encodeURIComponent(props.name)}
-        console.log('Querying file to view: ' + path + '?name='+query.name);
-        let {data, fetchError} = ApiClient.get(path, query);
+        console.log('Querying file to view: ' + props.apiPath +
+             ' ' + props.fileName);
+        let {data, fetchError} = ApiClient.get(props.apiPath,
+            {name: encodeURIComponent(props.fileName)});
         let contents = data && data.file && data.file.contents;
         let error = fetchError || (data && data.error);
 
@@ -39,7 +38,7 @@ export default function FileViewer(props) {
 
         return (
             <div className={styles['file-viewer']}>
-                <h5>{props.name}</h5>
+                <h5>{props.fileName}</h5>
                 {!data &&
                     <LoadingSpinner />
                 }
@@ -49,11 +48,11 @@ export default function FileViewer(props) {
                 {contents &&
                     <div className={styles['content-wrapper']}>
                         <div className={styles['buttons-wrapper']}>
-                            <DownloadButton contents={contents} filename={props.name} />
+                            <DownloadButton contents={contents} filename={props.fileName} />
                             <Button variant="outline-dark" size="sm"
                                 onClick={()=>{alert("Not Implemented")}}>Copy to Clipboard</Button>
                         </div>
-                        <ContentsWrapper contents={contents} name={props.name} />
+                        <ContentsWrapper contents={contents} fileName={props.fileName} />
                     </div>
                 }
             </div>
@@ -67,7 +66,7 @@ export default function FileViewer(props) {
 const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
 
 function ContentsWrapper(props) {
-    if (props.name.endsWith('.json')) {
+    if (props.fileName.endsWith('.json')) {
         try {
             let jsonData = JSON.parse(atob(props.contents))
             return (
@@ -78,11 +77,11 @@ function ContentsWrapper(props) {
         } catch(err) {
             // fall back to using textarea, below
             console.log("Failed to parse and display json contents of "
-                + props.name + ": " + err)
+                + props.fileName + ": " + err)
         }
     }
 
-    else if (props.name.endsWith('.png')) {
+    else if (props.fileName.endsWith('.png')) {
         let data = 'data:image/png;base64,' + props.contents;
         return (
             <div className={styles['image-viewer']}>
@@ -91,7 +90,7 @@ function ContentsWrapper(props) {
         )
     }
 
-    else if (EXT_SKIP_MATCHER.test(props.name)) {
+    else if (EXT_SKIP_MATCHER.test(props.fileName)) {
         return (
             <div>(No Preview)</div>
         )
