@@ -277,6 +277,14 @@ EBS volume device name; default '/dev/sda1'
 
 ---
 
+#### aws > ec2 > minutes_until_auto_shutdown
+
+***default***: None
+
+Number of minutes to wait before instances shut themselves down; default: null (no auto-termination)
+
+---
+
 #### bluesky > today
 
 ***default***: None

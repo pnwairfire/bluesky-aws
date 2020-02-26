@@ -170,7 +170,10 @@ CONFIG_SETTINGS = OrderedDict({
             "ebs": {
                 "volume_size": ConfigSetting(8, help_string="EBS volume size (GB); default 8GB"),
                 "device_name": ConfigSetting("/dev/sda1", help_string="EBS volume device name; default '/dev/sda1'") # TODO: default ot '/dev/xvda' ?
-            }
+            },
+            "minutes_until_auto_shutdown": ConfigSetting(None,
+                help_string="Number of minutes to wait before instances shut themselves down; default: null (no auto-termination)",
+                validator=lambda v: isinstance(v, int))
         },
         "s3": {
             "bucket_name": ConfigSetting(None,

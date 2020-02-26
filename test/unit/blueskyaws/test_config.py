@@ -203,7 +203,8 @@ class TestConfig(object):
                     "ebs": {
                         "volume_size": 8,
                         "device_name": "/dev/sda1"
-                    }
+                    },
+                    "minutes_until_auto_shutdown": None
                 },
                 "s3": {
                     "bucket_name": "bluesky-aws",
@@ -313,7 +314,8 @@ class TestConfig(object):
                     "ebs": {
                         "volume_size": 8,
                         "device_name": "/dev/sda1"
-                    }
+                    },
+                    "minutes_until_auto_shutdown": None
                 },
                 "s3": {
                     "bucket_name": "bluesky-aws",
