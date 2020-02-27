@@ -2,7 +2,7 @@ node_modules/
 
 .next/
 next.config.js
-docker-compose.yaml
+docker-compose.yml
 nginx.conf
 out/
 log/
