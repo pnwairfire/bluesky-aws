@@ -10,6 +10,11 @@ server {
     client_max_body_size 5m;
     charset     utf-8;
 
+    # Listen to same port as is exposed by docker so that
+    # automatic redirects and adding of slashes to url
+    # don't lose the port
+    listen 3030;
+
     location /images/ {
         alias    /bluesky-aws-admin/public/images/;
     }

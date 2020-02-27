@@ -28,7 +28,7 @@ services:
     networks:
     - bluesky-aws-admin-network
     ports:
-    - "3030:80"
+    - "3030:3030"
 networks:
   bluesky-aws-admin-network:
     driver: bridge
