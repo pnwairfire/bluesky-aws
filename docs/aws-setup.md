@@ -36,6 +36,10 @@ exit
  ```
  sudo apt install -y awscli
  ```
+ - Install `at` for scheduling instance auto-termination
+ ```
+ sudo apt install -y at
+ ```
  - create an image from the image, and terminate it
  - create a bucket in the [S3 AWS console](https://s3.console.aws.amazon.com/s3/home)
  - create a security group that allows ssh access - [EC2 security group console](https://us-west-2.console.aws.amazon.com/ec2/home#SecurityGroups)

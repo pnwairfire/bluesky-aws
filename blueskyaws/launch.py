@@ -6,6 +6,7 @@ import uuid
 from afaws.config import Config as AwsConfig
 from afaws.ec2.launch import Ec2Launcher
 from afaws.ec2.initialization import InstanceInitializerSsh
+from afaws.ec2.shutdown import AutoShutdownScheduler
 #from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
 from afaws.ec2.shutdown import Ec2Shutdown
 
@@ -31,6 +32,7 @@ class Ec2InstancesManager(object):
     async def __aenter__(self):
         self._set_signal_handlers()
         await self._launch()
+        await self._schedule_auto_termination()
         await self._initialize()
         return self
 
@@ -127,6 +129,13 @@ class Ec2InstancesManager(object):
         # whether or not any instances were launched, self._launched
         # is used in signal handlers
         self._launched = True
+
+    async def _schedule_auto_termination(self):
+        minutes = self._config("aws", "ec2", "minutes_until_auto_shutdown")
+        if self._new_instances and minutes:
+            auto_terminator = AutoShutdownScheduler(self._config('ssh_key'))
+            await auto_terminator.schedule_termination(
+                self._new_instances, minutes)
 
     async def _initialize(self):
         if self._new_instances:
