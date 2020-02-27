@@ -1,0 +1,50 @@
+version: "3"
+services:
+  web:
+    # let restart policy be the default 'no'
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bluesky-aws-admin-web
+    networks:
+    - bluesky-aws-admin-network
+    # This runs the development server
+    command: npm run dev
+    volumes:
+    - $HOME/.aws/:/root/.aws/
+    - $HOME/.ssh/:/root/.ssh/
+    # Mount the source code directories
+    - ./bin/:/bluesky-aws-admin/bin/
+    - ./components/:/bluesky-aws-admin/components/
+    - ./lib/:/bluesky-aws-admin/lib/
+    - ./pages/:/bluesky-aws-admin/pages/
+    - ./public/:/bluesky-aws-admin/public/
+    - ./next.config.js:/bluesky-aws-admin/next.config.js
+    - ./cache/bluesky-aws-admin-cache/:/tmp/bluesky-aws-admin-cache/
+    ports:
+     - "3000:3000"
+    #privileged: true
+  nginx:
+    # let restart policy be the default 'no'
+    stdin_open: true
+    tty: true
+    image: nginx:1.16.1-alpine
+    container_name: bluesky-aws-admin-nginx
+    volumes:
+    - ./log/nginx/:/var/log/nginx/
+    - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    - ./public/:/bluesky-aws-admin/public/
+    - ./cache/bluesky-aws-admin-cache/:/tmp/bluesky-aws-admin-cache/
+    networks:
+    - bluesky-aws-admin-network
+    ports:
+    - "3030:80"
+networks:
+  bluesky-aws-admin-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.30.0/24

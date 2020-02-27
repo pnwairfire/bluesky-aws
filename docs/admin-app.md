@@ -24,7 +24,7 @@ See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.
 
 ## NextJS configuration
 
-Under `bluesky-aws-admin` is a example configuration file,
+Under `bluesky-aws-admin` is an example configuration file,
 `next.config.js.example`, that needs to be copied to `next.config.js`
 and then modified to reflect your S3 bucket name, etc.
 
@@ -34,28 +34,19 @@ and then modified to reflect your S3 bucket name, etc.
 
 ## Build and Run
 
-In a terminal:
+To run the development server, with source code mounted, use the
+collowing command in a terminal:
 
-    docker build -t bluesky-aws-admin . -f Dockerfile-admin
-    docker run -d --rm  --name bluesky-aws-admin -p 3000:3000 \
-        -v $HOME/.aws/:/root/.aws/ bluesky-aws-admin
-
+    docker-compose -f ./bluesky-aws-admin/docker-compose-dev.yaml up
 
 In a browser, load http://localhost:3000/
 
+Use `./bluesky-aws-admin/docker-compose-prod.yaml` to run the production
+server with the app build packaged in the docker image.  Or, create
+`./bluesky-aws-admin/docker-compose-prod.yaml` from either of the two
+provided docker-compose yaml files and modify it as necessary.
 
-## Run in Dev
 
-This is to run with local files counted
-
-    docker run --rm --name bluesky-aws-admin \
-         -p 3000:3000 -v $HOME/.aws/:/root/.aws/ \
-        -v $PWD/bluesky-aws-admin/components/:/bluesky-aws-admin/components/ \
-        -v $PWD/bluesky-aws-admin/lib/:/bluesky-aws-admin/lib/ \
-        -v $PWD/bluesky-aws-admin/pages/:/bluesky-aws-admin/pages/ \
-        -v $PWD/bluesky-aws-admin/public/:/bluesky-aws-admin/public/ \
-        -v $PWD/bluesky-aws-admin/next.config.js:/bluesky-aws-admin/next.config.js \
-        bluesky-aws-admin npm run dev
 
 
 ## Running in Production with Custom Path Prefix

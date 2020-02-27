@@ -1,0 +1,38 @@
+version: "3"
+services:
+  web:
+    # let restart policy be the default 'no'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bluesky-aws-admin-web
+    networks:
+    - bluesky-aws-admin-network
+    # The default command, npm run start, runs the production
+    # server with npm run start
+    volumes:
+    - $HOME/.aws/:/root/.aws/
+    - $HOME/.ssh/:/root/.ssh/
+    - ./next.config.js:/bluesky-aws-admin/next.config.js
+    - ./cache/bluesky-aws-admin-cache/:/tmp/bluesky-aws-admin-cache/
+    #privileged: true
+  nginx:
+    # let restart policy be the default 'no'
+    image: nginx:1.16.1-alpine
+    container_name: bluesky-aws-admin-nginx
+    volumes:
+    - ./log/nginx/:/var/log/nginx/
+    - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    - ./public/:/bluesky-aws-admin/public/
+    - ./cache/bluesky-aws-admin-cache/:/tmp/bluesky-aws-admin-cache/
+    networks:
+    - bluesky-aws-admin-network
+    ports:
+    - "3030:80"
+networks:
+  bluesky-aws-admin-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.30.0/24

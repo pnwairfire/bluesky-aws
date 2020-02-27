@@ -2,4 +2,8 @@ node_modules/
 
 .next/
 next.config.js
+docker-compose.yaml
+nginx.conf
 out/
+log/
+cache/
