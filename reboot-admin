@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+DEFAULT_YAML_FILE=bluesky-aws-admin/docker-compose-dev.yml
+
+show_help=false
+rebuild=false
+yaml_file=$DEFAULT_YAML_FILE
+shut_down=false
+
+while [ -n "$1" ]; do # while loop starts
+    case "$1" in
+    -h) show_help=true && shift ;;
+    --help) show_help=true && shift ;;
+    --rebuild) rebuild=true && shift ;;
+    --yaml-file) yaml_file="$2" && shift && shift ;;
+    --shut-down) shut_down=true && shift ;;
+    *) echo "Option $1 not recognized" && exit 1 ;;
+    esac
+done
+
+if [ "$show_help" = true ] ; then
+    echo ""
+    echo "Options:"
+    echo "   -h/--help     - show this help message"
+    echo "   --rebuild     - rebuild docker images"
+    echo "   --yaml-file   - default: $DEFAULT_YAML_FILE"
+    echo "   --shut-down   - don't restart"
+    echo ""
+    echo "Usage:"
+    echo "   $0"
+    echo "   $0 --yaml-file bluesky-aws-admin/docker-compose-dev.yml --rebuild"
+    echo "   $0 --shut-down"
+    echo ""
+    exit 0
+fi
+
+if [ ! -e $yaml_file ]; then
+    echo "ERROR:  docker-compose YAML file doesn't exist"
+    echo "ERROR:     $yaml_file"
+    exit 1
+fi
+
+echo "Options"
+echo "  Rebuild docker images: $rebuild"
+echo "  docker-compose YAML file: $yaml_file"
+
+# call `down` on all known yaml files, in case previously used yaml file
+# is different than this one.
+docker-compose -p aws-admin-web -f bluesky-aws-admin/docker-compose-dev.yml down --remove-orphans
+docker-compose -p aws-admin-web -f bluesky-aws-admin/docker-compose-prod.yml down --remove-orphans
+docker-compose -p aws-admin-web -f $yaml_file down --remove-orphans
+if [ "$rebuild" = true ] ; then
+    docker-compose -p aws-admin-web -f $yaml_file build
+fi
+if [ "$shut_down" = false ] ; then
+    docker-compose -p aws-admin-web -f $yaml_file up
+fi
