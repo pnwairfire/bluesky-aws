@@ -15,7 +15,9 @@ module.exports = {
             outputPath: 'output'
         },
         api: {
-            baseEndpoint: 'http://localhost:3000'
+            // This need to be http://localhost:3000
+            // if running outside of docker
+            baseEndpoint: 'http://localhost:3030' + basePath
         }
     }
 }
