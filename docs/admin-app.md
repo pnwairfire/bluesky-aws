@@ -47,14 +47,9 @@ server with the app build packaged in the docker image.  Or, create
 provided docker-compose yaml files and modify it as necessary.
 
 
-
-
 ## Running in Production with Custom Path Prefix
 
 If you want to run in production with a custom path prefix, e.g. `/foo`,
 you'll first need to update `next.config.js` to set `basePath` to `foo/`.
-Then, you'll need to set up a reverse proxy. For example, using apache,
-add the following to your apache config:
-
-    ProxyPass /foo http://127.0.0.1:3000
-    ProxyPassReverse /foo http://127.0.0.1:3000
+Then, you'll need to update the nginx config to set up a reverse proxy.
+...FILL IN DETAILS...
