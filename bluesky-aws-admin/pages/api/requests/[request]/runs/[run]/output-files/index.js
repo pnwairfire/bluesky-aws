@@ -16,8 +16,10 @@ export default (req, res) => {
         .then(outputFiles => {
             let outputUrl = urljoin(process.env.output.outputEndpoint,
                 request, run, process.env.output.blueskyOutputPathPrefix)
+            let viewerUrl = process.env.output.viewerUrlTemplate &&
+                process.env.output.viewerUrlTemplate.replace('{url}', outputUrl)
             ApiServerUtils.writeReponse(res,
-                {request, run, outputUrl, outputFiles});
+                {request, run, outputUrl, viewerUrl, outputFiles});
         })
        .catch(error => {
             console.log("Failed to load status:" + error);
