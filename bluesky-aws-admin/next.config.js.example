@@ -25,7 +25,11 @@ let toExport = {
             // Note: the output endpoint will be formed from
             // web.baseEndpoint and s3.outputPath
             blueskyOutputPathPrefix: 'dispersion-visualization',
-            viewerUrlTemplate: 'http://<domain>/bluesky-viewer/run?url={url}'
+            // If a bluesky output viewer is available, you can specify
+            // a url like 'http://<domain>/bluesky-viewer/run?url={url}',
+            // where '{url}' will be replaced with the link to the
+            // the output files served by nginx
+            viewerUrlTemplate: null
         }
     }
 }
