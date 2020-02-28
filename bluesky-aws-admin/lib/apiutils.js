@@ -1,5 +1,7 @@
 import fetch from 'unfetch'
 import useSWR from 'swr'
+import urljoin from 'url-join';
+
 
 export async function fetcher(url) {
     const res = await fetch(url)
@@ -18,7 +20,7 @@ export class ApiClient {
             return key + '=' + encodeURIComponent(query[key])
         }).join('&');
         // TODO: dynamically determine endpoint
-        return process.env.api.baseEndpoint + '/' + path + '?' + query;
+        return urljoin(process.env.web.baseEndpoint, path) + '?' + query;
     }
 
     static get(path, query) {
