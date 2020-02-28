@@ -25,8 +25,9 @@ server {
         # where:
         #  - <filecache root dir> reflects what's specified in next.config.js
         #  - <bucket name> and <output path> reflect what's specified in
-        #    next.config.js, which itself reflects what's used when
-        #    running the blueskyaws python package
+        #    next.config.js (fields env.s3.bucketName and env.s3.outputPath),
+        #    which itself reflects what's used when running the blueskyaws
+        #    python package
         alias    /tmp/bluesky-aws-admin-cache/bluesky-aws/output/;
         autoindex on;
     }
