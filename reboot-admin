@@ -53,5 +53,5 @@ if [ "$rebuild" = true ] ; then
     docker-compose -p aws-admin-web -f $yaml_file build
 fi
 if [ "$shut_down" = false ] ; then
-    docker-compose -p aws-admin-web -f $yaml_file up
+    docker-compose -p aws-admin-web -f $yaml_file up -d
 fi
