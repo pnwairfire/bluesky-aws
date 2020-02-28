@@ -6,6 +6,7 @@ show_help=false
 rebuild=false
 yaml_file=$DEFAULT_YAML_FILE
 shut_down=false
+background=false
 
 while [ -n "$1" ]; do # while loop starts
     case "$1" in
@@ -14,6 +15,7 @@ while [ -n "$1" ]; do # while loop starts
     --rebuild) rebuild=true && shift ;;
     --yaml-file) yaml_file="$2" && shift && shift ;;
     --shut-down) shut_down=true && shift ;;
+    --background) background=true && shift ;;
     *) echo "Option $1 not recognized" && exit 1 ;;
     esac
 done
@@ -25,6 +27,7 @@ if [ "$show_help" = true ] ; then
     echo "   --rebuild     - rebuild docker images"
     echo "   --yaml-file   - default: $DEFAULT_YAML_FILE"
     echo "   --shut-down   - don't restart"
+    echo "   --background  - run in the background with docker's '-d' option"
     echo ""
     echo "Usage:"
     echo "   $0"
@@ -53,5 +56,9 @@ if [ "$rebuild" = true ] ; then
     docker-compose -p bluesky-aws-admin -f $yaml_file build
 fi
 if [ "$shut_down" = false ] ; then
-    docker-compose -p bluesky-aws-admin -f $yaml_file up -d
+    if [ "$background" = false ] ; then
+        docker-compose -p bluesky-aws-admin -f $yaml_file up
+    else
+        docker-compose -p bluesky-aws-admin -f $yaml_file up -d
+    fi
 fi
