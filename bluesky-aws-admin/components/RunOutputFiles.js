@@ -1,5 +1,9 @@
 import path from 'path'
 import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
 import Link from './Link';
 import { ApiClient } from '../lib/apiutils'
@@ -14,11 +18,26 @@ export default function RunOutputFiles(props) {
         let {data, fetchError} = ApiClient.get(path);
 
         let outputFiles = data && data.outputFiles;
+        let viewerUrl = data && data.viewerUrl;
         let error = fetchError || (data && data.error);
 
         return (
             <div className={styles['run-output-files']}>
-                <h5>Run Output Files</h5>
+                <Container fluid={true}>
+                    <Row>
+                        <Col>
+                            <h5>Run Output Files</h5>
+                        </Col>
+                        { viewerUrl &&
+                            <Col>
+                                <Button variant="primary" size="sm"
+                                    href={viewerUrl} target="blank">
+                                    View Output
+                                </Button>
+                            </Col>
+                        }
+                    </Row>
+                </Container>
                 {!data &&
                     <LoadingSpinner />
                 }
@@ -42,6 +61,7 @@ export default function RunOutputFiles(props) {
         return null
     }
 };
+
 
 function DirContents(props) {
     if (props.files || props.dirs) {
