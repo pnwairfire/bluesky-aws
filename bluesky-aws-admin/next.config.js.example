@@ -1,6 +1,8 @@
+const urljoin = require('url-join');
+
 const basePath = ''
 
-module.exports = {
+let toExport = {
     assetPrefix: basePath,
     publicRuntimeConfig: {
         basePath: basePath
@@ -14,10 +16,21 @@ module.exports = {
             bucketName: 'bluesky-aws',
             outputPath: 'output'
         },
-        api: {
+        web: {
             // This needs to be http://localhost:3000
             // if running outside of docker
-            baseEndpoint: 'http://localhost:3030' + basePath
+            baseEndpoint: urljoin('http://localhost:3030', basePath)
+        },
+        output: {
+            // Note: the output endpoint will be formed from
+            // web.baseEndpoint and s3.outputPath
+            blueskyOutputPathPrefix: 'dispersion-visualization',
+            viewerUrlTemplate: 'http://<domain>/bluesky-viewer/run?url={url}'
         }
     }
 }
+
+toExport.env.output.outputEndpoint = urljoin(
+    toExport.env.web.baseEndpoint, toExport.env.s3.outputPath)
+
+module.exports = toExport;

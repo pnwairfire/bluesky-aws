@@ -1,3 +1,4 @@
+import urljoin from 'url-join'
 import { useRouter } from 'next/router'
 import { getRunOutputFiles } from '../../../../../../../lib/s3'
 import { ApiServerUtils } from '../../../../../../../lib/apiutils'
@@ -10,10 +11,13 @@ export default (req, res) => {
     } = req
 
     getRunOutputFiles(process.env.fileCache.rootDir,
-            process.env.s3.bucketName, req.query.request, run,
+            process.env.s3.bucketName, request, run,
             process.env.s3.outputPath)
         .then(outputFiles => {
-            ApiServerUtils.writeReponse(res, {request, run, outputFiles});
+            let outputUrl = urljoin(process.env.output.outputEndpoint,
+                request, run, process.env.output.blueskyOutputPathPrefix)
+            ApiServerUtils.writeReponse(res,
+                {request, run, outputUrl, outputFiles});
         })
        .catch(error => {
             console.log("Failed to load status:" + error);
