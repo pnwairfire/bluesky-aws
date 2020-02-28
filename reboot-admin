@@ -46,12 +46,12 @@ echo "  docker-compose YAML file: $yaml_file"
 
 # call `down` on all known yaml files, in case previously used yaml file
 # is different than this one.
-docker-compose -p aws-admin-web -f bluesky-aws-admin/docker-compose-dev.yml down --remove-orphans
-docker-compose -p aws-admin-web -f bluesky-aws-admin/docker-compose-prod.yml down --remove-orphans
-docker-compose -p aws-admin-web -f $yaml_file down --remove-orphans
+docker-compose -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-dev.yml down --remove-orphans
+docker-compose -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-prod.yml down --remove-orphans
+docker-compose -p bluesky-aws-admin -f $yaml_file down --remove-orphans
 if [ "$rebuild" = true ] ; then
-    docker-compose -p aws-admin-web -f $yaml_file build
+    docker-compose -p bluesky-aws-admin -f $yaml_file build
 fi
 if [ "$shut_down" = false ] ; then
-    docker-compose -p aws-admin-web -f $yaml_file up -d
+    docker-compose -p bluesky-aws-admin -f $yaml_file up -d
 fi
