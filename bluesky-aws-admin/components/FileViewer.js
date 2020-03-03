@@ -79,7 +79,7 @@ function ContentsWrapper(props) {
         try {
             let jsonData = (typeof props.contents === 'string'
                     || props.contents instanceof String) ?
-                JSON.parse(props.contents) : props.contents;
+                JSON.parse(atob(props.contents)) : props.contents;
 
             return (
                 <div className={styles['json-viewer']}>
@@ -111,7 +111,7 @@ function ContentsWrapper(props) {
      // default (and fallback, in case json contents fail to parse) is to
      // display contents in tedtarea
     return (
-        <textarea value={props.contents} disabled />
+        <textarea value={atob(props.contents)} disabled />
     )
 }
 
@@ -143,7 +143,7 @@ class DownloadButton extends Component {
 // http://jsfiddle.net/VB59f/2  and modified appropriately
 
 function base64ToArrayBuffer(base64) {
-    var binaryString = base64;
+    var binaryString = atob(base64);
     var binaryLen = binaryString.length;
     var bytes = new Uint8Array(binaryLen);
     for (var i = 0; i < binaryLen; i++)        {
