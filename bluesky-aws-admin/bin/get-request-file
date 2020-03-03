@@ -7,6 +7,7 @@ function parseArgs () {
     commander
         .version('0.0.1', '-v, --version')
         .usage('[OPTIONS]...')
+        .requiredOption('-f, --file <input|bluesky-aws-config|bluesky-config>', 'which file to get')
         .requiredOption('-c, --file-cache-root-dir <bucket>', 'file cache root dir')
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
         .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
@@ -16,10 +17,20 @@ function parseArgs () {
 
 //async function go(){
 function go() {
-    s3.getRequestInput(commander.fileCacheRootDir,
+    let func = null;
+    if (commander.file == 'input') {
+        func = s3.getRequestInput
+    } else if (commander.file == 'bluesky-aws-config') {
+        func = s3.getBlueskyAwsConfig
+    } else if (commander.file == 'bluesky-config') {
+        func = s3.getBlueskyConfig
+    } else {
+        throw("Invalid file: " + commander.file)
+    }
+    func(commander.fileCacheRootDir,
             commander.bucket, commander.request)
-        .then(input => {
-            console.log('input: \n' + JSON.stringify(input, null,
+        .then(file => {
+            console.log('input: \n' + JSON.stringify(file, null,
                 commander.jsonIndent));
         })
         .catch(err => {
