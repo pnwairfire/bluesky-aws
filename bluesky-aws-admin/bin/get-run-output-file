@@ -30,7 +30,7 @@ function go() {
                         JSON.parse(contents), null, commander.jsonIndent);
                 } catch(err){}
             }
-            console.log('output: \n' + contents);
+            console.log('contents: \n' + contents);
         })
         .catch(err => {
             console.log(err.stack)
