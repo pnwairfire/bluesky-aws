@@ -17,7 +17,7 @@ export default ({ children, title = 'BlueSky AWS Admin' }) => (
         </Head>
         <header className="container-fluid">
             <Navbar bg="light" expand="lg">
-              <Navbar.Brand href="#">BlueSky AWS Admin</Navbar.Brand>
+              <Navbar.Brand >BlueSky AWS Admin</Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
               </Navbar.Collapse>
