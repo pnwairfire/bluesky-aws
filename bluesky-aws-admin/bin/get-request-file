@@ -11,6 +11,7 @@ function parseArgs () {
         .requiredOption('-c, --file-cache-root-dir <bucket>', 'file cache root dir')
         .requiredOption('-b, --bucket <bucket>', 's3 bucket')
         .requiredOption('-r, --request <requestId>', 'emissions-request-20200114')
+        .option('--base64', 'Display raw file contents in base64')
         .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
         .parse(process.argv);
 }
@@ -30,11 +31,13 @@ function go() {
     func(commander.fileCacheRootDir,
             commander.bucket, commander.request)
         .then(file => {
-            let contents = Buffer.from(file.contents,
-                'base64').toString('ascii')
+            let contents = file.contents;
+            if (! commander.base64) {
+                contents = Buffer.from(contents, 'base64').toString('ascii')
+                contents = JSON.stringify(JSON.parse(contents), null, commander.jsonIndent)
+            }
 
-            console.log('contents: \n' +
-                JSON.stringify(JSON.parse(contents), null, commander.jsonIndent));
+            console.log('contents: \n' + contents);
         })
         .catch(err => {
             console.log(err.stack)
