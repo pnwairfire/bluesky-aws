@@ -74,7 +74,7 @@ exports.getRequests = async function(bucketName, limit, next) {
 async function getObject(bucketName, key, options) {
     options = options || {}
     let cachedFileName = (options.fileCacheRootDir
-        && path.join(options.fileCacheRootDir, bucketName, key))
+        && path.join(path.resolve(options.fileCacheRootDir), bucketName, key))
     if (options.fileCacheRootDir && await exists(cachedFileName)) {
         let contents = await fs.readFile(cachedFileName)
         return contents.base64Slice()
