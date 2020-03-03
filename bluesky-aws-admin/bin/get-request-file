@@ -30,8 +30,11 @@ function go() {
     func(commander.fileCacheRootDir,
             commander.bucket, commander.request)
         .then(file => {
-            console.log('input: \n' + JSON.stringify(file, null,
-                commander.jsonIndent));
+            let contents = Buffer.from(file.contents,
+                'base64').toString('ascii')
+
+            console.log('contents: \n' +
+                JSON.stringify(JSON.parse(contents), null, commander.jsonIndent));
         })
         .catch(err => {
             console.log(err.stack)
