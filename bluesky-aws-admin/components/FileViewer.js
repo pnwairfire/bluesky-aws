@@ -124,11 +124,7 @@ class DownloadButton extends Component {
     }
 
     handleClick = data => {
-        let contents = (! typeof this.props.contents === 'string'
-                 && ! (this.props.contents instanceof String)) ?
-            this.props.contents : JSON.stringify(this.props.contents);
-
-        saveByteArray(contents, this.props.filename)
+        saveByteArray(this.props.contents, this.props.filename)
     }
 
     render() {
