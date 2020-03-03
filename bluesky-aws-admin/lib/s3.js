@@ -75,11 +75,9 @@ async function getObject(bucketName, key, options) {
     options = options || {}
     let cachedFileName = (options.fileCacheRootDir
         && path.join(options.fileCacheRootDir, bucketName, key))
-
     if (options.fileCacheRootDir && await exists(cachedFileName)) {
         let contents = await fs.readFile(cachedFileName)
-        if (options.convertToString) contents = contents.toString();
-        return contents
+        return contents.base64Slice()
     }
 
     let params = {
@@ -93,16 +91,15 @@ async function getObject(bucketName, key, options) {
         // but s3.getObject.promise is supported
         let data = (await s3.getObject(params).promise());
         data = data.Body
-        if (options.convertToString) data = data.toString();
         if (options.fileCacheRootDir) {
             try {
                 // TODO: don't block, since fialure to write to cache is ok
                 await writeFile(cachedFileName, data)
             } catch(err) {
-                console.log('Failed to write ' + key + ' to cache')
+                console.log('Failed to write ' + key + ' to cache: ' + err)
             }
         }
-        return data;
+        return data.base64Slice();
     }
     catch (err) {
         console.log('ERROR:', err);
@@ -118,7 +115,8 @@ async function getObject(bucketName, key, options) {
 exports.getRequestStatus = async function(bucketName, requestId) {
     // Note: we don't cache request status
     let key = path.join('status',requestId + '-status.json');
-    let objStr = await getObject(bucketName, key, {convertToString: true});
+    let objStr = await getObject(bucketName, key);
+    objStr = Buffer.from(objStr, 'base64').toString('ascii')
     return JSON.parse(objStr);
 }
 
@@ -128,10 +126,10 @@ exports.getRequestInput = async function(fileCacheRootDir, bucketName, requestId
     let fileName = requestId + '.json'
     let key = path.join('requests', fileName);
     let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+        {fileCacheRootDir: fileCacheRootDir});
     return {
         name: fileName,
-        contents: JSON.parse(objStr)
+        contents: objStr
     };
 }
 
@@ -139,10 +137,11 @@ exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, reque
     let fileName = requestId + '-config-bluesky-aws.json'
     let key = path.join('config', fileName);
     let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+        {fileCacheRootDir: fileCacheRootDir});
+    objStr = Buffer.from(objStr, 'base64').toString('ascii')
     let obj = JSON.parse(objStr);
-    obj.aws.iam_instance_profile.Arn = 'xxx'
-    obj.aws.iam_instance_profile.Name = 'xxx'
+    obj.aws.iam_instance_profile.arn = 'xxx'
+    obj.aws.iam_instance_profile.name = 'xxx'
     obj.ssh_key = 'xxx'
     obj.aws.ec2.key_pair_name = 'xxx'
     if (obj.notifications.email.username) {
@@ -151,9 +150,10 @@ exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, reque
     if (obj.notifications.email.password) {
         obj.notifications.email.password = 'xxx'
     }
+    objStr = Buffer.from(JSON.stringify(obj)).toString('base64')
     return {
         name: fileName,
-        contents: obj
+        contents: objStr
     };
 }
 
@@ -161,10 +161,10 @@ exports.getBlueskyConfig = async function(fileCacheRootDir, bucketName, requestI
     let fileName = requestId + '-config-bluesky.json';
     let key = path.join('config', fileName);
     let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+        {fileCacheRootDir: fileCacheRootDir});
     return {
         name: fileName,
-        contents: JSON.parse(objStr)
+        contents: objStr
     };
 }
 
@@ -172,7 +172,7 @@ exports.getRunLog = async function(fileCacheRootDir, bucketName, requestId, runI
     let fileName = runId + '.log';
     let key = path.join('log', requestId, fileName);
     let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+        {fileCacheRootDir: fileCacheRootDir});
     return {
         name: fileName,
         contents: objStr
@@ -183,10 +183,10 @@ exports.getRunInput = async function(fileCacheRootDir, bucketName, requestId, ru
     let fileName = runId + '-input.json'
     let key = path.join('input', requestId, fileName);
     let objStr = await getObject(bucketName, key,
-        {fileCacheRootDir: fileCacheRootDir, convertToString: true});
+        {fileCacheRootDir: fileCacheRootDir});
     return {
         name: fileName,
-        contents: JSON.parse(objStr)
+        contents: objStr
     };
 }
 

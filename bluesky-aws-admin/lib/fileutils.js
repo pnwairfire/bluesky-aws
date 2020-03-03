@@ -44,6 +44,6 @@ exports.getFile = async function(filepath) {
     // TODO: don't call toString if binary data ?
     return {
         name: path.basename(filepath),
-        contents: (await fs.promises.readFile(filepath)).toString()
+        contents: (await fs.promises.readFile(filepath)).base64Slice()
     }
 }
