@@ -140,8 +140,8 @@ exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, reque
         {fileCacheRootDir: fileCacheRootDir});
     objStr = Buffer.from(objStr, 'base64').toString('ascii')
     let obj = JSON.parse(objStr);
-    obj.aws.iam_instance_profile.arn = 'xxx'
-    obj.aws.iam_instance_profile.name = 'xxx'
+    obj.aws.iam_instance_profile.Arn = 'xxx'
+    obj.aws.iam_instance_profile.Name = 'xxx'
     obj.ssh_key = 'xxx'
     obj.aws.ec2.key_pair_name = 'xxx'
     if (obj.notifications.email.username) {
@@ -150,6 +150,13 @@ exports.getBlueskyAwsConfig = async function(fileCacheRootDir, bucketName, reque
     if (obj.notifications.email.password) {
         obj.notifications.email.password = 'xxx'
     }
+    for (let i in obj.aws.ec2.security_groups) {
+        obj.aws.ec2.security_groups[i] = 'xxx'
+    }
+    for (let i in obj.aws.ec2.efs_volumes) {
+        obj.aws.ec2.efs_volumes[i][0] = 'xxx'
+    }
+    obj.notifications = '(removed)'
     objStr = Buffer.from(JSON.stringify(obj)).toString('base64')
     return {
         name: fileName,
