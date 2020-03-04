@@ -31,9 +31,14 @@ class Ec2InstancesManager(object):
 
     async def __aenter__(self):
         self._set_signal_handlers()
-        await self._launch()
-        await self._schedule_auto_termination()
-        await self._initialize()
+        try:
+            await self._launch()
+            await self._schedule_auto_termination()
+            await self._initialize()
+        except:
+            await self._terminate()
+            raise
+
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
