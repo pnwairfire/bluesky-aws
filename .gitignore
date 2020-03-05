@@ -1,5 +1,6 @@
 .aws
 __pycache__/
 dev-private/
+.private/
 tmp/
 *~
