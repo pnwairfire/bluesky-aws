@@ -152,8 +152,44 @@ class Ec2InstancesManager(object):
         if self._new_instances:
             for i in self._new_instances:
                 i.reload()
-            running_instances = [i for i in self._new_instances
-                if i and i.state and i.state['Name'] in ('pending', 'running')]
+
+            # The list of running instances used to be set with the following
+            # list comprehension
+            #
+            #   running_instances = [i for i in self._new_instances
+            #       if i and i.state and i.state['Name'] in ('pending', 'running')]
+            #
+            # This, however, sometimes resulted in the following exception:
+            #
+            #   File "/bluesky-aws/blueskyaws/launch.py", line 156, in <listcomp>
+            #     if i and i.state and i.state['Name'] in ('pending', 'running')]
+            #   File "/usr/local/lib/python3.7/site-packages/boto3/resources/factory.py", line 345, in property_loader
+            #     return self.meta.data.get(name)
+            #   AttributeError: 'NoneType' object has no attribute 'get'
+            #
+            # It turns out that, though the instance object 'i' was defined, referencing
+            # the 'state' attribute raised the AttributeError
+            #
+            # (Pdb) p i
+            # ec2.Instance(id='i-0ea188fdffd12b969')
+            # (Pdb) p i.state
+            # *** AttributeError: 'NoneType' object has no attribute 'get'
+            #
+            # This could be fixed by using the following in the list comprehension
+            #
+            #    i and hasattr(i, 'state') and i.state['Name']
+            #
+            # But just to be safe, we now use a for loop to catch any exception and
+            # skip the instance at fault, so as to avoid aborting termination of any
+            # instances that are in fact running.
+            running_instances = []
+            for i in self._new_instances:
+                try:
+                    if i and i.state and i.state['Name'] in ('pending', 'running'):
+                        running_instances.append(i)
+                except:
+                    logging.warn("Failed to check state of instance %s. Assuming it's already terminated", i)
+
             if running_instances:
                 # TODO: only include instances that haven't already been shut down
                 logging.info("Terminating %s new instances",
