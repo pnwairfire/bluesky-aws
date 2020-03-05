@@ -190,4 +190,4 @@ cd ~/code/pnwairfire-bluesky-aws
 make build
 ```
  - run `run-bluesky`
- - optionall set up daily cron job on new instance (assuming you have a periodic generation of fires to run)
+ - optionally set up daily cron job on new instance (assuming you have periodic generation of fires to run)
