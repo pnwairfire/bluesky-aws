@@ -130,7 +130,7 @@ def get_command(input_file, args):
     cmd = [
         "docker", "run", "--rm", "-ti", "--user", "blueskyaws",
         "-v", "{}/:/bluesky-aws/".format(cwd),
-        "-v", "{}/.aws/:/home/blueskyaws/.aws/".format(cwd),
+        "-v", "{}/.aws/:/home/blueskyaws/.aws/".format(home),
         "-v", "{}/.ssh:/home/blueskyaws/.ssh".format(home)
     ]
     if not input_file.startswith('http'):
