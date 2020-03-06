@@ -2,6 +2,21 @@
     padding: 20px;
 }
 
+.runs-table td.status-cell span {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+}
+.runs-table tr.running td.status-cell span, .runs-table tr.waiting td.status-cell span {
+    background: #FFF3CD;
+}
+.runs-table tr.unknown td.status-cell span, .runs-table tr.failure td.status-cell span {
+    background: #F8D7DA;
+}
+.runs-table tr.success td.status-cell span {
+    background: #CCE5FF;
+}
+
 .runs-table td.run-output a {
     padding: 10px;
 }

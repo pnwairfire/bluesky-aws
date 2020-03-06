@@ -71,9 +71,11 @@ function RunRow(props) {
     }
 
     return (
-        <tr key={props.idx}>
+        <tr key={props.idx} className={styles[props.run.status]}>
             <td>{props.runId}</td>
-            <td>{props.run.status}</td>
+            <td className={styles['status-cell']}>
+                <span>{props.run.status}</span>
+            </td>
             <td>
                 <Link href="/requests/[request]/runs/[run]/config"
                         as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}/config`}>
