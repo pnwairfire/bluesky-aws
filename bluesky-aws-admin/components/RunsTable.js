@@ -28,7 +28,7 @@ export default function RunsTable(props) {
         // after checking s3 for the existence of the keys.
         return (
             <WrappedRunsTable numRuns={props.showRunsCount && Object.entries(props.runs).length}>
-                <Table striped bordered hover>
+                <Table bordered hover>
                     <thead>
                         <tr>
                             <th>Run Id</th>
