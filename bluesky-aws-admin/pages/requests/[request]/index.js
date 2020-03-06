@@ -73,7 +73,9 @@ export default function Index() {
                     </Row>
                     <Row>
                         <Col>
-                            <RunsTable showRunsCount={true} request={request} runs={runs} />
+                            <RunsTable showRunsCount={true}
+                                linkToRunPage={true}
+                                request={request} runs={runs} />
                         </Col>
                     </Row>
                     <Row>
@@ -88,7 +90,7 @@ export default function Index() {
                                 header="Request Config" />
                         </Col>
                     </Row>
-                    </Container>
+                </Container>
             </div>
         </Layout>
     )

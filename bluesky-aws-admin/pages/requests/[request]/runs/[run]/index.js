@@ -70,7 +70,9 @@ export default function Index() {
                 <Container fluid={true}>
                     <Row>
                         <Col>
-                            <RunsTable showRunsCount={false} request={request} runs={runs} />
+                            <RunsTable showRunsCount={false}
+                                linkToRunPage={false}
+                                request={request} runs={runs} />
 
                         </Col>
                     </Row>

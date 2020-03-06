@@ -41,7 +41,10 @@ export default function RunsTable(props) {
                     </thead>
                     <tbody>
                         {Object.keys(props.runs).map((runId, idx) => (
-                            <RunRow request={props.request} idx={idx} runId={runId} run={props.runs[runId]} />
+                            <RunRow request={props.request}
+                                idx={idx} runId={runId}
+                                run={props.runs[runId]}
+                                linkToRunPage={props.linkToRunPage} />
                         ))}
                     </tbody>
                 </Table>
@@ -72,7 +75,16 @@ function RunRow(props) {
 
     return (
         <tr key={props.idx} className={styles[props.run.status]}>
-            <td>{props.runId}</td>
+            <td>
+                {props.linkToRunPage && (
+                    <Link href="/requests/[request]/runs/[run]"
+                            as={`/requests/${encodeURIComponent(props.request)}/runs/${encodeURIComponent(props.runId)}`}>
+                        <a>{props.runId}</a>
+                    </Link>
+                ) || (
+                    <span>{props.runId}</span>
+                )}
+            </td>
             <td className={styles['status-cell']}>
                 <span>{props.run.status}</span>
             </td>
