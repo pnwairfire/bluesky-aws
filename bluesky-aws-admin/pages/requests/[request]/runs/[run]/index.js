@@ -1,10 +1,15 @@
+import path from 'path'
 import { useRouter } from 'next/router'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Alert from 'react-bootstrap/Alert'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import getConfig from 'next/config'
 
 import Layout from '../../../../../components/Layout'
 import RunsTable from '../../../../../components/RunsTable'
+import FileViewer from '../../../../../components/FileViewer'
 import { ApiClient } from '../../../../../lib/apiutils'
 
 const { publicRuntimeConfig } = getConfig()
@@ -17,11 +22,33 @@ export default function Index() {
         + '/requests/' + encodeURIComponent(request);
 
     let {data, fetchError} = {data:null, fetchError:null}
-    if (request) {
+    let inputApiPath = null
+    let inputFullPageLink = null
+    let configApiPath = null
+    let configFullPageLink = null
+    if (request && run) {
         let res = ApiClient.get('/api/requests/'
             + encodeURIComponent(request) + '/status');
         data = res.data;
         fetchError = res.fetchError;
+
+        let basePath = path.join('/requests/',
+            encodeURIComponent(request), 'runs',
+            encodeURIComponent(run));
+
+        inputApiPath = path.join('/api', basePath, 'input')
+        inputFullPageLink = {
+            hrefPath: "/requests/[request]/runs/[run]/input",
+            asPath: path.join(basePath, 'input')
+        }
+
+        // run config api path has no run id in it
+        configApiPath = path.join('/api/requests/',
+            encodeURIComponent(request), '/bluesky-config');
+        configFullPageLink = {
+            hrefPath: "/requests/[request]/runs/[run]/config",
+            asPath: path.join(basePath, 'config')
+        }
     }
 
     let status = data && data.status;
@@ -40,7 +67,26 @@ export default function Index() {
                     <Alert variant="danger">{error}</Alert>
                 }
 
-                <RunsTable showRunsCount={false} request={request} runs={runs} />
+                <Container fluid={true}>
+                    <Row>
+                        <Col>
+                            <RunsTable showRunsCount={false} request={request} runs={runs} />
+
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <FileViewer apiPath={inputApiPath}
+                                fullPageLink={inputFullPageLink}
+                                header="Request Input" />
+                        </Col>
+                        <Col>
+                            <FileViewer apiPath={configApiPath}
+                                fullPageLink={configFullPageLink}
+                                header="Request Config" />
+                        </Col>
+                    </Row>
+                    </Container>
             </div>
         </Layout>
     )
