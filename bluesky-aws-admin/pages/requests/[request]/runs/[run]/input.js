@@ -35,7 +35,7 @@ export default function Log() {
                 </Breadcrumb>
 
                 <FileViewer apiPath={apiPath} fileName={fileName}
-                    header="Run Input" />
+                    header="BlueSky Input" />
             </div>
         </Layout>
     )

@@ -78,12 +78,12 @@ export default function Index() {
                         <Col>
                             <FileViewer apiPath={inputApiPath}
                                 fullPageLink={inputFullPageLink}
-                                header="Request Input" />
+                                header="BlueSky Input" />
                         </Col>
                         <Col>
                             <FileViewer apiPath={configApiPath}
                                 fullPageLink={configFullPageLink}
-                                header="Request Config" />
+                                header="BlueSky Config" />
                         </Col>
                     </Row>
                     </Container>

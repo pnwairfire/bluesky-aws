@@ -33,7 +33,7 @@ export default function Log() {
                     <Breadcrumb.Item active>Run Config</Breadcrumb.Item>
                 </Breadcrumb>
 
-                <FileViewer apiPath={apiPath} header="Run Config" />
+                <FileViewer apiPath={apiPath} header="BlueSky Config" />
             </div>
         </Layout>
     )
