@@ -32,6 +32,8 @@ export default function RunsTable(props) {
                     <thead>
                         <tr>
                             <th>Run Id</th>
+                            <th>Location</th>
+                            <th>Area</th>
                             <th>Status</th>
                             <th>Config</th>
                             <th>Input</th>
@@ -83,6 +85,20 @@ function RunRow(props) {
                     </Link>
                 ) || (
                     <span>{props.runId}</span>
+                )}
+            </td>
+            <td>
+                {props.run.fire_info && props.run.fire_info.lat && (
+                    <span>{props.run.fire_info.lat}, {props.run.fire_info.lng}</span>
+                ) || (
+                    <span>?</span>
+                )}
+            </td>
+            <td>
+                {props.run.fire_info && props.run.fire_info.area && (
+                    <span>{props.run.fire_info.area} acres</span>
+                ) || (
+                    <span>?</span>
                 )}
             </td>
             <td className={styles['status-cell']}>
