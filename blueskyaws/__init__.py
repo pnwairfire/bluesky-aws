@@ -199,7 +199,8 @@ class BlueskySingleRunner(object):
 
     async def run(self):
         await self._record_input()
-        await self._status_tracker.set_run_status(self, Status.RUNNING)
+        await self._status_tracker.set_run_status(self, Status.RUNNING,
+            fire_info=self._get_fire_info())
         logging.info("Running BlueskySingleRunner.run on %s", self._ip)
 
         try:
@@ -252,6 +253,38 @@ class BlueskySingleRunner(object):
         if len(self._input_data['fires']) == 1 and self._input_data['fires'][0].get('id'):
             return self._input_data['fires'][0]['id']
 
+    def _get_fire_info(self):
+        fire_info = {
+            'area': None,
+            'lat': None,
+            'lng': None
+        }
+        try:
+            area = 0
+            for a in self._input_data['fires'][0]['activity']:
+                for aa in a['active_areas']:
+                    if 'specified_points' in aa:
+                        for sp in aa['specified_points']:
+                            area += sp['area']
+                            if not fire_info['lat']:
+                                fire_info.update(
+                                    lat=sp['lat'],
+                                    lng=sp['lng']
+                                )
+                    elif 'perimeter' in aa:
+                        area += aa['perimeter'].get('area', 0)
+                        if not fire_info['lat']:
+                            first_coord = aa['perimeter']['polygon'][0]
+                            fire_info.update(
+                                lat=first_coord[1],
+                                lng=first_coord[0]
+                            )
+            fire_info['area'] = area
+
+        except Exception as e:
+            logging.warn("Failed to parse fire info from input file")
+
+        return fire_info
 
     def _set_run_id(self):
         # if run_id_format is not defined, set run id to fire id, if
