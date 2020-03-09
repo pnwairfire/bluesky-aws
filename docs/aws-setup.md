@@ -39,14 +39,13 @@ sudo apt-get install -y nfs-common
 
 
 
-## Create an Instance & Image for Running Bluesky
+## Create an EC2 AMI for Running Bluesky
 
  - Launch an ubuntu instance with essentials (see above), and ssh to it
- - pull bluesky image, verify that it works
+ - pull bluesky image and verify that it works
 ```
 docker pull pnwairfire/bluesky:v4.1.33
-docker run --rm pnwairfire/bluesky:v4.1.33
-exit
+docker run --rm pnwairfire/bluesky:v4.1.33 # this will print helpstring
 ```
  - Install `at` for scheduling instance auto-termination
  ```
@@ -76,8 +75,11 @@ dispersion, that require met data.
 
 ## Launch and Setup an Instance for Running Admin App and run-bluesky
 
- - Launch an ubuntu instance with essentials (see above) and ssh to it -- make sure to add security group that allows opens ports 80 and 443 (in addition to 22 for ssh)
- - update DNS to point subdomain (we'll use 'foo' for these instructions) to new instance
+Note that these instructions use apache2 virtual hosts to proxy requests to
+the bluesky-aws-admin web app.
+
+ - Launch an ubuntu instance with essentials (see above) and ssh to it -- make sure to add a security group that opens ports 80 and 443 (in addition to 22 for ssh)
+ - Using your domain regestrar, create an A Record or CNAME (whichever is appropriate) to point a sub-domain (we'll use 'foo' for these instructions) to the new instance
  - install apache and enable modules
 ```
 sudo apt-get update
@@ -89,11 +91,11 @@ sudo systemctl restart apache2
 ```
 sudo apt-get install -y docker-compose
 ```
- - optionally install tmux and emacs
+ - optionally install tmux and a text editor
 ```
 sudo apt-get install -y tmux emacs
 ```
- - install AWS credentials, which includes creating two files:
+ - install AWS credentials, which entails creating two files:
   - ~/.aws/config
 ```
 [default]
@@ -128,13 +130,13 @@ cp bluesky-aws-admin/nginx.conf.example bluesky-aws-admin/nginx.conf
 ```
 
 #### Configure apache
- - optionally install ssl certificates and conigure apache to use it
+ - optionally install ssl certificates and configure apache to use it
  - optionally create .htpasswd file if you're going to use basic auth to password protect the admin site
 ```
 sudo htpasswd -c /etc/apache2/.htpasswd bluesky-aws-user1  # replace 'bluesky-aws-user1' with desired username
 sudo htpasswd /etc/apache2/.htpasswd bluesky-aws-user2
 ```
- - To configure apache virtual host to proxy to admin UI, create virtualhost config file `/etc/apache2/sites-available/foo.conf` containing the something like following (modified appropriately). Basic auth and ssl configuration are optional.
+ - To configure an apache virtual host to proxy to the admin UI, create virtualhost config file `/etc/apache2/sites-available/foo.conf` containing something like following (modified appropriately). Basic auth and ssl configuration are optional.
 ```
 SSLStrictSNIVHostCheck off
 
@@ -170,7 +172,7 @@ SSLStrictSNIVHostCheck off
   Redirect permanent / https://foo.yourdomain.com
 </VirtualHost>
 ```
- - Verify that config is correct, and then enable it and reload apache
+ - Verify that the config is valid, and then enable it and reload apache
 ```
 sudo apachectl configtest
 sudo a2ensite bluesky-aws.conf
@@ -190,4 +192,4 @@ cd ~/code/pnwairfire-bluesky-aws
 make build
 ```
  - run `run-bluesky`
- - optionally set up daily cron job on new instance (assuming you have periodic generation of fires to run)
+ - optionally schedule `run-bluesky` in cron (e.g. if you have fire data generated on a daily basis)
