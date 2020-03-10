@@ -175,8 +175,6 @@ function saveByteArray(data, name) {
 }
 
 
-
-
 class ViewInFullPageButton extends Component {
 
     constructor(props) {

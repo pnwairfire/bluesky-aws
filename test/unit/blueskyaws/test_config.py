@@ -177,7 +177,7 @@ class TestConfig(object):
         expected = {
             "request_id_format": None,
             "run_id_format": None,
-            "bluesky_version": "v4.1.33",
+            "bluesky_version": "v4.1.34",
             'input': {
                 'wait': {
                     'max_attempts': 3,
@@ -288,7 +288,7 @@ class TestConfig(object):
         expected = {
             "request_id_format": None,
             "run_id_format": None,
-            "bluesky_version": "v4.1.33",
+            "bluesky_version": "v4.1.34",
             'input': {
                 'wait': {
                     'max_attempts': 3,

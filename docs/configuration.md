@@ -56,7 +56,7 @@ can not be set to `null` or something like `foo`
 
 #### bluesky_version
 
-***default***: v4.1.33
+***default***: v4.1.34
 
 a string value matching one of the published bluesky docker image tags
 listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
@@ -179,7 +179,7 @@ Supports the following wildcards:
  - '{fire_id}' - replaced with the id of the run's fire
  - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'
  - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'
- - '{bluesky_today}' - replaced with bluesky's 'today' (defaulting to current 
+ - '{bluesky_today}' - replaced with bluesky's 'today' (defaulting to current
          UTC date, if 'today' isn't specified), formatted '%Y%m%d'
 
 e.g. 'bluesky-aws-run-{fire_id}-{uuid}-{utc_today}' would translate

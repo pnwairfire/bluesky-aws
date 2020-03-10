@@ -44,8 +44,8 @@ sudo apt-get install -y nfs-common
  - Launch an ubuntu instance with essentials (see above), and ssh to it
  - pull bluesky image and verify that it works
 ```
-docker pull pnwairfire/bluesky:v4.1.33
-docker run --rm pnwairfire/bluesky:v4.1.33 # this will print helpstring
+docker pull pnwairfire/bluesky:v4.1.34
+docker run --rm pnwairfire/bluesky:v4.1.34 # this will print helpstring
 ```
  - Install `at` for scheduling instance auto-termination
  ```

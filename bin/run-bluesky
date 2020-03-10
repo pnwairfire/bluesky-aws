@@ -33,7 +33,7 @@ Examples:
         -c ./dev/config/simple-config.json
 
     {script} --log-level INFO -i ./dev/data/3-fires.json \\
-        --instance bluesky-v4.1.33-test \\
+        --instance bluesky-v4.1.34-test \\
         -c ./dev/config/simple-config.json
 
  """.format(script=sys.argv[0])
