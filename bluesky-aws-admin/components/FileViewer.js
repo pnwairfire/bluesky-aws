@@ -1,8 +1,11 @@
 import { Component } from 'react';
 import path from 'path';
-
+import Router from 'next/router'
+import { FaExpandArrowsAlt, FaFileDownload } from "react-icons/fa";
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 import dynamic from 'next/dynamic';
 const ReactJson=dynamic(import ('react-json-view'),{ssr:false});
 
@@ -53,12 +56,7 @@ export default function FileViewer(props) {
                         <div className={styles['buttons-wrapper']}>
                             <DownloadButton contents={contents} filename={fileName} />
                             {props.fullPageLink &&
-                                <Link href={props.fullPageLink.hrefPath}
-                                        as={props.fullPageLink.asPath}>
-                                    <Button variant="outline-dark" size="sm">
-                                        View Full Page
-                                    </Button>
-                                </Link>
+                                <ViewInFullPageButton fullPageLink={props.fullPageLink} />
                             }
                         </div>
                         <ContentsWrapper contents={contents} fileName={fileName} />
@@ -71,6 +69,7 @@ export default function FileViewer(props) {
         return null
     }
 };
+
 
 const EXT_SKIP_MATCHER = /\.(nc|con|kmz)$/
 
@@ -115,6 +114,7 @@ function ContentsWrapper(props) {
     )
 }
 
+
 class DownloadButton extends Component {
 
     constructor(props) {
@@ -129,8 +129,20 @@ class DownloadButton extends Component {
 
     render() {
         return (
-            <Button variant="outline-dark" size="sm"
-                onClick={this.handleClick}>Download</Button>
+            <OverlayTrigger key="download"
+                placement="top"
+                delay={{ show: 250, hide: 250 }}
+                overlay={
+                    <Tooltip id="tooltip-download">
+                        Download
+                    </Tooltip>
+                }
+            >
+                <Button variant="outline-dark" size="sm"
+                    onClick={this.handleClick}>
+                    <FaFileDownload />
+                </Button>
+            </OverlayTrigger>
         )
     }
 }
@@ -160,4 +172,41 @@ function saveByteArray(data, name) {
     a.download = path.basename(name);
     a.click();
     document.body.removeChild(a);
+}
+
+
+
+
+class ViewInFullPageButton extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    handleClick = data => {
+        Router.push(this.props.fullPageLink.asPath)
+    }
+
+    render() {
+        return (
+            <Link href={this.props.fullPageLink.hrefPath}
+                    as={this.props.fullPageLink.asPath}>
+                <OverlayTrigger key="viewinfullpage"
+                    placement="top"
+                    delay={{ show: 250, hide: 250 }}
+                    overlay={
+                        <Tooltip id="tooltip-viewinfullpage">
+                            View Full Page
+                        </Tooltip>
+                    }
+                >
+                    <Button variant="outline-dark" size="sm"
+                            onClick={this.handleClick}>
+                        <FaExpandArrowsAlt />
+                    </Button>
+                </OverlayTrigger>
+            </Link>
+        )
+    }
 }
