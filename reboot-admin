@@ -47,14 +47,15 @@ echo "Options"
 echo "  Rebuild docker images: $rebuild"
 echo "  docker-compose YAML file: $yaml_file"
 
+if [ "$rebuild" = true ] ; then
+    docker-compose -p bluesky-aws-admin -f $yaml_file build
+fi
+
 # call `down` on all known yaml files, in case previously used yaml file
 # is different than this one.
 docker-compose -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-dev.yml down --remove-orphans
 docker-compose -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-prod.yml down --remove-orphans
 docker-compose -p bluesky-aws-admin -f $yaml_file down --remove-orphans
-if [ "$rebuild" = true ] ; then
-    docker-compose -p bluesky-aws-admin -f $yaml_file build
-fi
 if [ "$shut_down" = false ] ; then
     if [ "$background" = false ] ; then
         docker-compose -p bluesky-aws-admin -f $yaml_file up
