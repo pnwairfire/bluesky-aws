@@ -42,12 +42,6 @@ export default function FileViewer(props) {
         return (
             <div className={styles['file-viewer']}>
                 <h5>{props.header || fileName}</h5>
-                {props.fullPageLink &&
-                    <Link href={props.fullPageLink.hrefPath}
-                            as={props.fullPageLink.asPath}>
-                        <a>view full page</a>
-                    </Link>
-                }
                 {!data &&
                     <LoadingSpinner />
                 }
@@ -58,6 +52,14 @@ export default function FileViewer(props) {
                     <div className={styles['content-wrapper']}>
                         <div className={styles['buttons-wrapper']}>
                             <DownloadButton contents={contents} filename={fileName} />
+                            {props.fullPageLink &&
+                                <Link href={props.fullPageLink.hrefPath}
+                                        as={props.fullPageLink.asPath}>
+                                    <Button variant="outline-dark" size="sm">
+                                        View Full Page
+                                    </Button>
+                                </Link>
+                            }
                         </div>
                         <ContentsWrapper contents={contents} fileName={fileName} />
                     </div>
