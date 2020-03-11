@@ -1,8 +1,17 @@
 .RECIPEPREFIX = >
+.DEFAULT_GOAL := print_help
 
-ifeq ($(ENV),)
-  $(error ENV is not set)
-endif
+# ifeq ($(ENV),)
+# 	$(error Specify ENV - e.g. ENV=dev make ... )
+# endif
+
+print_help:
+> echo && echo "Usage" && echo "\tENV=[dev|prod] make [build|...]" && echo \
+	&& echo "Examples" && echo "\tmake build" && echo "\tENV=dev make build" \
+	&& echo && echo "(note that ENV is not needed for all tasks)" && echo
+
+require_env:
+>	test -n "$(ENV)" || (echo && echo "*** ENV not specified - type 'make' for usage" && echo && exit 1)
 
 update:
 > git pull
@@ -12,7 +21,7 @@ build:
         --build-arg UID=`id -u` \
         --build-arg GID=`id -g`
 
-build_admin:
+build_admin: require_env
 > docker-compose -p bluesky-aws-admin \
 	-f bluesky-aws-admin/docker-compose-$(ENV).yml build
 
