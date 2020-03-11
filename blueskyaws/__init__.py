@@ -508,7 +508,7 @@ class BlueskySingleRunner(object):
     PARSE_ERROR_SCRIPT = """
         import json; import sys;
         output=json.loads(sys.stdin.read());
-        error=output.get("failed_fires") and output["failed_fires"][0].get("error");
+        error=output.get("error") or (output.get("failed_fires") and output["failed_fires"][0].get("error"));
         sys.stdout.write(json.dumps(error or ""))
     """.replace("\n", "").strip()
 
