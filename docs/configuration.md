@@ -311,6 +311,14 @@ bluesky config settings that override what's specified in the separate
 
 ---
 
+#### bluesky > seconds_between_completion_checks
+
+***default***: 30
+
+Seconds to wait between checks for run completion
+
+---
+
 #### notifications > email > enabled
 
 ***default***: False

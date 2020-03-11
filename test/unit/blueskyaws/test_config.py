@@ -219,7 +219,8 @@ class TestConfig(object):
                     "emissions"
                 ],
                 "config_file": None,
-                "config": {}
+                "config": {},
+                "seconds_between_completion_checks": 30
             },
             "notifications": {
                 "email": {
@@ -330,7 +331,8 @@ class TestConfig(object):
                     "emissions"
                 ],
                 "config_file": "sdsdf.json",
-                "config": {}
+                "config": {},
+                "seconds_between_completion_checks": 30
             },
             "notifications": {
                 "email": {

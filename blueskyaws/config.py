@@ -197,6 +197,10 @@ CONFIG_SETTINGS = OrderedDict({
             bluesky config settings that override what's specified in the separate
             bluesky config file, if one is specified (see below)
         """),
+        "seconds_between_completion_checks": ConfigSetting(30,
+            help_string="Seconds to wait between checks for run completion",
+            validator=lambda v: isinstance(v, int)
+        ),
     },
     "notifications": {
         "email": {

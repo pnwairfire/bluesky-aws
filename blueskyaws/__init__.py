@@ -425,15 +425,12 @@ class BlueskySingleRunner(object):
 
         return cmd
 
-    # TODO: make this configurable?
-    BSP_POLL_WAIT = 30 # seconds
-
     async def _wait_for_bsp_to_complete(self):
+        poll_wait = self._config('bluesky', 'seconds_between_completion_checks')
         ps_cmd = 'docker ps -f name={} |grep -v CONTAINER'.format(self._request_id)
         while True:
-            logging.info("Waiting %s before checking if bsp completed",
-                self.BSP_POLL_WAIT)
-            await asyncio.sleep(self.BSP_POLL_WAIT)
+            logging.info("Waiting %s before checking if bsp completed", poll_wait)
+            await asyncio.sleep(poll_wait)
             try:
                 await self._execute(ps_cmd)
             except Exception as e:
