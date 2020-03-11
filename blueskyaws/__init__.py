@@ -226,11 +226,18 @@ class BlueskySingleRunner(object):
                         output_url=self._output_url, log_url=self._log_url)
 
                 else:
-                    # TODO: check return value of bluesky and/or look in bluesky
-                    #   output for error, and determine status from that
+                    # TODO: also check return value of bsp to detect
+                    #    failure, if possible
+                    error = await self._check_output_for_error()
+                    status = Status.FAILURE if error else Status.SUCCESS
+                    status_kwargs = dict(
+                        output_url=self._output_url,
+                        log_url=self._log_url
+                    )
+                    if error:
+                        status_kwargs.update(error=error)
                     await self._status_tracker.set_run_status(self,
-                        Status.SUCCESS, output_url=self._output_url,
-                        log_url=self._log_url)
+                        status, **status_kwargs)
 
         except Exception as e:
             logging.error(str(e), exc_info=True)
@@ -499,3 +506,19 @@ class BlueskySingleRunner(object):
                 bucket=self._config('aws', 's3', 'bucket_name'),
                 region=self.REGION, path=path.strip('/'),
                 request_id=self._request_id, filename=filename)
+
+
+    PARSE_ERROR_SCRIPT = """
+        import json; import sys;
+        output=json.loads(sys.stdin.read());
+        error=output.get("failed_fires") and output["failed_fires"][0].get("error");
+        sys.stdout.write(json.dumps(error or ""))
+    """.replace("\n", "").strip()
+
+    async def _check_output_for_error(self):
+        # look in bluesky output for error, and return it
+        cmd = "cat {}/output.json |python3 -c '{}'".format(
+            self._host_data_dir, self.PARSE_ERROR_SCRIPT)
+        d = await self._execute(cmd, ignore_errors=True)
+        d = json.loads(d) if d else None
+        return d
