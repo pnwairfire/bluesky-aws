@@ -25,10 +25,10 @@ build_admin: require_env
 > docker-compose -p bluesky-aws-admin \
 	-f bluesky-aws-admin/docker-compose-$(ENV).yml build
 
-build_all: build build_admin
+build_all: require_env build build_admin
 
 restart_admin:
 > ./reboot-admin --background \
 	--yaml-file bluesky-aws-admin/docker-compose-$(ENV).yml
 
-bounce: update build_all restart_admin
+bounce: require_env update build_all restart_admin
