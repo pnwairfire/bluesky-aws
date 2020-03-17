@@ -192,4 +192,11 @@ cd ~/code/pnwairfire-bluesky-aws
 make build
 ```
  - run `run-bluesky`
+
+##### cron
  - optionally schedule `run-bluesky` in cron (e.g. if you have fire data generated on a daily basis)
+ - install mutt to receive mail on failures
+```
+sudo apt-get install mutt
+mutt  # run it once to set up mail file
+```
