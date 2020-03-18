@@ -10,10 +10,10 @@ import { ApiServerUtils } from '../../../lib/apiutils'
 // so we're using promise then / catch syntax rather than async / await
 export default (req, res) => {
     const {
-        query: { limit, next },
+        query: { limit, next, datePrefix },
     } = req
 
-    getRequests(process.env.s3.bucketName, limit, next)
+    getRequests(process.env.s3.bucketName, limit, next, datePrefix)
         .then(data => {
             ApiServerUtils.writeReponse(res, data);
         })
