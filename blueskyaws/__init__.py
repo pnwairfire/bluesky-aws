@@ -43,6 +43,8 @@ class BlueskyParallelRunner(object):
 
     async def run(self, input_file_name):
         self._utcnow = datetime.datetime.utcnow()
+
+        self._set_bluesky_today()
         self._set_request_id(input_file_name)
 
         await self._set_status_tracker()
@@ -57,6 +59,24 @@ class BlueskyParallelRunner(object):
             await self._notify()
 
     ## Initialization
+
+    VALID_BLUESKY_TODAY_FORMATS = ('%Y-%m-%d', '%Y%m%d')
+
+    def _set_bluesky_today(self):
+        bs_today_str = self._config('bluesky', 'today')
+        if bs_today_str:
+            for f in self.VALID_BLUESKY_TODAY_FORMATS:
+                try:
+                    self._bluesky_today = datetime.datetime.strptime(bs_today_str, f)
+                    return
+                except Exception as e:
+                    pass
+            raise ValueError("Invalid value for bluesky > today")
+
+        # Bluesky's '--today' defaults to the requests's 'now', so that all
+        # bsp runs are executed with the same value.  But, each
+        # run will format it's 'run_id' with it's own 'now' timestamp
+        self._bluesky_today = self._utcnow
 
     JSON_EXT_STRIPPER = re.compile('\.json$')
 
@@ -152,7 +172,7 @@ class BlueskyParallelRunner(object):
             runners = [
                 BlueskySingleRunner({'fires': [fire]}, ec2_instance_manager,
                     instance, self._config, self._bluesky_config,
-                    self._request_id, self._status_tracker, self._utcnow)
+                    self._request_id, self._status_tracker, self._bluesky_today)
                 for fire, instance in runs
             ]
 
@@ -175,7 +195,7 @@ class BlueskyParallelRunner(object):
 class BlueskySingleRunner(object):
 
     def __init__(self, input_data, ec2_instance_manager, instance, config,
-            bluesky_config, request_id, status_tracker, request_utcnow):
+            bluesky_config, request_id, status_tracker, bluesky_today):
         self._input_data = input_data
         self._ec2_instance_manager = ec2_instance_manager
         self._instance = instance
@@ -184,12 +204,7 @@ class BlueskySingleRunner(object):
         self._bluesky_config = bluesky_config
         self._request_id = request_id
         self._status_tracker = status_tracker
-        # Default bluesky's '--today' to the requests's 'now', so that all
-        # bsp runs are executed with the same value.  But, also create
-        # a run-specific 'now' for use in formating the 'run_id'.
-        self._bluesky_today_str = (config('bluesky', 'today')
-            or request_utcnow.strftime('%Y-%m-%d'))
-        self._utcnow = datetime.datetime.utcnow()
+        self._bluesky_today = bluesky_today
         self._set_run_id()
         self._output_url = None
         self._log_url = None
@@ -298,13 +313,14 @@ class BlueskySingleRunner(object):
         # only one fire, else set to new uuid (?)
         fire_id = self._get_fire_id()
         if self._config('run_id_format'):
+            utcnow = datetime.datetime.utcnow()
             run_id = substitude_config_wildcards(self._config, 'run_id_format',
                 fire_id=fire_id or '', request_id=self._request_id,
                 uuid=str(uuid.uuid4()).split('-')[0],
-                utc_today=self._utcnow.strftime("%Y%m%d"),
-                utc_now=self._utcnow.strftime("%Y%m%dT%H%M%S"),
-                bluesky_today=self._bluesky_today_str.replace('-',''))
-            self._run_id = self._utcnow.strftime(run_id)
+                utc_today=utcnow.strftime("%Y%m%d"),
+                utc_now=utcnow.strftime("%Y%m%dT%H%M%S"),
+                bluesky_today=self._bluesky_today.strftime('%Y%m%d'))
+            self._run_id = utcnow.strftime(run_id)
         else:
             self._run_id = "fire-" + fire_id if fire_id else str(uuid.uuid4())
 
@@ -419,7 +435,7 @@ class BlueskySingleRunner(object):
             ).format(
                 version=self._config('bluesky_version'),
                 run_id=self._run_id,
-                today=self._bluesky_today_str,
+                today=self._bluesky_today.strftime('%Y-%m-%d'),
                 modules=' '.join(self._config('bluesky', 'modules') + ['export'])
             )
 
