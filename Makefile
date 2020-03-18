@@ -16,12 +16,16 @@ require_env:
 update:
 > git pull
 
+
 build:
 > docker build -t bluesky-aws . \
         --build-arg UID=`id -u` \
         --build-arg GID=`id -g`
 
-build_admin: require_env
+clear_admin_cache:
+> sudo rm -r bluesky-aws-admin/cache/bluesky-aws-admin-cache/*
+
+build_admin: require_env clear_admin_cache
 > docker-compose -p bluesky-aws-admin \
 	-f bluesky-aws-admin/docker-compose-$(ENV).yml build
 
