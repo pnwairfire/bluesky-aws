@@ -95,7 +95,7 @@ class BlueskyParallelRunner(object):
             self._request_id = input_file_basename
 
     async def _set_status_tracker(self):
-        self._status_tracker = StatusTracker(
+        self._status_tracker = StatusTracker(self._bluesky_today,
             self._request_id, self._s3_client, self._config)
         await self._status_tracker.initialize()
 

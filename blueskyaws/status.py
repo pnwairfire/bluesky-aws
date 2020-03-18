@@ -47,12 +47,19 @@ class Status(object):
 
 class StatusTracker(object):
 
-    def __init__(self, request_id, s3_client, config):
+    def __init__(self, bluesky_today, request_id, s3_client, config):
         self._s3_client = s3_client
+        self._bluesky_today = bluesky_today
         self._request_id = request_id
         self._config = config
         self._status = None
         self._lock = asyncio.Lock()
+
+    async def _record_in_request_index(self):
+        path = os.path.join('request-index',
+            self._bluesky_today.strftime("%Y%m%d"), self._request_id)
+        await run_in_loop_executor(self._s3_client.put_object, Body='',
+            Bucket=self._config('aws', 's3', 'bucket_name'), Key=path)
 
     async def _save_status(self):
         logging.info("Saving status %s", self._status)
@@ -80,6 +87,7 @@ class StatusTracker(object):
         }
         self._initialize_counts()
         await self._save_status()
+        await self._record_in_request_index()
 
     async def set_system_state(self, system_state, **kwargs):
         self._status['system_state'] = system_state
