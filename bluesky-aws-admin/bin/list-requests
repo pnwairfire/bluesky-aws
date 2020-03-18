@@ -11,12 +11,13 @@ function parseArgs () {
         .option('-l, --limit <number>', 'max numver of requests')
         .option('-n, --next <next continuation token>', 'where previous request left off')
         .option('-i, --json-indent <indent>', 'e.g. 4', (v) => parseInt(v))
+        .option('-d, --date-prefix <datestr>', 'e.g. "2020", "202003", "20200317')
         .parse(process.argv);
 }
 
 //async function go(){
 function go() {
-    s3.getRequests(commander.bucket, commander.limit, commander.next)
+    s3.getRequests(commander.bucket, commander.limit, commander.next, commander.datePrefix)
         .then(data => {
             let requests = data.requests
             // TODO: find npm package to tabulate output
