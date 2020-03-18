@@ -15,10 +15,6 @@ const fileutils = require('./fileutils')
 
 const s3 = new S3();
 
-const REQUEST_S3_PREFIX = 'requests/';
-const REQUEST_S3_PREFIX_STRIPPER = new RegExp('^'+REQUEST_S3_PREFIX);
-const JSON_EXT_STRIPPER = /.json/;
-
 async function writeFile(fileName, dataStr) {
     let dirName = path.dirname(fileName)
     await fs.mkdir(dirName, {recursive: true})
@@ -30,7 +26,11 @@ async function writeFile(fileName, dataStr) {
  *  Listing Objects
  */
 
-async function listObjects(bucketName, prefix, limit, next) {
+const REQUEST_INDEX_S3_PREFIX = 'request-index/';
+const REQUEST_INDEX_S3_PREFIX_STRIPPER = new RegExp(
+    '^' + REQUEST_INDEX_S3_PREFIX + '[0-9]{8}/');
+
+async function listRequests(bucketName, prefix, limit, next) {
     let params = {
         Bucket: bucketName,
         Prefix: prefix,
@@ -44,9 +44,7 @@ async function listObjects(bucketName, prefix, limit, next) {
         let data = await s3.listObjectsV2(params).promise();
         let requests = data.Contents.map(e => {
             return {
-                requestId: e.Key
-                    .replace(REQUEST_S3_PREFIX_STRIPPER, '')
-                    .replace(JSON_EXT_STRIPPER, ''),
+                requestId: e.Key.replace(REQUEST_INDEX_S3_PREFIX_STRIPPER, ''),
                 ts: e.LastModified
             }
         })
@@ -58,8 +56,10 @@ async function listObjects(bucketName, prefix, limit, next) {
     }
 }
 
-exports.getRequests = async function(bucketName, limit, next) {
-    return await listObjects(bucketName, REQUEST_S3_PREFIX, limit, next);
+exports.getRequests = async function(bucketName, limit, next, datePrefix) {
+    datePrefix = datePrefix || '';
+    var prefix = REQUEST_INDEX_S3_PREFIX + datePrefix;
+    return await listRequests(bucketName, prefix, limit, next);
 }
 
 
