@@ -83,6 +83,7 @@ class StatusTracker(object):
             "system_state": Status.RUNNING,
             "system_error": None,
             "system_message": None,
+            "bluesky_today": self._bluesky_today.strftime("%Y-%m-%d"),
             "runs": defaultdict(lambda: {})
         }
         self._initialize_counts()
