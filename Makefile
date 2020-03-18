@@ -23,7 +23,7 @@ build:
         --build-arg GID=`id -g`
 
 clear_admin_cache:
-> sudo rm -r bluesky-aws-admin/cache/bluesky-aws-admin-cache/*
+> sudo rm -r bluesky-aws-admin/cache/*
 
 build_admin: require_env clear_admin_cache
 > docker-compose -p bluesky-aws-admin \
