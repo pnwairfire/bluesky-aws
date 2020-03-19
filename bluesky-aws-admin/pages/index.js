@@ -143,6 +143,7 @@ export default class Page extends Component {
                         </Col>
                     </Row>
                 </Container>
+                <h3>{strftime('%B %Y', this.state.month)}</h3>
                 <RequestsTable
                     loading={this.state.loading}
                     requests={this.state.requests}
