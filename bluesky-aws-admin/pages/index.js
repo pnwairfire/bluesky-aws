@@ -1,13 +1,16 @@
 import { useRouter } from 'next/router'
-import { Component } from 'react';
+import { useState, Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Calendar from 'react-calendar';
 import strftime from 'strftime'
-import { FaAngleRight, FaAngleLeft, FaSyncAlt } from "react-icons/fa";
+import {
+    FaAngleRight, FaAngleLeft, FaSyncAlt, FaRegCalendarAlt
+} from "react-icons/fa";
 
 import Layout from '../components/Layout'
 import RequestsTable from '../components/RequestsTable'
@@ -130,19 +133,9 @@ export default class Page extends Component {
                 <Breadcrumb>
                     <Breadcrumb.Item active>Home</Breadcrumb.Item>
                 </Breadcrumb>
-                <Container fluid={true}>
-                    <Row>
-                        <Col sm="2">
-                            <Calendar
-                                defaultView="year"
-                                onChange={this.handleMonthChange}
-                                value={this.state.month}
-                                maxDetail="year"
-                                minDetail="year"
-                            />
-                        </Col>
-                    </Row>
-                </Container>
+                <CalendarModal
+                    month={this.state.month}
+                    handleMonthChange={this.handleMonthChange} />
                 <h3>{strftime('%B %Y', this.state.month)}</h3>
                 <RequestsTable
                     loading={this.state.loading}
@@ -169,3 +162,36 @@ export default class Page extends Component {
         )
     }
 };
+
+
+function CalendarModal(props) {
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const onChange = (date) => {
+        props.handleMonthChange(date)
+        setShow(false);
+    }
+
+    return (
+        <>
+          <Button variant="outline-dark" onClick={handleShow}>
+            <FaRegCalendarAlt />
+          </Button>
+
+          <Modal show={show} onHide={handleClose}
+                animation={false} centered>
+            <Modal.Body>
+                <Calendar
+                    defaultView="year"
+                    onChange={onChange}
+                    value={props.month}
+                    maxDetail="year"
+                    minDetail="year"
+                />
+            </Modal.Body>
+          </Modal>
+        </>
+    );
+}
