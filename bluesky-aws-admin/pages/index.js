@@ -3,9 +3,6 @@ import { useState, Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
 import Calendar from 'react-calendar';
 import strftime from 'strftime'
 import {
@@ -133,15 +130,15 @@ export default class Page extends Component {
                 <Breadcrumb>
                     <Breadcrumb.Item active>Home</Breadcrumb.Item>
                 </Breadcrumb>
-                <CalendarModal
-                    month={this.state.month}
-                    handleMonthChange={this.handleMonthChange} />
-                <h3>{strftime('%B %Y', this.state.month)}</h3>
-                <RequestsTable
-                    loading={this.state.loading}
-                    requests={this.state.requests}
-                    error={this.state.error} />
                 <div className={styles['pagination-controls']}>
+                    <CalendarModal
+                        month={this.state.month}
+                        handleMonthChange={this.handleMonthChange} />
+                    <Button variant="outline-dark" size="sm"
+                        onClick={this.handleReloadClick}
+                        disabled={this.state.loading}>
+                        <FaSyncAlt />
+                    </Button>
                     <Button variant="outline-dark" size="sm"
                         onClick={this.handlePreviousClick}
                         disabled={prevDisabled}>
@@ -152,12 +149,12 @@ export default class Page extends Component {
                         disabled={nextDisabled}>
                         <FaAngleRight />
                     </Button>
-                    <Button variant="outline-dark" size="sm"
-                        onClick={this.handleReloadClick}
-                        disabled={this.state.loading}>
-                        <FaSyncAlt />
-                    </Button>
                 </div>
+                <RequestsTable
+                    headerPrefix={strftime('%B %Y', this.state.month)}
+                    loading={this.state.loading}
+                    requests={this.state.requests}
+                    error={this.state.error} />
             </Layout>
         )
     }
@@ -176,7 +173,7 @@ function CalendarModal(props) {
 
     return (
         <>
-          <Button variant="outline-dark" onClick={handleShow}>
+          <Button variant="outline-dark" size="sm" onClick={handleShow}>
             <FaRegCalendarAlt />
           </Button>
 

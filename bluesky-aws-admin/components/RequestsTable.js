@@ -12,7 +12,7 @@ export default function RequestsTable(props) {
                     {props.error}
                 </Alert>
             }
-            <h4>Requests {props.requests && '('+props.requests.length+')'}</h4>
+            <h4>{props.headerPrefix || ''} Requests {props.requests && '('+props.requests.length+')'}</h4>
             {props.loading && (
                 <LoadingSpinner />
             ) || (
