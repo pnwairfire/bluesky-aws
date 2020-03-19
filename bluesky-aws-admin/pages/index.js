@@ -208,6 +208,11 @@ function CalendarModal(props) {
             </ButtonWithToolTip>
             <Modal show={show} onHide={handleClose}
                     animation={false} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Select a Month
+                    </Modal.Title>
+                </Modal.Header>
                 <Modal.Body>
                     <Calendar
                         defaultView="year"
