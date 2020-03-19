@@ -2,6 +2,8 @@ import { useRouter } from 'next/router'
 import { useState, Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Button from 'react-bootstrap/Button'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 import Modal from 'react-bootstrap/Modal'
 import Calendar from 'react-calendar';
 import strftime from 'strftime'
@@ -134,21 +136,24 @@ export default class Page extends Component {
                     <CalendarModal
                         month={this.state.month}
                         handleMonthChange={this.handleMonthChange} />
-                    <Button variant="outline-dark" size="sm"
+                    <ButtonWithToolTip
+                        title="Reload"
                         onClick={this.handleReloadClick}
                         disabled={this.state.loading}>
                         <FaSyncAlt />
-                    </Button>
-                    <Button variant="outline-dark" size="sm"
+                    </ButtonWithToolTip>
+                    <ButtonWithToolTip
+                        title="Previous"
                         onClick={this.handlePreviousClick}
                         disabled={prevDisabled}>
                         <FaAngleLeft />
-                    </Button>
-                    <Button variant="outline-dark" size="sm"
+                    </ButtonWithToolTip>
+                    <ButtonWithToolTip
+                        title="Next"
                         onClick={this.handleNextClick}
                         disabled={nextDisabled}>
                         <FaAngleRight />
-                    </Button>
+                    </ButtonWithToolTip>
                 </div>
                 <RequestsTable
                     headerPrefix={strftime('%B %Y', this.state.month)}
@@ -159,6 +164,28 @@ export default class Page extends Component {
         )
     }
 };
+
+function ButtonWithToolTip(props) {
+    let title = props.title || "";
+    console.log(title)
+    return (
+        <OverlayTrigger key={title.toLowerCase()}
+            placement="top"
+            delay={{ show: 250, hide: 250 }}
+            overlay={
+                <Tooltip id={"tooltip-" + title.toLowerCase()}>
+                    {title}
+                </Tooltip>
+            }
+        >
+            <Button variant="outline-dark" size="sm"
+                onClick={props.onClick}
+                disabled={props.disabled} >
+                {props.children}
+            </Button>
+        </OverlayTrigger>
+    )
+}
 
 
 function CalendarModal(props) {
@@ -173,22 +200,24 @@ function CalendarModal(props) {
 
     return (
         <>
-          <Button variant="outline-dark" size="sm" onClick={handleShow}>
-            <FaRegCalendarAlt />
-          </Button>
-
-          <Modal show={show} onHide={handleClose}
-                animation={false} centered>
-            <Modal.Body>
-                <Calendar
-                    defaultView="year"
-                    onChange={onChange}
-                    value={props.month}
-                    maxDetail="year"
-                    minDetail="year"
-                />
-            </Modal.Body>
-          </Modal>
+            <ButtonWithToolTip
+                title="Select A Different Month"
+                onClick={handleShow}
+                disabled={false}>
+                <FaRegCalendarAlt />
+            </ButtonWithToolTip>
+            <Modal show={show} onHide={handleClose}
+                    animation={false} centered>
+                <Modal.Body>
+                    <Calendar
+                        defaultView="year"
+                        onChange={onChange}
+                        value={props.month}
+                        maxDetail="year"
+                        minDetail="year"
+                    />
+                </Modal.Body>
+            </Modal>
         </>
     );
 }
