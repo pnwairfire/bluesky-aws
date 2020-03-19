@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Calendar from 'react-calendar';
 import strftime from 'strftime'
+import { FaAngleRight, FaAngleLeft, FaSyncAlt } from "react-icons/fa";
 
 import Layout from '../components/Layout'
 import RequestsTable from '../components/RequestsTable'
@@ -146,16 +147,22 @@ export default class Page extends Component {
                     loading={this.state.loading}
                     requests={this.state.requests}
                     error={this.state.error} />
-                <div>
+                <div className={styles['pagination-controls']}>
                     <Button variant="outline-dark" size="sm"
                         onClick={this.handlePreviousClick}
-                        disabled={prevDisabled}>&lt;</Button>
+                        disabled={prevDisabled}>
+                        <FaAngleLeft />
+                    </Button>
                     <Button variant="outline-dark" size="sm"
                         onClick={this.handleNextClick}
-                        disabled={nextDisabled}>&gt;</Button>
+                        disabled={nextDisabled}>
+                        <FaAngleRight />
+                    </Button>
                     <Button variant="outline-dark" size="sm"
                         onClick={this.handleReloadClick}
-                        disabled={this.state.loading}>reload</Button>
+                        disabled={this.state.loading}>
+                        <FaSyncAlt />
+                    </Button>
                 </div>
             </Layout>
         )
