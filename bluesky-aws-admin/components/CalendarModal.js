@@ -16,7 +16,7 @@ export default function CalendarModal(props) {
     }
 
     return (
-        <div>
+        <span>
             <ButtonWithToolTip
                 title="Select A Different Month"
                 onClick={handleShow}
@@ -40,6 +40,6 @@ export default function CalendarModal(props) {
                     />
                 </Modal.Body>
             </Modal>
-        </div>
+        </span>
     );
 }
