@@ -176,16 +176,11 @@ class IndexAuditor(object):
             if not continuation_token:
                 return
 
-
 async def main():
     args = parse_args()
     auditor = IndexAuditor(args.bucket)
-    await auditor.add_missing()
     await auditor.prune()
-
-
-    # TODO
-    # - print/log any request ids that were skipped
+    await auditor.add_missing()
 
 if __name__ == "__main__":
     asyncio.run(main())
