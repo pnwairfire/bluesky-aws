@@ -1,7 +1,7 @@
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 
-function ButtonWithToolTip(props) {
+export default function ButtonWithToolTip(props) {
     let title = props.title || "";
     console.log(title)
     return (

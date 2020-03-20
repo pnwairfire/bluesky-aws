@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal'
 import { useState } from 'react';
 import { FaRegCalendarAlt } from "react-icons/fa";
 
-function CalendarModal(props) {
+export default function CalendarModal(props) {
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
