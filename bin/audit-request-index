@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+
+import asyncio
+import json
+import logging
+import os
+import re
+import sys
+
+try:
+    import afscripting
+    import boto3
+    from afaws.asyncutils import run_in_loop_executor
+
+except ImportError as e:
+    print("*** Error:  {}".format(e))
+    print("*** Run with docker:")
+    print("\n   docker run -v $HOME/.aws/:/home/blueskyaws/.aws/ ")
+    print("       -v $PWD/:/bluesky-aws/ --rm -ti bluesky-aws ")
+    print("       {}\n".format(sys.argv[0]))
+    sys.exit(1)
+
+##
+## Args
+##
+
+REQUIRED_ARGS = [
+    {'short': '-b', 'long': '--bucket', 'help': "S3 bucket name"}
+]
+
+OPTIONAL_ARGS = [
+]
+
+EXAMPLES_STRING = """
+Examples:
+
+    {script} --log-level INFO -b bluesky-aws
+
+ """.format(script=sys.argv[0])
+
+def parse_args():
+    _, args = afscripting.args.parse_args(REQUIRED_ARGS,
+        OPTIONAL_ARGS, epilog=EXAMPLES_STRING,
+        support_configuration_options_short_names=True)
+
+    return args
+
+
+class IndexAuditor(object):
+    def __init__(self, bucket):
+        self.bucket = bucket
+        self.s3_client = boto3.client('s3')
+
+    STATUS_PREFIX_STRIPPER = re.compile("^status/")
+    STATUS_SUFFIX_STRIPPER = re.compile("-status.json$")
+    def request_id_from_status_key(self, status_key):
+        request_id = self.STATUS_PREFIX_STRIPPER.sub('', status_key)
+        return self.STATUS_SUFFIX_STRIPPER.sub('', request_id)
+
+
+    SIMPLE_DATE_EXTRACTOR = re.compile("([0-9]{4}-?[0-9]{2}-?[0-9]{2})")
+    async def get_bluesky_today(self, status_key, request_id):
+        # First try to get from status info. This should work for any
+        # requests later than March 2020
+        r = await run_in_loop_executor(self.s3_client.get_object,
+            Bucket=self.bucket, Key=status_key)
+        status_info = json.loads(r["Body"].read())
+        if status_info.get('bluesky_today'):
+            return status_info['bluesky_today']
+
+        # Next, for older requests, get bluesky-aws config,
+        # and check under bluesky > today
+        bsaws_config_key = "config/{}-config-bluesky.json".format(request_id)
+        r = await run_in_loop_executor(self.s3_client.get_object,
+            Bucket=self.bucket, Key=bsaws_config_key)
+        bsaws_config = json.loads(r["Body"].read())
+        if bsaws_config.get('bluesky', {}).get('today'):
+            return bsaws_config['bluesky']['today']
+
+        # Finally, try to parse from request_id
+        m = self.SIMPLE_DATE_EXTRACTOR.search(request_id)
+        if m:
+            return m.group(0)
+
+
+    async def add_to_index_if_necessary(self, request_id, bluesky_today):
+        # We could check if object already exists, and then only put object
+        # if not already there, but that would be at least as many if not more
+        # API requests than just putting the object.
+        index_key = "request-index/{}/{}".format(
+            bluesky_today.replace("-", '')[0:8], request_id)
+        logging.info("Adding %s to the index", index_key)
+        await run_in_loop_executor(self.s3_client.put_object,
+            Bucket=self.bucket, Key=index_key, Body=b'')
+
+
+    async def add_missing(self):
+        # - iterate through all requests under <bucket>/status,
+        #   making sure to check next, and keep looping as necessary)
+        #   for each request:
+        #   - get bluesky date from one of following (try in order)
+        #     - get status info, and check 'bluesky_today'
+        #     - get bluesky-aws config, and check under bluesky > today
+        #     - try to parse from request_id
+        #     - look in one of the runs' input/output/config/log
+        #   - if found 'today':
+        #     - if not in <bucket>/request-index/
+        #       - add <bucket>/request-index/<request>
+        #   - else:
+        #     - log/print skipped request id
+        failed = []
+        continuation_token = None
+        while True:
+            kwargs = dict(Bucket=self.bucket, Prefix="status/")
+            if continuation_token:
+                kwargs.update(ContinuationToken=continuation_token)
+            r = self.s3_client.list_objects_v2(**kwargs)
+            for obj in r['Contents']:
+                request_id = self.request_id_from_status_key(obj['Key'])
+                logging.info("Checking request %s", request_id)
+                bluesky_today = await self.get_bluesky_today(obj['Key'], request_id)
+                if not bluesky_today:
+                    failed.append(request_id)
+                else:
+                    await self.add_to_index_if_necessary(request_id, bluesky_today)
+
+            continuation_token = r.get('NextContinuationToken')
+            if not continuation_token:
+                return failed
+
+    async def prune(self):
+        # - iterate through all requests under <bucket>/request-index/
+        #   - if not in <bucket>/status
+        #     - delete from <bucket>/request-index
+        pass
+
+async def main():
+    args = parse_args()
+    auditor = IndexAuditor(args.bucket)
+    await auditor.add_missing()
+    await auditor.prune()
+
+
+    # TODO
+    # - print/log any request ids that were skipped
+
+if __name__ == "__main__":
+    asyncio.run(main())
