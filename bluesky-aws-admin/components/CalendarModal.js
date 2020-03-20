@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import Calendar from 'react-calendar';
 import Modal from 'react-bootstrap/Modal'
-import { useState } from 'react';
 import { FaRegCalendarAlt } from "react-icons/fa";
 
 import ButtonWithToolTip from './ButtonWithToolTip'
@@ -16,7 +16,7 @@ export default function CalendarModal(props) {
     }
 
     return (
-        <>
+        <div>
             <ButtonWithToolTip
                 title="Select A Different Month"
                 onClick={handleShow}
@@ -40,6 +40,6 @@ export default function CalendarModal(props) {
                     />
                 </Modal.Body>
             </Modal>
-        </>
+        </div>
     );
 }
