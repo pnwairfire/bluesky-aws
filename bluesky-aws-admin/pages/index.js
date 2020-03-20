@@ -1,18 +1,16 @@
-import { useRouter } from 'next/router'
-import { useState, Component } from 'react';
+//import { useRouter } from 'next/router'
+import { Component } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Button from 'react-bootstrap/Button'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import Tooltip from 'react-bootstrap/Tooltip'
-import Modal from 'react-bootstrap/Modal'
-import Calendar from 'react-calendar';
 import strftime from 'strftime'
 import {
-    FaAngleRight, FaAngleLeft, FaSyncAlt, FaRegCalendarAlt
+    FaAngleRight, FaAngleLeft, FaSyncAlt
 } from "react-icons/fa";
 
 import Layout from '../components/Layout'
 import RequestsTable from '../components/RequestsTable'
+import CalendarModal from '../components/CalendarModal'
+import ButtonWithToolTip from '../components/ButtonWithToolTip'
 import { ApiClient, fetcher } from '../lib/apiutils'
 import styles from './index.module.css'
 
@@ -164,65 +162,3 @@ export default class Page extends Component {
         )
     }
 };
-
-function ButtonWithToolTip(props) {
-    let title = props.title || "";
-    console.log(title)
-    return (
-        <OverlayTrigger key={title.toLowerCase()}
-            placement="top"
-            delay={{ show: 250, hide: 250 }}
-            overlay={
-                <Tooltip id={"tooltip-" + title.toLowerCase()}>
-                    {title}
-                </Tooltip>
-            }
-        >
-            <Button variant="outline-dark" size="sm"
-                onClick={props.onClick}
-                disabled={props.disabled} >
-                {props.children}
-            </Button>
-        </OverlayTrigger>
-    )
-}
-
-
-function CalendarModal(props) {
-    const [show, setShow] = useState(false);
-
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-    const onChange = (date) => {
-        props.handleMonthChange(date)
-        setShow(false);
-    }
-
-    return (
-        <>
-            <ButtonWithToolTip
-                title="Select A Different Month"
-                onClick={handleShow}
-                disabled={false}>
-                <FaRegCalendarAlt />
-            </ButtonWithToolTip>
-            <Modal show={show} onHide={handleClose}
-                    animation={false} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        Select a Month
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Calendar
-                        defaultView="year"
-                        onChange={onChange}
-                        value={props.month}
-                        maxDetail="year"
-                        minDetail="year"
-                    />
-                </Modal.Body>
-            </Modal>
-        </>
-    );
-}
