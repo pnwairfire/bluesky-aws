@@ -10,6 +10,7 @@ import sys
 try:
     import afscripting
     import boto3
+    import botocore
     from afaws.asyncutils import run_in_loop_executor
 
 except ImportError as e:
@@ -51,6 +52,10 @@ class IndexAuditor(object):
         self.bucket = bucket
         self.s3_client = boto3.client('s3')
 
+    ##
+    ## Adding entries to index
+    ##
+
     STATUS_PREFIX_STRIPPER = re.compile("^status/")
     STATUS_SUFFIX_STRIPPER = re.compile("-status.json$")
     def request_id_from_status_key(self, status_key):
@@ -83,7 +88,7 @@ class IndexAuditor(object):
             return m.group(0)
 
 
-    async def add_to_index_if_necessary(self, request_id, bluesky_today):
+    async def add_to_index(self, request_id, bluesky_today):
         # We could check if object already exists, and then only put object
         # if not already there, but that would be at least as many if not more
         # API requests than just putting the object.
@@ -108,7 +113,8 @@ class IndexAuditor(object):
         #       - add <bucket>/request-index/<request>
         #   - else:
         #     - log/print skipped request id
-        failed = []
+        logging.info("================================")
+        logging.info("Adding Requests to Index")
         continuation_token = None
         while True:
             kwargs = dict(Bucket=self.bucket, Prefix="status/")
@@ -117,22 +123,59 @@ class IndexAuditor(object):
             r = self.s3_client.list_objects_v2(**kwargs)
             for obj in r['Contents']:
                 request_id = self.request_id_from_status_key(obj['Key'])
-                logging.info("Checking request %s", request_id)
                 bluesky_today = await self.get_bluesky_today(obj['Key'], request_id)
                 if not bluesky_today:
-                    failed.append(request_id)
+                    logging.info("Failed to determine bluesky's today "
+                        "value for request %s.  Skipping", request_id)
                 else:
-                    await self.add_to_index_if_necessary(request_id, bluesky_today)
+                    await self.add_to_index(request_id, bluesky_today)
 
             continuation_token = r.get('NextContinuationToken')
             if not continuation_token:
-                return failed
+                return
+
+    ##
+    ## Adding entries to index
+    ##
+
+    INDEX_PREFIX_STRIPPER = re.compile("^request-index/[0-9]{8}/")
+    def request_id_from_index_key(self, index_key):
+        return self.INDEX_PREFIX_STRIPPER.sub('', index_key)
 
     async def prune(self):
         # - iterate through all requests under <bucket>/request-index/
         #   - if not in <bucket>/status
         #     - delete from <bucket>/request-index
-        pass
+        logging.info("================================")
+        logging.info("Prunning Index")
+        continuation_token = None
+        while True:
+            kwargs = dict(Bucket=self.bucket, Prefix="request-index/")
+            if continuation_token:
+                kwargs.update(ContinuationToken=continuation_token)
+            r = self.s3_client.list_objects_v2(**kwargs)
+            for obj in r['Contents']:
+                request_id = self.request_id_from_index_key(obj['Key'])
+                try:
+                    status_key = "status/{}-status.json".format(request_id)
+                    await run_in_loop_executor(self.s3_client.head_object,
+                        Bucket=self.bucket, Key=status_key)
+                except botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] == "404":
+                        logging.info("Request index key %s is invalid. Removing from"
+                            " index", obj['Key'])
+                        await run_in_loop_executor(self.s3_client.delete_object,
+                            Bucket=self.bucket, Key=obj['Key'])
+                    else:
+                        logging.info("Someting went wrong checking if request "
+                            "index key %s is valid. Skipping.", obj['Key'])
+                else:
+                    logging.info("Request %s is valid. ", request_id)
+
+            continuation_token = r.get('NextContinuationToken')
+            if not continuation_token:
+                return
+
 
 async def main():
     args = parse_args()
