@@ -16,6 +16,8 @@ require_env:
 update:
 > git pull
 
+update_to_latest_tag: update
+> git checkout `git describe --tags`
 
 build:
 > docker build -t bluesky-aws . \
@@ -36,3 +38,5 @@ restart_admin:
 	--yaml-file bluesky-aws-admin/docker-compose-$(ENV).yml
 
 bounce: require_env update build_all restart_admin
+
+bounce_to_latest_tag: require_env update_to_latest_tag build_all restart_admin
