@@ -13,8 +13,9 @@ print_help:
 require_env:
 >	test -n "$(ENV)" || (echo && echo "*** ENV not specified - type 'make' for usage" && echo && exit 1)
 
+# TODO: support alternate branch and/or remote
 update:
-> git pull
+> git pull origin master
 
 update_to_latest_tag: update
 > git checkout `git describe --abbrev=0 --tags`
