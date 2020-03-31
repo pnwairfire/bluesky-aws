@@ -9,7 +9,7 @@ The instructions in this doc assume thatyou already have an AWS account.
    - create a security group that allows ssh access - [EC2 security group console](https://us-west-2.console.aws.amazon.com/ec2/home#SecurityGroups)
  - ssh to the EC2 instance
 ```
-ssh ubuntu@IP_ADDRESS -i ~.ssh/ID_FILE
+ssh -A ubuntu@IP_ADDRESS -i ~.ssh/ID_FILE
 ```
  - install docker
 ```
@@ -26,7 +26,7 @@ sudo systemctl status docker
 ```
 sudo usermod -aG docker ${USER}
 exit
-ssh ubuntu@IP_ADDRESS -i ~.ssh/ID_FILE
+ssh -A ubuntu@IP_ADDRESS -i ~.ssh/ID_FILE
 ```
  - Install NFS client
 ```
