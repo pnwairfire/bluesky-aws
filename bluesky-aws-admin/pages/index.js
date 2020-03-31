@@ -126,6 +126,7 @@ export default class Page extends Component {
         let prevVariant = (prevDisabled) ? ('light') : ('primary')
         let nextDisabled = ! this.state.nextTokens[this.state.nextTokensIdx + 1]
         let nextVariant = (nextDisabled) ? ('light') : ('primary')
+        let showPaginationButtons = !prevDisabled || !nextDisabled;
         console.log(prevVariant + '/' + nextVariant);
         return (
             <Layout>
@@ -150,22 +151,24 @@ export default class Page extends Component {
                     loading={this.state.loading}
                     requests={this.state.requests}
                     error={this.state.error} />
-                <div className={styles['pagination-controls']}>
-                    <ButtonWithToolTip
-                        title="Load Previous"
-                        variant={prevVariant}
-                        onClick={this.handlePreviousClick}
-                        disabled={prevDisabled}>
-                        <span>previous</span>
-                    </ButtonWithToolTip>
-                    <ButtonWithToolTip
-                        title="Load Next"
-                        variant={nextVariant}
-                        onClick={this.handleNextClick}
-                        disabled={nextDisabled}>
-                        <span>next</span>
-                    </ButtonWithToolTip>
-                </div>
+                {showPaginationButtons && (
+                    <div className={styles['pagination-controls']}>
+                        <ButtonWithToolTip
+                            title="Load Previous"
+                            variant={prevVariant}
+                            onClick={this.handlePreviousClick}
+                            disabled={prevDisabled}>
+                            <FaAngleLeft />
+                        </ButtonWithToolTip>
+                        <ButtonWithToolTip
+                            title="Load Next"
+                            variant={nextVariant}
+                            onClick={this.handleNextClick}
+                            disabled={nextDisabled}>
+                            <FaAngleRight />
+                        </ButtonWithToolTip>
+                    </div>
+                )}
             </Layout>
         )
     }
