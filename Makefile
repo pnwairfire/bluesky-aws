@@ -17,7 +17,7 @@ update:
 > git pull
 
 update_to_latest_tag: update
-> git checkout `git describe --tags`
+> git checkout `git describe --abbrev=0 --tags`
 
 build:
 > docker build -t bluesky-aws . \
