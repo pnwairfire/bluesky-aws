@@ -144,26 +144,28 @@ export default class Page extends Component {
                         disabled={this.state.loading}>
                         <FaSyncAlt />
                     </ButtonWithToolTip>
-                    <ButtonWithToolTip
-                        title="Previous"
-                        variant={prevVariant}
-                        onClick={this.handlePreviousClick}
-                        disabled={prevDisabled}>
-                        <FaAngleLeft />
-                    </ButtonWithToolTip>
-                    <ButtonWithToolTip
-                        title="Next"
-                        variant={nextVariant}
-                        onClick={this.handleNextClick}
-                        disabled={nextDisabled}>
-                        <FaAngleRight />
-                    </ButtonWithToolTip>
                 </div>
                 <RequestsTable
                     headerPrefix={strftime('%B %Y', this.state.month)}
                     loading={this.state.loading}
                     requests={this.state.requests}
                     error={this.state.error} />
+                <div className={styles['pagination-controls']}>
+                    <ButtonWithToolTip
+                        title="Load Previous"
+                        variant={prevVariant}
+                        onClick={this.handlePreviousClick}
+                        disabled={prevDisabled}>
+                        <span>previous</span>
+                    </ButtonWithToolTip>
+                    <ButtonWithToolTip
+                        title="Load Next"
+                        variant={nextVariant}
+                        onClick={this.handleNextClick}
+                        disabled={nextDisabled}>
+                        <span>next</span>
+                    </ButtonWithToolTip>
+                </div>
             </Layout>
         )
     }
