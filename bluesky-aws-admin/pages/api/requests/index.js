@@ -13,7 +13,11 @@ export default (req, res) => {
         query: { limit, next, datePrefix },
     } = req
 
-    getRequests(process.env.s3.bucketName, limit, next, datePrefix)
+
+
+    getRequests(process.env.s3.bucketName,
+        limit || process.env.web.requestsPaginationLimit,
+        next, datePrefix)
         .then(data => {
             ApiServerUtils.writeReponse(res, data);
         })

@@ -35,7 +35,7 @@ async function listRequests(bucketName, prefix, limit, next) {
         Bucket: bucketName,
         Prefix: prefix,
         ContinuationToken: next,
-        MaxKeys: limit || 25
+        MaxKeys: limit
     };
 
     console.log('Fetching request ids from ' + params.Bucket);

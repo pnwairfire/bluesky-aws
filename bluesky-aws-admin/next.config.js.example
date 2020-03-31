@@ -19,7 +19,8 @@ let toExport = {
         web: {
             // This needs to be http://localhost:3000
             // if running outside of docker
-            baseEndpoint: urljoin('http://localhost:3030', basePath)
+            baseEndpoint: urljoin('http://localhost:3030', basePath),
+            requestsPaginationLimit: 25
         },
         output: {
             // Note: the output endpoint will be formed from
