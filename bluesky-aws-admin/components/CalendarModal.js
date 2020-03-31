@@ -19,6 +19,7 @@ export default function CalendarModal(props) {
         <span>
             <ButtonWithToolTip
                 title="Select A Different Month"
+                variant={props.variant}
                 onClick={handleShow}
                 disabled={false}>
                 <FaRegCalendarAlt />

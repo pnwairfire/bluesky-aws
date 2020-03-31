@@ -8,14 +8,13 @@ export default function ButtonWithToolTip(props) {
     return (
         <OverlayTrigger key={title.toLowerCase()}
             placement="top"
-            delay={{ show: 250, hide: 250 }}
             overlay={
-                <Tooltip id={"tooltip-" + title.toLowerCase()}>
+                <Tooltip>
                     {title}
                 </Tooltip>
             }
         >
-            <Button variant="outline-dark" size="sm"
+            <Button variant={props.variant} size="sm"
                 onClick={props.onClick}
                 disabled={props.disabled} >
                 {props.children}

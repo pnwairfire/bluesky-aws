@@ -123,8 +123,10 @@ export default class Page extends Component {
 
     render() {
         let prevDisabled = this.state.nextTokensIdx <= 0;
+        let prevVariant = (prevDisabled) ? ('light') : ('primary')
         let nextDisabled = ! this.state.nextTokens[this.state.nextTokensIdx + 1]
-        //console.log(prevDisabled + '/' +nextDisabled);
+        let nextVariant = (nextDisabled) ? ('light') : ('primary')
+        console.log(prevVariant + '/' + nextVariant);
         return (
             <Layout>
                 <Breadcrumb>
@@ -132,22 +134,26 @@ export default class Page extends Component {
                 </Breadcrumb>
                 <div className={styles['pagination-controls']}>
                     <CalendarModal
+                        variant="primary"
                         month={this.state.month}
                         handleMonthChange={this.handleMonthChange} />
                     <ButtonWithToolTip
                         title="Reload"
+                        variant="primary"
                         onClick={this.handleReloadClick}
                         disabled={this.state.loading}>
                         <FaSyncAlt />
                     </ButtonWithToolTip>
                     <ButtonWithToolTip
                         title="Previous"
+                        variant={prevVariant}
                         onClick={this.handlePreviousClick}
                         disabled={prevDisabled}>
                         <FaAngleLeft />
                     </ButtonWithToolTip>
                     <ButtonWithToolTip
                         title="Next"
+                        variant={nextVariant}
                         onClick={this.handleNextClick}
                         disabled={nextDisabled}>
                         <FaAngleRight />
