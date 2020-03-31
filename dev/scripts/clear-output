@@ -73,6 +73,18 @@ else
         exit 1
     fi
     echo "Clearing request output from $bucket bucket"
+
+
+    ## TODO: Update to remove from request-index as well
+    #  - need to determine date and include that in s3 path:
+    #     > aws s3 rm s3://$bucket/request-index/BLUSKY_DATE/$request
+    #  - if last key under BLUSKY_DATE/, then delete BLUSKY_DATE/
+    #    folder too
+    #  May need to convert this to python and share code with
+    #  audit-request-index...Or maybe just call audit-requst-index
+    #  after calling this script.
+
+
     aws s3 rm s3://$bucket/requests/$request.json
     aws s3 rm s3://$bucket/status/$request-status.json
     aws s3 rm s3://$bucket/config/$request-config-bluesky-aws.json
