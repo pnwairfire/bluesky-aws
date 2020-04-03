@@ -56,7 +56,8 @@ can not be set to `null` or something like `foo`
 
 #### bluesky_version
 
-***default***: v4.1.34
+***default***: `v4.1.34`
+
 
 a string value matching one of the published bluesky docker image tags
 listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
@@ -65,7 +66,9 @@ listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
 
 #### ssh_key
 
-***default***: None
+***default***: `None`
+
+***example:*** `"/home/foo/.ssh/id_rsa.pem"`
 
 absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 instances
 
@@ -73,7 +76,9 @@ absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 
 
 #### aws > iam_instance_profile > Arn
 
-***default***: None
+***default***: `None`
+
+***example:*** `"arn:aws:iam::abc-123:instance-profile/bluesky-aws-role"`
 
 (n/a)
 
@@ -81,7 +86,9 @@ absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 
 
 #### aws > iam_instance_profile > Name
 
-***default***: None
+***default***: `None`
+
+***example:*** `"bluesky-aws-role"`
 
 (n/a)
 
@@ -89,7 +96,9 @@ absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 
 
 #### aws > ec2 > image_id
 
-***default***: None
+***default***: `None`
+
+***example:*** `"bluesky-v4.1.34-ubuntu"`
 
 name of image to luanch ec2 image
 
@@ -97,7 +106,9 @@ name of image to luanch ec2 image
 
 #### aws > ec2 > instance_type
 
-***default***: None
+***default***: `None`
+
+***example:*** `"t2.small"`
 
 instance type to use
 
@@ -105,7 +116,9 @@ instance type to use
 
 #### aws > ec2 > key_pair_name
 
-***default***: None
+***default***: `None`
+
+***example:*** `"foo_id_rsa"`
 
 Name of key pair in AWS to use for ssh
 
@@ -113,7 +126,9 @@ Name of key pair in AWS to use for ssh
 
 #### aws > ec2 > security_groups
 
-***default***: None
+***default***: `None`
+
+***example:*** `["launch-wizard-1", "default"]`
 
 security group that allows ssh access
 
@@ -121,7 +136,9 @@ security group that allows ssh access
 
 #### aws > s3 > bucket_name
 
-***default***: None
+***default***: `None`
+
+***example:*** `"bluesky-aws"`
 
 name of s3 bucket used for publishing output
 
@@ -129,7 +146,8 @@ name of s3 bucket used for publishing output
 
 #### aws > s3 > output_path
 
-***default***: output
+***default***: `output`
+
 
 output path to nest output under within s3 bucket; defaults to 'output'
 
@@ -137,7 +155,9 @@ output path to nest output under within s3 bucket; defaults to 'output'
 
 #### bluesky > modules
 
-***default***: None
+***default***: `None`
+
+***example:*** `["fuelbeds", "consumption", "emissions"]`
 
 list of bluesky modules to run
 
@@ -150,7 +170,9 @@ list of bluesky modules to run
 
 #### request_id_format
 
-***default***: None
+***default***: `None`
+
+***example:*** `"bluesky-aws-{input_file_name}"`
 
 request_id_format is used in the status and request JSON file names,
 and in the bluesky log and output tarball file names as well.
@@ -169,7 +191,9 @@ e.g. 'bluesky-aws-{uuid}-{utc_now}' would translate to something like
 
 #### run_id_format
 
-***default***: None
+***default***: `None`
+
+***example:*** `"{request_id}-{fire_id}"`
 
 run_id_format defaults to fire id.
 
@@ -191,7 +215,8 @@ and are filled in with the current UTC timestamp
 
 #### input > wait > strategy
 
-***default***: fixed
+***default***: `fixed`
+
 
 wait strategy
 
@@ -199,7 +224,8 @@ wait strategy
 
 #### input > wait > time
 
-***default***: 900
+***default***: `900`
+
 
 wait time, in seconds
 
@@ -207,7 +233,8 @@ wait time, in seconds
 
 #### input > wait > max_attempts
 
-***default***: 3
+***default***: `3`
+
 
 max number to attempts before aborting
 
@@ -215,7 +242,8 @@ max number to attempts before aborting
 
 #### cleanup_output
 
-***default***: True
+***default***: `True`
+
 
 Whether or not to delete output after publihing to s3.
 
@@ -226,7 +254,9 @@ inspect the output on the instance after the run; defaults to `false`.
 
 #### aws > ec2 > max_num_instances
 
-***default***: None
+***default***: `None`
+
+***example:*** `50`
 
 the maximum number of new plus existing instances to use
 
@@ -234,7 +264,8 @@ the maximum number of new plus existing instances to use
 
 #### aws > ec2 > image_name_prefix_format
 
-***default***: bluesky-aws-{request_id}
+***default***: `bluesky-aws-{request_id}`
+
 
 Prefix to use in name of each new instance
 
@@ -255,7 +286,9 @@ would translate to something like 'bluesky-aws-20191210-sjdk1j23-2'
 
 #### aws > ec2 > efs_volumes
 
-***default***: None
+***default***: `None`
+
+***example:*** `[["fs-abc123.efs.us-west-2.amazonaws.com:/", "/Met/"]]`
 
 EFS volumes to mount. An array of arrays, formatted like:
 ```
@@ -268,7 +301,8 @@ EFS volumes to mount. An array of arrays, formatted like:
 
 #### aws > ec2 > ebs > volume_size
 
-***default***: 8
+***default***: `8`
+
 
 EBS volume size (GB); default 8GB
 
@@ -276,7 +310,8 @@ EBS volume size (GB); default 8GB
 
 #### aws > ec2 > ebs > device_name
 
-***default***: /dev/sda1
+***default***: `/dev/sda1`
+
 
 EBS volume device name; default '/dev/sda1'
 
@@ -284,7 +319,9 @@ EBS volume device name; default '/dev/sda1'
 
 #### aws > ec2 > minutes_until_auto_shutdown
 
-***default***: None
+***default***: `None`
+
+***example:*** `120`
 
 Number of minutes to wait before instances shut themselves down; default: null (no auto-termination)
 
@@ -292,7 +329,9 @@ Number of minutes to wait before instances shut themselves down; default: null (
 
 #### bluesky > today
 
-***default***: None
+***default***: `None`
+
+***example:*** `"2020-03-01"`
 
 'today' defaults to current day (i.e not specified in the pipeline command)
 
@@ -300,7 +339,9 @@ Number of minutes to wait before instances shut themselves down; default: null (
 
 #### bluesky > config_file
 
-***default***: None
+***default***: `None`
+
+***example:*** `"/dockerconainer/path/to/bluesky-config.json"`
 
 bluesky config file(s) to use when running bluesky;
 may be string or array (for specifying multiple files)
@@ -309,7 +350,8 @@ may be string or array (for specifying multiple files)
 
 #### bluesky > config
 
-***default***: {}
+***default***: `{}`
+
 
 bluesky config settings that override what's specified in the separate
 bluesky config file, if one is specified (see below)
@@ -318,7 +360,8 @@ bluesky config file, if one is specified (see below)
 
 #### bluesky > seconds_between_completion_checks
 
-***default***: 30
+***default***: `30`
+
 
 Seconds to wait between checking for run completion
 
@@ -326,7 +369,8 @@ Seconds to wait between checking for run completion
 
 #### notifications > email > enabled
 
-***default***: False
+***default***: `False`
+
 
 defaults to false
 
@@ -334,7 +378,8 @@ defaults to false
 
 #### notifications > email > recipients
 
-***default***: []
+***default***: `[]`
+
 
 (n/a)
 
@@ -342,7 +387,8 @@ defaults to false
 
 #### notifications > email > sender
 
-***default***: blueskyaws@blueskyaws
+***default***: `blueskyaws@blueskyaws`
+
 
 defaults to 'blueskyaws@blueskyaws'
 
@@ -350,7 +396,8 @@ defaults to 'blueskyaws@blueskyaws'
 
 #### notifications > email > subject
 
-***default***: BlueSky AWS Output Status
+***default***: `BlueSky AWS Output Status`
+
 
 defaults to 'BlueSky AWS Output Status'
 
@@ -358,7 +405,8 @@ defaults to 'BlueSky AWS Output Status'
 
 #### notifications > email > smtp_server
 
-***default***: localhost
+***default***: `localhost`
+
 
 defaults to 'localhost'
 
@@ -366,7 +414,8 @@ defaults to 'localhost'
 
 #### notifications > email > smtp_port
 
-***default***: 1025
+***default***: `1025`
+
 
 defaults to 1025
 
@@ -374,7 +423,8 @@ defaults to 1025
 
 #### notifications > email > smtp_starttls
 
-***default***: False
+***default***: `False`
+
 
 defaults to false
 
@@ -382,7 +432,9 @@ defaults to false
 
 #### notifications > email > username
 
-***default***: None
+***default***: `None`
+
+***example:*** `"joedoe"`
 
 (n/a)
 
@@ -390,7 +442,9 @@ defaults to false
 
 #### notifications > email > password
 
-***default***: None
+***default***: `None`
+
+***example:*** `"123abc!"`
 
 (n/a)
 

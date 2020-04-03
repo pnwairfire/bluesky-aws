@@ -1,4 +1,5 @@
 import copy
+import json
 import logging
 from collections import OrderedDict
 
@@ -281,7 +282,8 @@ class ConfigSettingsMarkdownGenerator(object):
 
     CONFIG_SETTINGS_MARKDOWN_TEMPLATE = """#### {keys}
 
-***default***: {default}
+***default***: `{default}`
+{example_string}
 
 {help_string}
 
@@ -294,9 +296,14 @@ class ConfigSettingsMarkdownGenerator(object):
             for k, v in config_settings.items():
                 new_parent_keys = list(parent_keys) + [k]
                 if isinstance(config_settings[k], ConfigSetting):
+                    example_string = ""
+                    if config_settings[k].default != config_settings[k].example:
+                        example_string = "\n***example:*** `{}`".format(
+                            json.dumps(config_settings[k].example))
                     text = self.CONFIG_SETTINGS_MARKDOWN_TEMPLATE.format(
                         keys=' > '.join(new_parent_keys),
                         default=config_settings[k].default,
+                        example_string=example_string,
                         help_string=config_settings[k].help_string.strip()
                     ).strip() +'\n\n'
 
