@@ -67,7 +67,7 @@ listed on https://hub.docker.com/r/pnwairfire/bluesky/tags
 
 ***default***: None
 
-ssh key to use for ssh'ing to and running commands on ec2 instances
+absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 instances
 
 ---
 
@@ -107,7 +107,7 @@ instance type to use
 
 ***default***: None
 
-key pair to use for ssh
+Name of key pair in AWS to use for ssh
 
 ---
 
@@ -257,7 +257,12 @@ would translate to something like 'bluesky-aws-20191210-sjdk1j23-2'
 
 ***default***: None
 
-(n/a)
+EFS volumes to mount. An array of arrays, formatted like:
+```
+"efs_volumes": [
+    ["<hostname>:/", "/local/mount/path/"]
+]
+```
 
 ---
 
@@ -298,7 +303,7 @@ Number of minutes to wait before instances shut themselves down; default: null (
 ***default***: None
 
 bluesky config file(s) to use when running bluesky;
-            may be string or array (for specifying multiple files)
+may be string or array (for specifying multiple files)
 
 ---
 
@@ -307,7 +312,7 @@ bluesky config file(s) to use when running bluesky;
 ***default***: {}
 
 bluesky config settings that override what's specified in the separate
-            bluesky config file, if one is specified (see below)
+bluesky config file, if one is specified (see below)
 
 ---
 
@@ -315,7 +320,7 @@ bluesky config settings that override what's specified in the separate
 
 ***default***: 30
 
-Seconds to wait between checks for run completion
+Seconds to wait between checking for run completion
 
 ---
 

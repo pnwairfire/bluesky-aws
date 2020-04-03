@@ -1,0 +1,70 @@
+{
+    "request_id_format": "bluesky-aws-{input_file_name}",
+    "run_id_format": "{request_id}-{fire_id}",
+    "bluesky_version": "v4.1.34",
+    "input": {
+        "wait": {
+            "strategy": "fixed",
+            "time": 900,
+            "max_attempts": 3
+        }
+    },
+    "cleanup_output": true,
+    "ssh_key": "/home/foo/.ssh/id_rsa.pem",
+    "aws": {
+        "iam_instance_profile": {
+            "Arn": "arn:aws:iam::abc-123:instance-profile/bluesky-aws-role",
+            "Name": "bluesky-aws-role"
+        },
+        "ec2": {
+            "max_num_instances": 50,
+            "image_name_prefix_format": "bluesky-aws-{request_id}",
+            "image_id": "bluesky-v4.1.34-ubuntu",
+            "instance_type": "t2.small",
+            "key_pair_name": "foo_id_rsa",
+            "security_groups": [
+                "launch-wizard-1",
+                "default"
+            ],
+            "efs_volumes": [
+                [
+                    "fs-abc123.efs.us-west-2.amazonaws.com:/",
+                    "/Met/"
+                ]
+            ],
+            "ebs": {
+                "volume_size": 8,
+                "device_name": "/dev/sda1"
+            },
+            "minutes_until_auto_shutdown": 120
+        },
+        "s3": {
+            "bucket_name": "bluesky-aws",
+            "output_path": "output"
+        }
+    },
+    "bluesky": {
+        "today": "2020-03-01",
+        "modules": [
+            "fuelbeds",
+            "consumption",
+            "emissions"
+        ],
+        "config_file": "/dockerconainer/path/to/bluesky-config.json",
+        "config": {},
+        "seconds_between_completion_checks": 30
+    },
+    "notifications": {
+        "email": {
+            "enabled": false,
+            "recipients": [],
+            "sender": "blueskyaws@blueskyaws",
+            "subject": "BlueSky AWS Output Status",
+            "smtp_server": "localhost",
+            "smtp_port": 1025,
+            "smtp_starttls": false,
+            "username": "joedoe",
+            "password": "123abc!"
+        }
+    }
+}
