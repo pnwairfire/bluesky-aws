@@ -1,0 +1,97 @@
+{
+    "config": {
+        "skip_failed_fires": true,
+        "fuelbeds": {
+            "ignored_fuelbeds": ["900"]
+        },
+        "emissions": {
+            "model": "prichard-oneill"
+        },
+        "findmetdata": {
+            "met_root_dir": "/Met/CANSAC/1.33km/ARL/"
+        },
+        "plumerise": {
+            "model":"feps",
+            "feps": {
+                "working_dir": "/data/bluesky/working/{run_id}"
+            }
+        },
+        "dispersion": {
+            "handle_existing": "replace",
+            "start": "{today:%Y-%m-%d}T15:00:00",
+            "num_hours": 48,
+            "model": "hysplit",
+            "output_dir": "/data/bluesky/output/{run_id}",
+            "working_dir": "/data/bluesky/working/{run_id}",
+            "plume_merge": {
+                "grid": {
+                    "spacing": 0.005,
+                    "projection": "LCC",
+                    "boundary": {
+                        "sw": {"lng": -125.0, "lat": 32.0},
+                        "ne": {"lng": -112.0, "lat": 43.0}
+                    }
+                }
+            },
+            "hysplit": {
+                "grid": {
+                    "spacing": 1.33,
+                    "projection": "LCC",
+                    "boundary": {
+                        "sw": {"lng": -125.0, "lat": 32.0},
+                        "ne": {"lng": -112.0, "lat": 43.0}
+                    }
+                },
+                "NUMPAR": 6000,
+                "MAXPAR": 10000000,
+                "VERTICAL_EMISLEVELS_REDUCTION_FACTOR": 2,
+                "VERTICAL_LEVELS": [100, 1000, 4000],
+                "TOP_OF_MODEL_DOMAIN": 10000.0,
+                "INITD": 0,
+                "DELT": -1,
+                "KHMAX": 999,
+                "MPI": false,
+                "NCPUS": 1,
+                "NPROCESSES": 1,
+                "NFIRES_PER_PROCESS": -1,
+                "NPROCESSES_MAX": -1,
+                "MAKE_INIT_FILE": false,
+                "NDUMP": 24,
+                "NCYCL": 0,
+                "NINIT": 0,
+                "STOP_IF_NO_PARINIT": false
+            }
+        },
+        "visualization": {
+            "target": "dispersion",
+            "hysplit": {
+                "websky_version": "2",
+                "create_summary_json": true,
+                "images_dir": "images/",
+                "data_dir": "data/",
+                "blueskykml_config": {
+                    "DispersionGridInput": {
+                        "LAYERS": [0, 1, 2]
+                    },
+                    "DispersionImages": {
+                        "DAILY_IMAGES_UTC_OFFSETS": [-8,-7, 0],
+                        "REPROJECT_IMAGES": "True"
+                    },
+                    "DispersionGridOutput": {
+                        "HOURLY_COLORS": "GrayColorBar",
+                        "THREE_HOUR_COLORS": "GrayColorBar",
+                        "DAILY_COLORS": "GrayColorBar"
+                    },
+                    "GrayColorBar": {
+                        "DEFINE_RGB": "true",
+                        "DATA_LEVELS": "0 1 12 35 55 150 250 350 500 2000",
+                        "RED": " 0 200 175 150 125 100 75 50 25",
+                        "GREEN": "0 200 175 150 125 100 75 50 25",
+                        "BLUE": "0 200 175 150 125 100 75 50 25",
+                        "IMAGE_OPACITY_FACTOR": "0.7"
+                    }
+                }
+            }
+        }
+    }
+}
