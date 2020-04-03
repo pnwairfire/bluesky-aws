@@ -105,7 +105,7 @@ CONFIG_SETTINGS = OrderedDict({
             " - '{fire_id}' - replaced with the id of the run's fire",
             " - '{utc_today}' - replaced with current UTC date, formatted '%Y%m%d'",
             " - '{utc_now}' - replaced with current UTC timestamp, formatted '%Y%m%dT%H%M%S'",
-            " - '{bluesky_today}' - replaced with bluesky's 'today' (defaulting to current ",
+            " - '{bluesky_today}' - replaced with bluesky's 'today' (defaulting to current",
             "         UTC date, if 'today' isn't specified), formatted '%Y%m%d'",
             "",
             "e.g. 'bluesky-aws-run-{fire_id}-{uuid}-{utc_today}' would translate",
@@ -155,7 +155,8 @@ CONFIG_SETTINGS = OrderedDict({
         },
         "ec2": {
             "max_num_instances": ConfigSetting(None,
-                help_string="the maximum number of new plus existing instances to use"),
+                help_string="the maximum number of new plus existing instances to use",
+                validator=lambda v: isinstance(v, int), example=50),
             "image_name_prefix_format": ConfigSetting("bluesky-aws-{request_id}", help_string='\n'.join([
                     "Prefix to use in name of each new instance",
                     "",
@@ -180,7 +181,7 @@ CONFIG_SETTINGS = OrderedDict({
                 required=True, example="t2.small"),
             "key_pair_name": ConfigSetting(None,
                 help_string="Name of key pair in AWS to use for ssh",
-                required=True),
+                required=True, example="foo_id_rsa"),
             "security_groups": ConfigSetting(None,
                 help_string="security group that allows ssh access",
                 required=True, example=["launch-wizard-1", "default"]),
@@ -217,14 +218,16 @@ CONFIG_SETTINGS = OrderedDict({
         "modules": ConfigSetting(None,
             help_string="list of bluesky modules to run", required=True,
             example=["fuelbeds", "consumption", "emissions"]),
-        "config_file": ConfigSetting(None, help_string="""
-            bluesky config file(s) to use when running bluesky;
-            may be string or array (for specifying multiple files)
-        """),
-        "config": ConfigSetting({}, help_string="""
-            bluesky config settings that override what's specified in the separate
-            bluesky config file, if one is specified (see below)
-        """),
+        "config_file": ConfigSetting(None, help_string='\n'.join([
+                "bluesky config file(s) to use when running bluesky;",
+                "may be string or array (for specifying multiple files)"
+            ]), example="/dockerconainer/path/to/bluesky-config.json"
+        ),
+        "config": ConfigSetting({}, help_string='\n'.join([
+                "bluesky config settings that override what's specified in the separate",
+                "bluesky config file, if one is specified (see below)"
+            ])
+        ),
         "seconds_between_completion_checks": ConfigSetting(30,
             help_string="Seconds to wait between checking for run completion",
             validator=lambda v: isinstance(v, int)
