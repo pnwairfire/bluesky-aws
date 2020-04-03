@@ -135,7 +135,7 @@ CONFIG_SETTINGS = OrderedDict({
         "inspect the output on the instance after the run; defaults to `false`."])
     ),
     "ssh_key": ConfigSetting(None,help_string="""
-        ssh key to use for ssh'ing to and running commands on ec2 instances
+        absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 instances
     """, required=True),
 
     "aws": {
@@ -164,7 +164,7 @@ CONFIG_SETTINGS = OrderedDict({
             ),
             "image_id": ConfigSetting(None, help_string="name of image to luanch ec2 image", required=True),
             "instance_type": ConfigSetting(None, help_string="instance type to use", required=True),
-            "key_pair_name": ConfigSetting(None, help_string="key pair to use for ssh", required=True),
+            "key_pair_name": ConfigSetting(None, help_string="Name of key pair in AWS to use for ssh", required=True),
             "security_groups": ConfigSetting(None, help_string="security group that allows ssh access", required=True),
             "efs_volumes": ConfigSetting(None, help_string=""),
             "ebs": {
