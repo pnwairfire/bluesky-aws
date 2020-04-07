@@ -34,7 +34,7 @@ build_admin: require_env clear_admin_cache
 
 build_all: require_env build build_admin
 
-restart_admin:
+restart_admin: require_env
 > ./reboot-admin --background \
 	--yaml-file bluesky-aws-admin/docker-compose-$(ENV).yml
 
