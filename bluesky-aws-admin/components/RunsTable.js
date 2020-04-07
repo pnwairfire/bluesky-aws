@@ -95,7 +95,7 @@ function RunRow(props) {
                 )}
             </td>
             <td>
-                {props.run.fire_info && props.run.fire_info.area && (
+                {props.run.fire_info && props.run.fire_info.area != null && (
                     <span>{props.run.fire_info.area} acres</span>
                 ) || (
                     <span>?</span>
