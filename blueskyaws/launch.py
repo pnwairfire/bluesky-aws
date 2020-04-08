@@ -4,7 +4,7 @@ import signal
 import uuid
 
 from afaws.config import Config as AwsConfig
-from afaws.ec2.launch import Ec2Launcher
+from afaws.ec2.launch import Ec2Launcher, PostLaunchFailure
 from afaws.ec2.initialization import InstanceInitializerSsh
 from afaws.ec2.shutdown import AutoShutdownScheduler
 #from afaws.ec2.execute import FailedToSshError, Ec2SshExecuter
@@ -129,7 +129,13 @@ class Ec2InstancesManager(object):
                 '{}-{}'.format(name_prefix, n) for n in range(num_new)
             ]
 
-            self._new_instances = await launcher.launch(new_instance_names)
+            try:
+                self._new_instances = await launcher.launch(new_instance_names)
+            except PostLaunchFailure as e:
+                # set self._new_instances so that _terminate will work
+                self._new_instances = e.instances
+                # raise excpetion so that _terminate will be called
+                raise
 
         # whether or not any instances were launched, self._launched
         # is used in signal handlers
