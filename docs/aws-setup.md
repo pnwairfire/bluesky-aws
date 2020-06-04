@@ -1,12 +1,12 @@
 # AWS setup
 
-The instructions in this doc assume thatyou already have an AWS account.
+The instructions in this doc assume that you already have an AWS account.
 
 ## Creating and Ec2 Instance & Installing Essentials
 
  - launch an ubuntu instance in the [EC2 admin console](https://us-west-2.console.aws.amazon.com/ec2/home)
    - make sure to specify a key pair that you have access to
-   - create a security group that allows ssh access - [EC2 security group console](https://us-west-2.console.aws.amazon.com/ec2/home#SecurityGroups)
+   - create a security group that allows ssh access and NFS access (port 2049) - [EC2 security group console](https://us-west-2.console.aws.amazon.com/ec2/home#SecurityGroups)
  - ssh to the EC2 instance
 ```
 ssh -A ubuntu@IP_ADDRESS -i ~.ssh/ID_FILE
@@ -78,7 +78,7 @@ dispersion, that require met data.
 Note that these instructions use apache2 to proxy requests to
 the bluesky-aws-admin web app.
 
- - Launch an ubuntu instance with essentials (see above) and ssh to it -- make sure to add a security group that opens ports 80 and 443 (in addition to 22 for ssh)
+ - Launch an ubuntu instance with essentials (see above) and ssh to it -- make sure to add a security group that opens ports 80 and 443 (in addition to 22 for ssh and 2049 for NFS)
  - If using MET data in your bluesky runs, you'll need to mount the EFS volume that will hold the met data.  The [EFS admin console](https://us-west-2.console.aws.amazon.com/efs/home) provides instructions which include a command that looks something like the following.  Replace `HOSTNAME` and `/path/to/Met/` appropriately.
 ```
 sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport HOSTNAME:/ /path/to/Met/
