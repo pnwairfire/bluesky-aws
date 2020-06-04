@@ -465,7 +465,7 @@ class BlueskySingleRunner(object):
         logging.info("Uploading AWS credentials to %s", self._ip)
         # Credentials are uploaded in order to push to s3
         remote_aws_dir = os.path.join(self._remote_home_dir, ".aws")
-        if not await self._execute('ls {}'.format(remote_aws_dir)):
+        if not await self._execute('ls {}'.format(remote_aws_dir), ignore_errors=True):
             local_aws_dir = os.path.join(os.environ["HOME"], ".aws/")
             # TODO: if recursive put fails, update put/get to support it
             await self._ssh_client.put(local_aws_dir, remote_aws_dir)
