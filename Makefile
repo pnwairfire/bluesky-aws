@@ -38,6 +38,10 @@ restart_admin: require_env
 > ./reboot-admin --background \
 	--yaml-file bluesky-aws-admin/docker-compose-$(ENV).yml
 
+stop_admin: require_env
+> ./reboot-admin --shut-down \
+	--yaml-file bluesky-aws-admin/docker-compose-$(ENV).yml
+
 bounce: build_all restart_admin
 
 update_and_bounce: update bounce
