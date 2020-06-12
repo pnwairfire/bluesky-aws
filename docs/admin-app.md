@@ -37,15 +37,13 @@ and then modified to reflect your S3 bucket name, etc.
 To run the development server, with source code mounted, use the
 collowing command in a terminal:
 
-    docker-compose -f ./bluesky-aws-admin/docker-compose-dev.yaml up
+    ENV=dev make bounce
 
 In a browser, load http://localhost:3000/
 
-Use `./bluesky-aws-admin/docker-compose-prod.yaml` to run the production
-server with the app build packaged in the docker image.  Or, create
-`./bluesky-aws-admin/docker-compose-prod.yaml` from either of the two
-provided docker-compose yaml files and modify it as necessary.
+In production:
 
+    ENV=prod make update_to_latest_tag_and_bounce
 
 ## Running in Production with Custom Path Prefix
 

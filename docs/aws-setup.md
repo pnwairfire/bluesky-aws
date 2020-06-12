@@ -256,7 +256,7 @@ docker run --rm -ti --user blueskyaws bluesky-aws ./bin/run-bluesky -h
 
 ##### cron
  - optionally schedule `run-bluesky` in cron (e.g. if you have fire data generated on a daily basis)
- - optionall schedule `make bounce_to_latest_tag` to automatically run the latest tagged version of `bluesky-aws` as it becomes available.
+ - optionall schedule `make update_to_latest_tag_and_bounce` to automatically run the latest tagged version of `bluesky-aws` as it becomes available.
  - install mutt to receive mail on failures
 ```
 sudo apt-get install mutt
