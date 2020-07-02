@@ -232,7 +232,6 @@ class BlueskySingleRunner(object):
                     await self._upload_aws_credentials()
                     await self._publish_output()
                     await self._publish_log()
-                    await self._cleanup()
 
                 except Exception as e:
                     logging.error(str(e), exc_info=True)
@@ -253,6 +252,11 @@ class BlueskySingleRunner(object):
                         status_kwargs.update(error=error)
                     await self._status_tracker.set_run_status(self,
                         status, **status_kwargs)
+
+                finally:
+                    # Lastly, try cleaning up, if configured to do so.
+                    # Errors are ignored
+                    await self._cleanup()
 
         except Exception as e:
             logging.error(str(e), exc_info=True)
@@ -508,7 +512,8 @@ class BlueskySingleRunner(object):
         if self._config('cleanup_output'):
             logging.info("Cleaning up output on %s", self._ip)
             # delete the entire output dir
-            await self._execute("rm -r {}".format(self._host_data_dir))
+            await self._execute("rm -r {}".format(self._host_data_dir),
+                ignore_errors=True)
 
 
     REGION = "us-west-2" # TODO: don't hard code this
