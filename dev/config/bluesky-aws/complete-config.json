@@ -1,7 +1,7 @@
 {
     "request_id_format": "bluesky-aws-{input_file_name}",
     "run_id_format": "{request_id}-{fire_id}",
-    "bluesky_version": "v4.1.34",
+    "bluesky_version": "v4.2.9",
     "input": {
         "wait": {
             "strategy": "fixed",
@@ -19,7 +19,7 @@
         "ec2": {
             "max_num_instances": 50,
             "image_name_prefix_format": "bluesky-aws-{request_id}",
-            "image_id": "bluesky-v4.1.34-ubuntu",
+            "image_id": "bluesky-v4.2.9-ubuntu",
             "instance_type": "t2.small",
             "key_pair_name": "foo_id_rsa",
             "security_groups": [

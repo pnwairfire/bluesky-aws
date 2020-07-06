@@ -56,7 +56,7 @@ can not be set to `null` or something like `foo`
 
 #### bluesky_version
 
-***default***: `v4.1.34`
+***default***: `v4.2.9`
 
 
 a string value matching one of the published bluesky docker image tags
@@ -98,7 +98,7 @@ absoulte path to ssh key file to use for ssh'ing to and running commands on ec2 
 
 ***default***: `None`
 
-***example:*** `"bluesky-v4.1.34-ubuntu"`
+***example:*** `"bluesky-v4.2.9-ubuntu"`
 
 name of image to luanch ec2 image
 

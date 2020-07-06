@@ -120,7 +120,7 @@ CONFIG_SETTINGS = OrderedDict({
     # bluesky_version must be astring value matching one of the published
     # bluesky docker image tags listed on
     # https://hub.docker.com/r/pnwairfire/bluesky/tags
-    "bluesky_version": ConfigSetting("v4.1.34", help_string='\n'.join([
+    "bluesky_version": ConfigSetting("v4.2.9", help_string='\n'.join([
             "a string value matching one of the published bluesky docker image tags",
             "listed on https://hub.docker.com/r/pnwairfire/bluesky/tags"
         ]), required=True),
@@ -177,7 +177,7 @@ CONFIG_SETTINGS = OrderedDict({
             ),
             "image_id": ConfigSetting(None,
                 help_string="name of image to luanch ec2 image",
-                required=True, example="bluesky-v4.1.34-ubuntu"),
+                required=True, example="bluesky-v4.2.9-ubuntu"),
             "instance_type": ConfigSetting(None, help_string="instance type to use",
                 required=True, example="t2.small"),
             "key_pair_name": ConfigSetting(None,
