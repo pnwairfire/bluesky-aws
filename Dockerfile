@@ -2,6 +2,8 @@ FROM python:3.7.1-alpine3.8
 
 RUN apk add --update bash less vim curl
 
+RUN pip install --upgrade pip
+
 # The following build tools are for paramiko
 RUN apk --update add --no-cache --virtual .build-deps \
         make automake gcc g++ \
