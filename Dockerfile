@@ -1,8 +1,6 @@
-FROM python:3.10.6-alpine3.16
+FROM python:3.7.1-alpine3.8
 
 RUN apk add --update bash less vim curl
-
-RUN pip install --upgrade pip
 
 # The following build tools are for paramiko
 RUN apk --update add --no-cache --virtual .build-deps \
