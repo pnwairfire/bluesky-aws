@@ -17,7 +17,7 @@ RUN pip install --extra-index https://pypi.airfire.org/simple \
     paramiko==2.4.2 \
     boto3==1.9.70 \
     pycrypto==2.6.1 \
-    afscripting==1.1.5 \
+    afscripting==1.1.2 \
     afaws==0.1.7 \
     rfc3987==1.3.8 \
     ipython \
