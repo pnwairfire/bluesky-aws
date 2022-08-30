@@ -14,7 +14,7 @@ RUN apk --update add --no-cache --virtual .build-deps \
 # to be explicitly listed in the following pip install package
 # list, since it's installed as a dependency of afscripting
 RUN pip install --extra-index https://pypi.airfire.org/simple \
-    paramiko==2.4.2 \
+    paramiko==2.11.0 \
     boto3==1.9.70 \
     pycrypto==2.6.1 \
     afscripting==1.1.2 \
