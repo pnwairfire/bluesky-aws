@@ -1,4 +1,4 @@
-FROM python:3.7.1-alpine3.8
+FROM python:3.9.13-alpine3.16
 
 RUN apk add --update bash less vim curl
 
