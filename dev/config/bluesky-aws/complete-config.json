@@ -1,4 +1,5 @@
 {
+    "single_run": false,
     "request_id_format": "bluesky-aws-{input_file_name}",
     "run_id_format": "{request_id}-{fire_id}",
     "bluesky_version": "v4.2.9",

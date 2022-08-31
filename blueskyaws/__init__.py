@@ -100,9 +100,9 @@ class BlueskyParallelRunner(object):
         await self._status_tracker.initialize()
 
     def _set_instances_needed(self):
-        num_fires = len(self._input_loader.fires)
-        self._total_instances_needed = min(num_fires,
-            self._config("aws", 'ec2', "max_num_instances") or num_fires)
+        num_instances = 1 if self._config('single_run') else len(self._input_loader.fires)
+        self._total_instances_needed = min(num_instances,
+            self._config("aws", 'ec2', "max_num_instances") or num_instances)
 
     async def _load_bluesky_config(self):
         self._bluesky_config = {'config': {}}
@@ -157,7 +157,8 @@ class BlueskyParallelRunner(object):
             existing=self._instances)
         async with ec2_instance_manager:
             # TODO: Add more options for supporting the case where
-            #     num_fires > num_instances; Some possibilities:
+            #     num_fires > num_instances (when single_run=false);
+            #     Some possibilities:
             #       1) take the first num_instances fires, given the order the
             #          fires are specified in the input data
             #          ***(this is the current implementation***)
@@ -168,13 +169,20 @@ class BlueskyParallelRunner(object):
             #            a) separate runs sequentially
             #            b) separate runs in parallel
             #            c) single run
-            runs = zip(self._input_loader.fires, ec2_instance_manager.instances)
-            runners = [
-                BlueskySingleRunner({'fires': [fire]}, ec2_instance_manager,
-                    instance, self._config, self._bluesky_config,
-                    self._request_id, self._status_tracker, self._bluesky_today)
-                for fire, instance in runs
-            ]
+            if self._config('single_run'):
+                runners = [
+                    BlueskySingleRunner({'fires': self._input_loader.fires}, ec2_instance_manager,
+                        ec2_instance_manager.instances[0], self._config, self._bluesky_config,
+                        self._request_id, self._status_tracker, self._bluesky_today)
+                ]
+            else:
+                runs = zip(self._input_loader.fires, ec2_instance_manager.instances)
+                runners = [
+                    BlueskySingleRunner({'fires': [fire]}, ec2_instance_manager,
+                        instance, self._config, self._bluesky_config,
+                        self._request_id, self._status_tracker, self._bluesky_today)
+                    for fire, instance in runs
+                ]
 
             await asyncio.gather(*[
                 runner.run() for runner in runners
@@ -315,7 +323,7 @@ class BlueskySingleRunner(object):
     def _set_run_id(self):
         # if run_id_format is not defined, set run id to fire id, if
         # only one fire, else set to new uuid (?)
-        fire_id = self._get_fire_id()
+        fire_id = 'all-fires' if self._config('single_run') else self._get_fire_id()
         if self._config('run_id_format'):
             utcnow = datetime.datetime.utcnow()
             run_id = substitude_config_wildcards(self._config, 'run_id_format',

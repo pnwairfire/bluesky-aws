@@ -81,6 +81,9 @@ class ConfigSetting(object):
 
 
 CONFIG_SETTINGS = OrderedDict({
+    "single_run": ConfigSetting(False,
+            help_string="Include all fires in a single bluesky run.",
+            validator=lambda v: isinstance(v, bool)),
     "request_id_format": ConfigSetting(None, help_string='\n'.join([
             "request_id_format is used in the status and request JSON file names,",
             "and in the bluesky log and output tarball file names as well.",
