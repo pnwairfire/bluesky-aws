@@ -468,10 +468,13 @@ class BlueskySingleRunner(object):
         logging.info("bsp run complete")
 
     async def _tarball(self):
-        logging.info("Creating tarball on %s", self._ip)
-        await self._execute(("cd {host_data_dir}/exports/; tar czf "
-            " {run_id}.tar.gz {run_id}").format(
-            host_data_dir=self._host_data_dir, run_id=self._run_id))
+        try:
+            logging.info("Creating tarball on %s", self._ip)
+            await self._execute(("cd {host_data_dir}/exports/; tar czf "
+                " {run_id}.tar.gz {run_id}").format(
+                host_data_dir=self._host_data_dir, run_id=self._run_id))
+        except Exception as e:
+            logging.error("Failed to created tarball: %s", e)
 
     async def _upload_aws_credentials(self):
         logging.info("Uploading AWS credentials to %s", self._ip)
@@ -483,10 +486,14 @@ class BlueskySingleRunner(object):
             await self._ssh_client.put(local_aws_dir, remote_aws_dir)
 
     async def _publish_output(self):
-        logging.info("Publishing output from %s", self._ip)
-        filename = "{}.tar.gz".format(self._run_id)
-        s3_path = self._config('aws', 's3', 'output_path')
-        await self._publish(filename, s3_path, '_output_url', 'exports/', '.tar.gz')
+        try:
+            logging.info("Publishing output from %s", self._ip)
+            filename = "{}.tar.gz".format(self._run_id)
+            s3_path = self._config('aws', 's3', 'output_path')
+            await self._publish(filename, s3_path, '_output_url', 'exports/', '.tar.gz')
+        except Exception as e:
+            logging.error("Failed to publish output: %s", e)
+
 
     async def _publish_log(self):
         logging.info("Publishing bluesky log file from %s", self._ip)
