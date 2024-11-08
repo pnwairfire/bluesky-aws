@@ -360,20 +360,28 @@ class BlueskySingleRunner(object):
     async def _execute(self, cmd, ignore_errors=False):
         # need to pass ignore_errors into self._ssh_client.execute to ignore
         # non-zero return codes, and then use it below to ignore stderr
-        result = await self._ssh_client.execute(cmd, ignore_errors=ignore_errors)
-        logging.info("Just executed %s", cmd)
+        try:
+            result = await self._ssh_client.execute(cmd, ignore_errors=ignore_errors)
+            logging.info("Just executed %s", cmd)
 
-        # TODO: check result.return_code in addition to or instead of result.stderr
-        if result.stderr:
-            msg = "Error running command {}:  {}".format(cmd, result.stderr)
+            # TODO: check result.return_code in addition to or instead of result.stderr
+            if result.stderr:
+                msg = "Error running command {}:  {}".format(cmd, result.stderr)
+                if ignore_errors:
+                    # just log error
+                    logging.error(msg, exc_info=True)
+                else:
+                    raise RuntimeError(msg)
+
+            # TODO: remove the .rstrip('\n') if afaws is updated to do so
+            return result.stdout.rstrip('\n')
+        except Exception as e:
             if ignore_errors:
                 # just log error
-                logging.error(msg, exc_info=True)
+                logging.error('Execution failure: %s', e)
             else:
-                raise RuntimeError(msg)
+                raise e
 
-        # TODO: remove the .rstrip('\n') if afaws is updated to do so
-        return result.stdout.rstrip('\n')
 
     async def _create_remote_dirs(self):
         logging.info("Creating remote dirs on %s", self._ip)
