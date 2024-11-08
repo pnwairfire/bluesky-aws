@@ -305,14 +305,28 @@ class BlueskySingleRunner(object):
                                     lat=sp['lat'],
                                     lng=sp['lng']
                                 )
+
                     elif 'perimeter' in aa:
                         area += aa['perimeter'].get('area', 0)
+
                         if not fire_info['lat']:
-                            first_coord = aa['perimeter']['polygon'][0]
-                            fire_info.update(
-                                lat=first_coord[1],
-                                lng=first_coord[0]
-                            )
+                            first_coord = None
+
+                            if 'polygon' in aa['perimeter']:
+                                first_coord = aa['perimeter']['polygon'][0]
+
+                            elif 'geometry' in aa['perimeter']:
+                                if aa['perimeter']['geometry']['type'] == 'MultiPolygon':
+                                    first_coord = aa['perimeter']['geometry']['coordinates'][0][0][0]
+                                elif aa['perimeter']['geometry']['type'] == 'Polygon':
+                                    first_coord = aa['perimeter']['geometry']['coordinates'][0][0]
+
+                            if first_coord:
+                                fire_info.update(
+                                    lat=first_coord[1],
+                                    lng=first_coord[0]
+                                )
+
             fire_info['area'] = area
 
         except Exception as e:
