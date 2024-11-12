@@ -450,7 +450,11 @@ class BlueskySingleRunner(object):
             self._host_data_dir))
 
     def _form_bsp_command(self):
-        cmd = "docker run --name {name} -d --rm -v {host_data_dir}:/data/bluesky/".format(
+        # The '--security-opt seccomp=unconfined' avoids this error:
+        #  OpenBLAS blas_thread_init: pthread_create failed for thread 1 of 2: Operation not permitted
+        # TODO: allow users to specify extra docker run options
+        #  (like '--security-opt') in the config
+        cmd = "docker run --security-opt seccomp=unconfined --name {name} -d --rm -v {host_data_dir}:/data/bluesky/".format(
             name=self._request_id, host_data_dir=self._host_data_dir)
 
 
