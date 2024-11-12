@@ -116,7 +116,7 @@ class Ec2InstancesManager(object):
                 'security_groups': self._config("aws", "ec2", "security_groups"),
                 'ebs_volume_size': self._config("aws", "ec2", "ebs", "volume_size"),
                 'ebs_device_name': self._config("aws", "ec2", "ebs", "device_name"),
-                'instance_initiated_shutdown_behavior': 'terminate'
+                'instance_initiated_shutdown_behavior': self._config("aws", "ec2", "instance_initiated_shutdown_behavior"),
             }
             launcher = Ec2Launcher(
                 self._config("aws", "ec2", "image_id"),
