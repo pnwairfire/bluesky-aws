@@ -204,7 +204,9 @@ CONFIG_SETTINGS = OrderedDict({
             },
             "minutes_until_auto_shutdown": ConfigSetting(None,
                 help_string="Number of minutes to wait before instances shut themselves down; default: null (no auto-termination)",
-                validator=lambda v: isinstance(v, int), example=120)
+                validator=lambda v: isinstance(v, int), example=120),
+            "instance_initiated_shutdown_behavior": ConfigSetting("terminate",
+                help_string="'terminate' or 'stop'; default 'terminate'")
         },
         "s3": {
             "bucket_name": ConfigSetting(None,
