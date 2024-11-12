@@ -102,7 +102,9 @@ class Ec2InstancesManager(object):
             logging.info("Terminating new instance %s",
                 instance.classic_address.public_ip)
             shutdowner = Ec2Shutdown()
-            await shutdowner.shutdown([instance], terminate=True)
+            terminate = 'stop' != self._config("aws", "ec2",
+                "instance_initiated_shutdown_behavior")
+            await shutdowner.shutdown([instance], terminate=terminate)
 
     ## Helpers
 
@@ -200,6 +202,8 @@ class Ec2InstancesManager(object):
                 # TODO: only include instances that haven't already been shut down
                 logging.info("Terminating %s new instances",
                     len(running_instances))
-                await Ec2Shutdown().shutdown(running_instances, terminate=True)
+                terminate = 'stop' != self._config("aws", "ec2",
+                    "instance_initiated_shutdown_behavior")
+                await Ec2Shutdown().shutdown(running_instances, terminate=terminate)
             else:
                 logging.info("None of the new instances are still running")
