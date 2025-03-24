@@ -26,11 +26,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_orphaned_instances(hours, name_pattern=None):
+def get_orphaned_instances(args):
     filters = [{"Name": "instance-state-name", "Values": ["running"]}]
 
-    if name_pattern:
-        filters.append({"Name": "tag:Name", "Values": [f"*{name_pattern}*"]})  # Wildcard search
+    if args.name_pattern:
+        filters.append({"Name": "tag:Name", "Values": [f"*{args.name_pattern}*"]})  # Wildcard search
 
     response = ec2.describe_instances(Filters=filters)
 
@@ -43,7 +43,7 @@ def get_orphaned_instances(hours, name_pattern=None):
             launch_time = instance["LaunchTime"]
             runtime = now - launch_time
 
-            if runtime.total_seconds() > hours * 3600:
+            if runtime.total_seconds() > args.hours * 3600:
                 instance_id = instance["InstanceId"]
                 instance_name = next(
                     (tag["Value"] for tag in instance.get("Tags", [])
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=getattr(logging, args.log_level.upper(), logging.INFO),
         format='%(asctime)s - %(levelname)s - %(message)s')
 
-    instances = get_orphaned_instances(args.hours, args.name_pattern)
+    instances = get_orphaned_instances(args)
 
     if instances:
         stop_instances(args, instances)
