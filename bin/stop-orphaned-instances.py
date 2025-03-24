@@ -38,14 +38,14 @@ def get_orphaned_instances(args):
     instances_to_terminate = []
 
     try:
-        now = datetime.datetime.now(datetime.UTC)
+        now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
     except AttributeError as e:
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.utcnow().replace(tzinfo=None)
 
     for reservation in response["Reservations"]:
         for instance in reservation["Instances"]:
             launch_time = instance["LaunchTime"]
-            runtime = now - launch_time
+            runtime = now - launch_time.replace(tzinfo=None)
 
             if runtime.total_seconds() > args.hours * 3600:
                 instance_id = instance["InstanceId"]
