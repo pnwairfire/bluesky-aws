@@ -86,7 +86,4 @@ if __name__ == "__main__":
 
     instances = get_orphaned_instances(args)
 
-    if instances:
-        stop_instances(args, instances)
-    else:
-        logging.info("No matching instances found.")
+    stop_instances(args, instances)
