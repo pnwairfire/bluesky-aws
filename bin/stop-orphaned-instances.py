@@ -61,6 +61,7 @@ def get_orphaned_instances(args):
 
 def stop_instances(args, instances):
     """Terminate the specified EC2 instances."""
+    term_or_stop = 'terminated' if args.terminate else 'stopped'
     if instances:
         logging.info('Instances to terminate:')
         for i in instances:
@@ -68,16 +69,16 @@ def stop_instances(args, instances):
 
         instance_ids = [i['id'] for i in instances]
         if args.dry_run:
-            logging.info(f"[DRY RUN] Instances that would be {'terminated' if args.terminate else 'stopped'}: {instance_ids}")
+            logging.info(f"[DRY RUN] Instances that would be {term_or_stop}: {instance_ids}")
         else:
             if args.terminate:
-                logging.info(f"Terminating instance instances: {instance_ids}")
+                logging.info(f"Terminating instances: {instance_ids}")
                 ec2.terminate_instances(InstanceIds=instance_ids)
             else:
-                logging.info(f"Stoppinng instance instances: {instance_ids}")
+                logging.info(f"Stoppinng instances: {instance_ids}")
                 ec2.stop_instances(InstanceIds=instance_ids)
     else:
-        logging.info("No instances found that need to be terminated.")
+        logging.info(f"No instances to be {term_or_stop}.")
 
 if __name__ == "__main__":
     args = parse_args()
