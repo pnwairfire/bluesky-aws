@@ -37,7 +37,10 @@ def get_orphaned_instances(args):
 
     instances_to_terminate = []
 
-    now = datetime.datetime.now(datetime.UTC)
+    try:
+        now = datetime.datetime.now(datetime.UTC)
+    except AttributeError as e:
+        now = datetime.datetime.utcnow()
 
     for reservation in response["Reservations"]:
         for instance in reservation["Instances"]:
