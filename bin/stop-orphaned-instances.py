@@ -13,11 +13,12 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Terminate orphaned bluesky-aws AWS EC2 instances.")
     parser.add_argument("--hours", type=float, required=True,
-        help="Number of hours after which instances should be terminated")
+        help=("Minimum age, in hours, of instances to be stopped."
+            " Can be fractional - e.g. 0.25"))
     parser.add_argument("-n", "--name-pattern", type=str, required=True,
         help="Instance name pattern to filter (optional)")
     parser.add_argument("--terminate", action="store_true",
-        help="Dry run - don't terminate instances")
+        help="Terminate instances instead of just stopping")
     parser.add_argument("--log-level", type=str, default="INFO",
         help="Log level - DEBUG, INFO, etc.")
     parser.add_argument("-d", "--dry-run", action="store_true",
@@ -67,7 +68,7 @@ def stop_instances(args, instances):
 
         instance_ids = [i['id'] for i in instances]
         if args.dry_run:
-            logging.info(f"[DRY RUN] Instances that would be terminated: {instance_ids}")
+            logging.info(f"[DRY RUN] Instances that would be {'terminated' if args.terminate else 'stopped'}: {instance_ids}")
         else:
             if args.terminate:
                 logging.info(f"Terminating instance instances: {instance_ids}")
