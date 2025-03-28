@@ -6,7 +6,7 @@
   "dependencies": {
     "aws-sdk": "^2.604.0",
     "isomorphic-unfetch": "^3.0.0",
-    "next": "^9.2.1",
+    "next": "^9.5.5",
     "react": "^16.12.0",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-calendar": "^3.0.0",
