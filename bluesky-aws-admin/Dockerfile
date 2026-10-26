@@ -2,8 +2,12 @@ FROM node:13.7.0-alpine3.11
 
 RUN mkdir /bluesky-aws-admin/
 WORKDIR /bluesky-aws-admin/
-COPY package.json /bluesky-aws-admin/
-RUN npm install
+COPY package.json package-lock.json /bluesky-aws-admin/
+# Use `npm ci` so that the versions in package-lock.json are installed.
+# Otherwise newer releases of transitive dependencies (e.g.,
+# @restart/hooks, which adds an `exports` map that node 13.7 can't
+# resolve) get pulled in and break the app.
+RUN npm ci
 
 # We need to copy individual dirs and files, rather than copy entire dir,
 # because copying bluesky-aws-admin/ includes node_modules and other

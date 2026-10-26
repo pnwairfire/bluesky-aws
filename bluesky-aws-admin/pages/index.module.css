@@ -4,3 +4,11 @@
 .pagination-controls button {
     margin: 3px;
 }
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.controls-row > :only-child {
+    margin-left: auto;
+}

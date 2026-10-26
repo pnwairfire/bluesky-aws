@@ -4,7 +4,8 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb'
 import Button from 'react-bootstrap/Button'
 import strftime from 'strftime'
 import {
-    FaAngleRight, FaAngleLeft, FaSyncAlt
+    FaAngleRight, FaAngleLeft, FaAngleDoubleRight, FaAngleDoubleLeft,
+    FaSyncAlt
 } from "react-icons/fa";
 
 import Layout from '../components/Layout'
@@ -117,34 +118,141 @@ export default class Page extends Component {
         this.loadRequests(this.state.nextTokensIdx + 1);
     };
 
+    handleFirstClick = data => {
+        this.loadRequests(0);
+    };
+
+    handlePageClick = idx => {
+        this.loadRequests(idx);
+    };
+
+    // Pagination uses continuation tokens, so the last page can't be
+    // jumped to directly.  Starting from the furthest page whose token is
+    // known, follow the tokens until a page has no 'next'.
+    handleLastClick = async data => {
+        let nextTokens = this.state.nextTokens;
+        let idx = 0;
+        while (nextTokens[idx + 1]) {
+            idx++;
+        }
+
+        this.setState({loading: true});
+        try {
+            let resp;
+            while (true) {
+                let query = {datePrefix: strftime('%Y%m', this.state.month)};
+                if (idx && nextTokens[idx]) {
+                    query.next = nextTokens[idx];
+                }
+                resp = await ApiClient.getNoSwr('/api/requests/', query);
+                if (!resp || !resp.requests) {
+                    throw new Error("Failed to load requests");
+                }
+                nextTokens[idx + 1] = resp.next;
+                if (!resp.next) {
+                    break;
+                }
+                idx++;
+            }
+            this.setState({
+                requests: resp.requests,
+                nextTokens: nextTokens,
+                nextTokensIdx: idx,
+                next: resp.next,
+                error: resp.error,
+                loading: false
+            });
+        } catch (error) {
+            this.setState({
+                error: "Failed to load requests",
+                loading: false
+            });
+        }
+    };
+
     handleReloadClick = data => {
         this.loadRequests(this.state.nextTokensIdx);
     };
 
+    renderPagination() {
+        let idx = this.state.nextTokensIdx;
+        let prevDisabled = idx <= 0;
+        let nextDisabled = ! this.state.nextTokens[idx + 1];
+        let variant = disabled => (disabled ? 'light' : 'primary');
+
+        // numbered buttons for the current page and the ones before and
+        // after it (pages are displayed 1-based)
+        let pageIdxs = [idx - 1, idx, idx + 1].filter(i =>
+            i >= 0 && (i <= idx || this.state.nextTokens[i]));
+
+        return (
+            <div className={styles['pagination-controls']}>
+                <ButtonWithToolTip
+                    title="Load First"
+                    variant={variant(prevDisabled)}
+                    onClick={this.handleFirstClick}
+                    disabled={prevDisabled || this.state.loading}>
+                    <FaAngleDoubleLeft />
+                </ButtonWithToolTip>
+                <ButtonWithToolTip
+                    title="Load Previous"
+                    variant={variant(prevDisabled)}
+                    onClick={this.handlePreviousClick}
+                    disabled={prevDisabled || this.state.loading}>
+                    <FaAngleLeft />
+                </ButtonWithToolTip>
+                {pageIdxs.map(i => (
+                    <ButtonWithToolTip
+                        key={i}
+                        title={"Page " + (i + 1)}
+                        variant={(i === idx) ? 'primary' : 'outline-primary'}
+                        onClick={() => this.handlePageClick(i)}
+                        disabled={i === idx || this.state.loading}>
+                        {i + 1}
+                    </ButtonWithToolTip>
+                ))}
+                <ButtonWithToolTip
+                    title="Load Next"
+                    variant={variant(nextDisabled)}
+                    onClick={this.handleNextClick}
+                    disabled={nextDisabled || this.state.loading}>
+                    <FaAngleRight />
+                </ButtonWithToolTip>
+                <ButtonWithToolTip
+                    title="Load Last"
+                    variant={variant(nextDisabled)}
+                    onClick={this.handleLastClick}
+                    disabled={nextDisabled || this.state.loading}>
+                    <FaAngleDoubleRight />
+                </ButtonWithToolTip>
+            </div>
+        )
+    }
+
     render() {
         let prevDisabled = this.state.nextTokensIdx <= 0;
-        let prevVariant = (prevDisabled) ? ('light') : ('primary')
         let nextDisabled = ! this.state.nextTokens[this.state.nextTokensIdx + 1]
-        let nextVariant = (nextDisabled) ? ('light') : ('primary')
         let showPaginationButtons = !prevDisabled || !nextDisabled;
-        console.log(prevVariant + '/' + nextVariant);
         return (
             <Layout>
                 <Breadcrumb>
                     <Breadcrumb.Item active>Home</Breadcrumb.Item>
                 </Breadcrumb>
-                <div className={styles['pagination-controls']}>
-                    <CalendarModal
-                        variant="primary"
-                        month={this.state.month}
-                        handleMonthChange={this.handleMonthChange} />
-                    <ButtonWithToolTip
-                        title="Reload"
-                        variant="primary"
-                        onClick={this.handleReloadClick}
-                        disabled={this.state.loading}>
-                        <FaSyncAlt />
-                    </ButtonWithToolTip>
+                <div className={styles['controls-row']}>
+                    <div className={styles['pagination-controls']}>
+                        <CalendarModal
+                            variant="primary"
+                            month={this.state.month}
+                            handleMonthChange={this.handleMonthChange} />
+                        <ButtonWithToolTip
+                            title="Reload"
+                            variant="primary"
+                            onClick={this.handleReloadClick}
+                            disabled={this.state.loading}>
+                            <FaSyncAlt />
+                        </ButtonWithToolTip>
+                    </div>
+                    {showPaginationButtons && this.renderPagination()}
                 </div>
                 <RequestsTable
                     headerPrefix={strftime('%B %Y', this.state.month)}
@@ -152,21 +260,8 @@ export default class Page extends Component {
                     requests={this.state.requests}
                     error={this.state.error} />
                 {showPaginationButtons && (
-                    <div className={styles['pagination-controls']}>
-                        <ButtonWithToolTip
-                            title="Load Previous"
-                            variant={prevVariant}
-                            onClick={this.handlePreviousClick}
-                            disabled={prevDisabled}>
-                            <FaAngleLeft />
-                        </ButtonWithToolTip>
-                        <ButtonWithToolTip
-                            title="Load Next"
-                            variant={nextVariant}
-                            onClick={this.handleNextClick}
-                            disabled={nextDisabled}>
-                            <FaAngleRight />
-                        </ButtonWithToolTip>
+                    <div className={styles['controls-row']}>
+                        {this.renderPagination()}
                     </div>
                 )}
             </Layout>
