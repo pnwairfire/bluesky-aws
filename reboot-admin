@@ -43,23 +43,35 @@ if [ ! -e $yaml_file ]; then
     exit 1
 fi
 
+# Newer versions of docker compose are run as `docker compose`; older ones
+# as `docker-compose`.  Prefer the former if it's available.
+if docker compose version > /dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose > /dev/null 2>&1; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    echo "ERROR:  neither 'docker compose' nor 'docker-compose' is available"
+    exit 1
+fi
+
 echo "Options"
 echo "  Rebuild docker images: $rebuild"
+echo "  docker compose command: $DOCKER_COMPOSE"
 echo "  docker-compose YAML file: $yaml_file"
 
 if [ "$rebuild" = true ] ; then
-    docker-compose -p bluesky-aws-admin -f $yaml_file build
+    $DOCKER_COMPOSE -p bluesky-aws-admin -f $yaml_file build
 fi
 
 # call `down` on all known yaml files, in case previously used yaml file
 # is different than this one.
-docker-compose -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-dev.yml down --remove-orphans
-docker-compose -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-prod.yml down --remove-orphans
-docker-compose -p bluesky-aws-admin -f $yaml_file down --remove-orphans
+$DOCKER_COMPOSE -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-dev.yml down --remove-orphans
+$DOCKER_COMPOSE -p bluesky-aws-admin -f bluesky-aws-admin/docker-compose-prod.yml down --remove-orphans
+$DOCKER_COMPOSE -p bluesky-aws-admin -f $yaml_file down --remove-orphans
 if [ "$shut_down" = false ] ; then
     if [ "$background" = false ] ; then
-        docker-compose -p bluesky-aws-admin -f $yaml_file up
+        $DOCKER_COMPOSE -p bluesky-aws-admin -f $yaml_file up
     else
-        docker-compose -p bluesky-aws-admin -f $yaml_file up -d
+        $DOCKER_COMPOSE -p bluesky-aws-admin -f $yaml_file up -d
     fi
 fi
